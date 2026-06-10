@@ -1,253 +1,264 @@
 #!/usr/bin/env python3
-"""Reformats and proofreads the Czech DOCX document, then saves as new DOCX."""
+"""Reformatuje a opravuje český DOCX dokument včetně obrázků."""
 
-import re
+import re, zipfile, os
+from io import BytesIO
 from docx import Document
-from docx.shared import Pt, Inches, Cm, RGBColor
+from docx.shared import Pt, Cm, RGBColor, Inches
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.oxml.ns import qn
 from docx.oxml import OxmlElement
 
-# ── Typo corrections ──────────────────────────────────────────────────────────
+DOCX_PATH = '/root/.claude/uploads/b6ddfa66-7ca7-5cf7-a068-28b452764c46/bedb246b-Dve_e_ve_zdi.docx'
+
+# ── Opravy překlepů ───────────────────────────────────────────────────────────
 CORRECTIONS = [
-    # Missing diacritics / misspellings
-    ("demogafických",    "demografických"),
-    ("mebyl",            "nebyl"),
-    ("výjímkou",         "výjimkou"),
-    ("francouzkého",     "francouzského"),
-    ("Marcus Harvey",    "Marcus Garvey"),
-    # \xa0 (non-breaking space) → regular space inside sentences
-    # handled separately below
-    # Capitalization: 'Únoru' mid-sentence
-    # handled in per-paragraph logic below
+    ("demogafických",  "demografických"),
+    ("mebyl",          "nebyl"),
+    ("výjímkou",       "výjimkou"),
+    ("francouzkého",   "francouzského"),
+    ("Marcus Harvey",  "Marcus Garvey"),
 ]
 
 def fix_text(text: str) -> str:
-    """Apply all corrections to a paragraph text."""
-    # Replace non-breaking spaces with regular spaces
     text = text.replace("\xa0", " ")
-    # Apply corrections
     for wrong, right in CORRECTIONS:
         text = text.replace(wrong, right)
-    # Fix 'v Únoru letošního roku' → 'v únoru letošního roku'
     text = re.sub(r'\bv Únoru\b', 'v únoru', text)
-    # Collapse multiple spaces
     text = re.sub(r'  +', ' ', text)
     return text.strip()
 
 def normalize_chapter_title(text: str) -> str:
-    """Normalise chapter heading to 'Dveře ve zdi – N [subtitle]'."""
     text = text.replace("\xa0", " ").strip()
-    # Match patterns like "Dveře ve zdi 25", "Dveře ve zdi – 25", "Dveře ve zdi –6"
-    m = re.match(
-        r'Dveře ve zdi\s*[-–—]?\s*(\d+)(.*)',
-        text, re.IGNORECASE
-    )
+    m = re.match(r'Dve[rř]e ve zdi\s*[-–—]?\s*(\d+)(.*)', text, re.IGNORECASE)
     if m:
-        num = m.group(1)
+        num  = m.group(1)
         rest = m.group(2).strip()
-        # rest may start with ", neboli …" or be empty
-        if rest and not rest.startswith(',') and not rest.startswith('–') and not rest.startswith('-'):
+        if rest and not rest.startswith(',') and not rest.startswith('–'):
             rest = ', ' + rest
-        return f"Dveře ve zdi – {num}{rest}"
-    # Fallback: just clean non-breaking spaces
+        return f"Dveře ve zdi – {num}{rest}"
     return text
-
-def set_paragraph_format(para, first_line_indent=False, space_before=0, space_after=6):
-    """Apply paragraph formatting."""
-    pf = para.paragraph_format
-    pf.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
-    pf.space_before = Pt(space_before)
-    pf.space_after = Pt(space_after)
-    if first_line_indent:
-        pf.first_line_indent = Cm(1.25)
-    else:
-        pf.first_line_indent = Pt(0)
 
 def add_page_break(doc):
     para = doc.add_paragraph()
-    run = para.add_run()
-    br = OxmlElement('w:br')
+    run  = para.add_run()
+    br   = OxmlElement('w:br')
     br.set(qn('w:type'), 'page')
     run._r.append(br)
     para.paragraph_format.space_before = Pt(0)
-    para.paragraph_format.space_after = Pt(0)
+    para.paragraph_format.space_after  = Pt(0)
 
+# ── Mapování obrázků: index odstavce → (jméno souboru, binární data) ─────────
+def get_image_map(docx_path):
+    orig = Document(docx_path)
 
-# ── Build new document ────────────────────────────────────────────────────────
-orig = Document('/root/.claude/uploads/b6ddfa66-7ca7-5cf7-a068-28b452764c46/bedb246b-Dve_e_ve_zdi.docx')
-doc  = Document()
+    # rId → binární data obrázku
+    rid_to_data = {}
+    with zipfile.ZipFile(docx_path) as z:
+        for rid, rel in orig.part.rels.items():
+            if 'image' in rel.reltype:
+                fname = 'word/' + rel.target_ref.lstrip('/')
+                try:
+                    rid_to_data[rid] = (os.path.basename(fname), z.read(fname))
+                except Exception:
+                    pass
 
-# ── Page margins ──────────────────────────────────────────────────────────────
+    # index odstavce → (fname, data)
+    para_to_img = {}
+    for i, para in enumerate(orig.paragraphs):
+        blips = para._element.findall(
+            './/{http://schemas.openxmlformats.org/drawingml/2006/main}blip'
+        )
+        for blip in blips:
+            rid = blip.get(
+                '{http://schemas.openxmlformats.org/officeDocument/2006/relationships}embed'
+            )
+            if rid and rid in rid_to_data:
+                para_to_img[i] = rid_to_data[rid]
+                break
+    return para_to_img, orig
+
+def add_image_paragraph(doc, img_data, fname):
+    """Vloží obrázek do dokumentu na střed, max šířka = 14 cm."""
+    try:
+        # GIF → PNG přes Pillow
+        if fname.lower().endswith('.gif'):
+            from PIL import Image as PILImage
+            buf_in  = BytesIO(img_data)
+            buf_out = BytesIO()
+            PILImage.open(buf_in).convert('RGB').save(buf_out, 'PNG')
+            buf_out.seek(0)
+            stream = buf_out
+        else:
+            stream = BytesIO(img_data)
+
+        p   = doc.add_paragraph()
+        p.paragraph_format.alignment    = WD_ALIGN_PARAGRAPH.CENTER
+        p.paragraph_format.space_before = Pt(8)
+        p.paragraph_format.space_after  = Pt(8)
+        run = p.add_run()
+        run.add_picture(stream, width=Cm(14))
+    except Exception as e:
+        print(f'  Varování: nelze vložit obrázek {fname}: {e}')
+
+# ── Sestavení nového dokumentu ────────────────────────────────────────────────
+para_to_img, orig = get_image_map(DOCX_PATH)
+doc = Document()
+
+# Okraje
 section = doc.sections[0]
 section.top_margin    = Cm(2.5)
 section.bottom_margin = Cm(2.5)
 section.left_margin   = Cm(3.0)
 section.right_margin  = Cm(2.5)
 
-# ── Style defaults ────────────────────────────────────────────────────────────
+# Výchozí styly
 normal_style = doc.styles['Normal']
 normal_style.font.name = 'Times New Roman'
 normal_style.font.size = Pt(12)
 
 h1_style = doc.styles['Heading 1']
-h1_style.font.name = 'Times New Roman'
-h1_style.font.size = Pt(16)
-h1_style.font.bold = True
+h1_style.font.name  = 'Times New Roman'
+h1_style.font.size  = Pt(16)
+h1_style.font.bold  = True
 h1_style.font.color.rgb = RGBColor(0x1A, 0x1A, 0x5C)
 h1_style.paragraph_format.space_before = Pt(18)
 h1_style.paragraph_format.space_after  = Pt(10)
 h1_style.paragraph_format.alignment    = WD_ALIGN_PARAGRAPH.LEFT
 
-# ── Title page ────────────────────────────────────────────────────────────────
+# Titulní strana
 tp = doc.add_paragraph()
 tp.alignment = WD_ALIGN_PARAGRAPH.CENTER
 tp.paragraph_format.space_before = Pt(120)
 tp.paragraph_format.space_after  = Pt(20)
-run = tp.add_run("Dveře ve zdi")
-run.font.name = 'Times New Roman'
-run.font.size = Pt(32)
-run.font.bold = True
-run.font.color.rgb = RGBColor(0x1A, 0x1A, 0x5C)
+r = tp.add_run("Dveře ve zdi")
+r.font.name = 'Times New Roman'; r.font.size = Pt(32)
+r.font.bold = True; r.font.color.rgb = RGBColor(0x1A, 0x1A, 0x5C)
 
 sub = doc.add_paragraph()
 sub.alignment = WD_ALIGN_PARAGRAPH.CENTER
 sub.paragraph_format.space_before = Pt(0)
 sub.paragraph_format.space_after  = Pt(0)
-run2 = sub.add_run("Překlad a komentáře: Hamilbar")
-run2.font.name = 'Times New Roman'
-run2.font.size = Pt(13)
-run2.font.italic = True
-run2.font.color.rgb = RGBColor(0x44, 0x44, 0x44)
+r2 = sub.add_run("Překlad a komentáře: Hamilbar")
+r2.font.name = 'Times New Roman'; r2.font.size = Pt(13)
+r2.font.italic = True; r2.font.color.rgb = RGBColor(0x44, 0x44, 0x44)
 
 add_page_break(doc)
 
-# ── Process original paragraphs ───────────────────────────────────────────────
-paras = list(orig.paragraphs)
-# Skip paragraph 0 (plain title "Dveře ve zdi") – already on title page
-start = 1
-
-# Track whether current para is first in chapter (no first-line indent)
+# ── Průchod odstavci ──────────────────────────────────────────────────────────
+SEPARATOR_RE   = re.compile(r'^[-—*\s]+$')
 is_first_in_chapter = True
-# For separator lines (—— or ***) use centered style
-SEPARATOR_RE = re.compile(r'^[-—*\s]+$')
+chapter_count  = 0
+paras = list(orig.paragraphs)
 
-chapter_count = 0
+for i, para in enumerate(paras[1:], start=1):
+    sname      = para.style.name
+    text       = fix_text(para.text)
+    has_image  = i in para_to_img
 
-for para in paras[start:]:
-    style_name = para.style.name
-    text = fix_text(para.text)
+    # ── Prázdný odstavec s obrázkem ──────────────────────────────────────────
+    if has_image and not text:
+        fname, data = para_to_img[i]
+        add_image_paragraph(doc, data, fname)
+        is_first_in_chapter = False
+        continue
 
-    # Skip blank paragraphs (keep only one blank between sections)
+    # ── Prázdný odstavec bez obrázku ─────────────────────────────────────────
     if not text:
         continue
 
-    # ── Heading 1 → chapter heading ──────────────────────────────────────────
-    if style_name == 'Heading 1':
+    # ── Nadpis kapitoly ───────────────────────────────────────────────────────
+    if sname == 'Heading 1':
         if chapter_count > 0:
             add_page_break(doc)
         chapter_count += 1
-        heading_text = normalize_chapter_title(text)
         h = doc.add_paragraph(style='Heading 1')
         h.clear()
-        run = h.add_run(heading_text)
-        run.font.name = 'Times New Roman'
-        run.font.size = Pt(16)
-        run.font.bold = True
+        r = h.add_run(normalize_chapter_title(text))
+        r.font.name = 'Times New Roman'; r.font.size = Pt(16); r.font.bold = True
+        is_first_in_chapter = True
+        # obrázek těsně za nadpisem (vzácné)
+        if has_image:
+            fname, data = para_to_img[i]
+            add_image_paragraph(doc, data, fname)
+            is_first_in_chapter = False
+        continue
+
+    # ── Poznámka překladatele ─────────────────────────────────────────────────
+    if (text.startswith('Přeložil Hamilbar') or
+            text in ('Vzato odtud.', 'Vzato odtud', 'Převzato odtud', 'Převzato odtud.') or
+            re.match(r'^Přeložil Hamilbar[,.]', text)):
+        text = re.sub(r'https?://\S+', '', text).strip().rstrip(',').strip()
+        if text:
+            note = doc.add_paragraph()
+            note.paragraph_format.space_before = Pt(0)
+            note.paragraph_format.space_after  = Pt(10)
+            note.paragraph_format.alignment    = WD_ALIGN_PARAGRAPH.LEFT
+            r = note.add_run(text)
+            r.font.name = 'Times New Roman'; r.font.size = Pt(10)
+            r.font.italic = True; r.font.color.rgb = RGBColor(0x55, 0x55, 0x55)
         is_first_in_chapter = True
         continue
 
-    # ── Translator note (first "Přeložil…" in each chapter) ──────────────────
-    if text.startswith('Přeložil Hamilbar') or text.startswith('Vzato odtud') or \
-       text.startswith('Převzato odtud') or text == 'Vzato odtud.' or \
-       text.startswith('Přeložil Hamilbar, vzato') or text.startswith('Přeložil Hamilbar, převzato'):
-        # Render as small italic note
-        note = doc.add_paragraph()
-        note.paragraph_format.space_before = Pt(0)
-        note.paragraph_format.space_after  = Pt(10)
-        note.paragraph_format.alignment    = WD_ALIGN_PARAGRAPH.LEFT
-        r = note.add_run(text)
-        r.font.name   = 'Times New Roman'
-        r.font.size   = Pt(10)
-        r.font.italic = True
-        r.font.color.rgb = RGBColor(0x55, 0x55, 0x55)
-        is_first_in_chapter = True
-        continue
-
-    # ── HTTP links – skip ─────────────────────────────────────────────────────
+    # ── HTTP odkaz – přeskočit ────────────────────────────────────────────────
     if text.startswith('http://') or text.startswith('https://'):
         continue
 
-    # ── Separator lines (—————, ***) ─────────────────────────────────────────
+    # ── Oddělovač ─────────────────────────────────────────────────────────────
     if SEPARATOR_RE.match(text) and len(text) >= 3:
         sep = doc.add_paragraph()
         sep.alignment = WD_ALIGN_PARAGRAPH.CENTER
         sep.paragraph_format.space_before = Pt(6)
         sep.paragraph_format.space_after  = Pt(6)
         r = sep.add_run('* * *')
-        r.font.size = Pt(11)
-        r.font.name = 'Times New Roman'
+        r.font.name = 'Times New Roman'; r.font.size = Pt(11)
         is_first_in_chapter = False
         continue
 
-    # ── Inline headings / subchapter titles (short lines in "Normal (Web)" that ──
-    # look like titles – e.g. "Archa, Noe a žirafa.", "Cui prodest?" etc.) ────
-    # Heuristic: text shorter than 80 chars, ends with '.', '?' or '!'  and
-    # the previous paragraph was also short (chapter-opening style)
-    # We treat them as bold sub-headings only if <= 60 chars and no comma-heavy text
+    # ── Podnadpis kapitoly ────────────────────────────────────────────────────
     is_subheading = (
-        len(text) <= 80 and
-        not text[0].islower() and
-        (text.endswith('.') or text.endswith('?') or text.endswith('!') or
-         text.endswith('"') or text.endswith('"')) and
-        ',' not in text[:40] and
-        not text.startswith('(') and
-        # some known sub-headings
-        any(kw in text for kw in ['Archa', 'Cui prodest', 'Bolševici', 'Dohoda',
-                                   '"Čestný', 'Virtuózní', 'Poprava', 'Náčelník',
-                                   'Angličané', 'Je možné'])
+        len(text) <= 90 and not text[0].islower() and
+        any(kw in text for kw in [
+            '"Čestný politik"', 'Virtuózní finta', 'Poprava carské', 'Náčelník Mkwawa',
+        ]) and is_first_in_chapter
     )
     if is_subheading:
         sh = doc.add_paragraph()
-        sh.paragraph_format.space_before = Pt(10)
-        sh.paragraph_format.space_after  = Pt(4)
+        sh.paragraph_format.space_before = Pt(0)
+        sh.paragraph_format.space_after  = Pt(8)
         sh.paragraph_format.alignment    = WD_ALIGN_PARAGRAPH.LEFT
         r = sh.add_run(text)
-        r.font.name = 'Times New Roman'
-        r.font.size = Pt(12)
-        r.font.bold = True
-        is_first_in_chapter = False
+        r.font.name = 'Times New Roman'; r.font.size = Pt(12)
+        r.font.bold = True; r.font.italic = True
+        r.font.color.rgb = RGBColor(0x44, 0x44, 0x44)
         continue
 
-    # ── Footnote / endnote marker paragraphs (start with '(*)') ──────────────
+    # ── Poznámka pod čarou ────────────────────────────────────────────────────
     if text.startswith('(*)'):
         fn = doc.add_paragraph()
         fn.paragraph_format.space_before = Pt(6)
         fn.paragraph_format.space_after  = Pt(6)
         fn.paragraph_format.alignment    = WD_ALIGN_PARAGRAPH.JUSTIFY
         r = fn.add_run(text)
-        r.font.name   = 'Times New Roman'
-        r.font.size   = Pt(10)
-        r.font.italic = True
+        r.font.name = 'Times New Roman'; r.font.size = Pt(10); r.font.italic = True
         is_first_in_chapter = False
         continue
 
-    # ── Regular body paragraph ────────────────────────────────────────────────
+    # ── Běžný odstavec (+ případný obrázek za textem) ────────────────────────
     p = doc.add_paragraph()
     p.paragraph_format.alignment    = WD_ALIGN_PARAGRAPH.JUSTIFY
     p.paragraph_format.space_before = Pt(0)
     p.paragraph_format.space_after  = Pt(6)
-    if is_first_in_chapter:
-        p.paragraph_format.first_line_indent = Pt(0)
-    else:
-        p.paragraph_format.first_line_indent = Cm(1.25)
-
+    p.paragraph_format.first_line_indent = Pt(0) if is_first_in_chapter else Cm(1.25)
     r = p.add_run(text)
-    r.font.name = 'Times New Roman'
-    r.font.size = Pt(12)
+    r.font.name = 'Times New Roman'; r.font.size = Pt(12)
     is_first_in_chapter = False
 
-# ── Save ──────────────────────────────────────────────────────────────────────
+    if has_image:
+        fname, data = para_to_img[i]
+        add_image_paragraph(doc, data, fname)
+
+# ── Uložit ────────────────────────────────────────────────────────────────────
 out_docx = '/home/user/SoulBrowser/Dvere_ve_zdi_reformatovano.docx'
 doc.save(out_docx)
-print(f"Saved: {out_docx}")
+print(f'DOCX uložen: {out_docx}')
