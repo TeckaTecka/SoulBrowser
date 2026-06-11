@@ -1,387 +1,309 @@
-# Síťová segmentace ISP — Ostravia 40
-## Návrh implementace: Fáze 1 + Fáze 2
+# Návrh síťové segmentace — Ostravia Trade ISP
 
-**Verze:** 1.0  
-**Datum:** 2026-06-11  
-**Síť:** Budova Ostravia 40 — cca 32 nájemců, CCR2116 + 2× CSS326  
+## Autor: Rubicon s.r.o. | Datum: Červen 2026 | RouterOS 7.23.1
 
 ---
 
-## 1. Aktuální stav sítě
+## 1. Stávající stav — analýza problémů
 
 ### 1.1 Topologie
 
 ```
-Internet (GTS/Lumen)  194.108.250.73/30
+Internet (GTS)
+      │  194.108.250.73/30
+      │
+ CCR2116-12G-4S+ (RouterOS 7.23.1)
+ "Ostravia Trade ISP"
+      │  ether2 (10.131.161.x/24 — všechny podsítě)
+      │
+ Eagle switch (.254, RouterOS, Winbox:8292)
+      │
+ MASTER CSS326-24G-2S+ (.251, SwOS, web:8081) "Ostravia 40-1"
+ ├── P1–P23: místnosti 10,42,43,45,49,51,52,89,91,93,94,97,
+ │           130,131,132,133/1,133/2,201,Bistro,Výměník,
+ │           Malá zasedačka,Velký sál, LinkSwitch2
+ └── P24: UPLINK → Eagle
+      │
+      └── P23 (LinkSwitch2) ↔ P24 (LinkSwitch1)
            │
-       ether1 (WAN)
-           │
-   CCR2116-12G-4S+    RouterOS 7.23.1
-       10.131.161.0/24 gateway
-           │
-       ether2 ──────────────────────────────── (jeden velký L2 segment)
-           │
-   Eagle switch (.254, RouterOS)
-           │
-   CSS326 MASTER "Ostravia 40-1"   10.131.161.251
-   │  P1:  místnost 10         │  P13: místnost 130
-   │  P2:  místnost 42         │  P14: místnost 131
-   │  P3:  místnost 43         │  P15: místnost 132
-   │  P4:  místnost 45         │  P16: místnost 133/1
-   │  P5:  místnost 49         │  P17: místnost 133/2
-   │  P6:  místnost 51         │  P18: místnost 201
-   │  P7:  místnost 52         │  P19: Bistro
-   │  P8:  místnost 89         │  P20: Výměník
-   │  P9:  místnost 91         │  P21: Malá zasedačka
-   │  P10: místnost 93         │  P22: Velký sál
-   │  P11: místnost 94         │  P23: LinkSwitch2 (→ SLAVE)
-   │  P12: místnost 97         │  P24: UPLINK Eagle
-           │
-           P23 → P24
-           │
-   CSS326 SLAVE  "Ostravia 40-2"   10.131.161.250
-   │  P1:  místnost 229        │  P10: místnost 430/1
-   │  P2:  místnost 233        │  P11: místnost 430/1
-   │  P3:  místnost 235        │  P12: místnost 504
-   │  P4:  místnost 301        │  P13–P23: nepojmenované
-   │  P5:  místnost 373        │  P24: LinkSwitch1 (→ MASTER)
-   │  P6:  místnost 402
-   │  P7:  místnost 403
-   │  P8:  místnost 404
-   │  P9:  místnost 416
+      SLAVE CSS326-24G-2S+ (.250, SwOS, web:8082) "Ostravia 40-2"
+      ├── P1–P23: místnosti 229,233,235,301,373,402,403,404,
+      │           416,430/1,430/2,504, Port13–Port23
+      └── P24: LinkSwitch1 → MASTER
 
-   Speciální klienti (VIP — NEDOTÝKAT SE):
-   ether10, ether11, ether12 na CCR2116 → vlastní /29 podsítě
+VIP klienti (samostatné fyzické porty, beze změn):
+  ether10 → Llentab (194.108.11.48/29)
+  ether11 → Ostravia (194.108.11.32/30)
+  ether12 → Siemens (disabled)
 ```
 
-### 1.2 Stávající izolační mechanismus
+### 1.2 Identifikované problémy
 
-- **DHCP MAC-lock:** Router přiděluje IP z konkrétní /29 podsítě podle MAC adresy
-- **Blackhole pool:** Neznámá MAC → IP z 10.131.190.x bez gateway (nemůže surfovat)
-- **Dalkia:** Vlastní /29 na 10.131.162.x
+| # | Problém | Závažnost | Dopad |
+|---|---------|-----------|-------|
+| P1 | **Port isolation na CSS326 NENÍ zapnutá** | KRITICKÁ | Každý tenant vidí L2 broadcast všech ostatních, může ARP-sniffovat, ARP-spoofovat |
+| P2 | **VLANy na CSS326 NEJSOU nakonfigurovány** | KRITICKÁ | Jeden flat L2 segment pro ~32 firem |
+| P3 | **CCR2116 forward chain acceptuje veškerý cross-tenant provoz** | KRITICKÁ | Tenant A může routovat provoz do sítě tenanta B přes gateway CCR2116 |
+| P4 | **DHCP Snooping — všechny porty trusted** | VYSOKÁ | Jakýkoli tenant může spustit rogue DHCP server a přidělovat IP adresy ostatním |
+| P5 | **SNMP community = "public"** | STŘEDNÍ | Kdokoli na LAN čte statistiky a konfiguraci switchů |
+| P6 | **IPSec enc-algorithm = 3DES** | STŘEDNÍ | Zastaralý algoritmus (RFC 8996, Sweet32 attack) |
+| P7 | **PPTP VPN zapnutý** | STŘEDNÍ | Prolomitelné šifrování, Microsoft nedoporučuje od 2012 |
+| P8 | **SSH forwarding-enabled=remote** | STŘEDNÍ | Umožňuje tunelování libovolného provozu mimo firewall |
+| P9 | **Credentials v backup scriptu plaintext** | STŘEDNÍ | FTP heslo viditelné v .rsc exportu |
+| P10 | **DNS open resolver na LAN** | NÍZKÁ | DNS zneužitelný z tenant sítí |
+| P11 | **Blackhole pool bez explicitního drop** | NÍZKÁ | Neznámá zařízení nemají gateway, ale drop není vynucen FW |
 
-### 1.3 Kritické problémy (potvrzeno analýzou zálohy)
+### 1.3 Proč stávající DHCP-based izolace nestačí
 
-| # | Problém | Závažnost | Kde |
-|---|---------|-----------|-----|
-| 1 | **Port isolation NENÍ zapnuta** na CSS326 MASTER ani SLAVE — všechny porty se navzájem vidí na L2 | KRITICKÁ | CSS326 |
-| 2 | **Žádné VLANy** — `vlan.b:[]` prázdné na obou CSS326 | KRITICKÁ | CSS326 |
-| 3 | **Chybí forward DROP** pravidla na CCR2116 — cross-tenant provoz explicitně ACCEPT | KRITICKÁ | CCR2116 |
-| 4 | **L2 bypass routeru** — tenant A může ARP-ovat na IP tenanta B a komunikovat bez průchodu firewallem | KRITICKÁ | L2 |
-| 5 | DHCP Snooping — všechny porty trusted → rogue DHCP server možný | VYSOKÁ | CSS326 |
-| 6 | SNMP community `public` na obou CSS326 | STŘEDNÍ | CSS326 |
-| 7 | IPSec šifrování `3DES` (Sweet32, RFC 8996) | STŘEDNÍ | CCR2116 |
-| 8 | PPTP VPN aktivní (prolomitelné šifrování) | STŘEDNÍ | CCR2116 |
-| 9 | SSH `forwarding-enabled=remote` — tunelování mimo firewall | STŘEDNÍ | CCR2116 |
-| 10 | DNS open resolver pro nájemníky | NÍZKÁ | CCR2116 |
+Přidělení IP dle MAC adresy v DHCP:
+- **Chrání pouze před náhodným přiřazením** — tenant, který nastaví IP staticky, dostane přístup do libovolné /29 podsítě
+- **Neřeší L2 komunikaci** — tenant s IP 10.131.161.4 může přímo ARP-ovat na 10.131.161.66 (jiný tenant) a komunikovat bez průchodu routerem
+- **Neřeší multicast/broadcast** — broadcast od jednoho tenanta vidí všichni ostatní
 
 ---
 
-## 2. Cílová architektura
+## 2. Navrhovaná architektura
+
+### 2.1 Cíle
+
+- **L2 izolace**: Tenanti nesmí vidět vzájemné L2 broadcast, ARP, ani přímo komunikovat
+- **L3 izolace**: Provoz mezi tenant subnety musí být blokován na CCR2116
+- **Nulový dopad na klienty**: Žádná rekonfigurace na straně tenanta, žádný výpadek přístupu k internetu
+- **Zachování VIP klientů**: ether10 (Llentab), ether11 (Ostravia), ether12 (Siemens) beze změny
+- **Jedna firma = více místností**: Lze přiřadit stejný VLAN ID více portům
+
+### 2.2 Nová topologie (po implementaci)
 
 ```
-Internet
-    │
-CCR2116  ether1 (WAN)
-    │
-    bridge-isp (VLAN filtering=yes)
-    │   ├── vlan101 10.131.161.1/29    ← Tenant místnost 10
-    │   ├── vlan102 10.131.161.9/29    ← Tenant místnost 42
-    │   ├── vlan103 10.131.161.17/29   ← Tenant místnost 43
-    │   │   ... (vlan101–vlan132)
-    │   └── vlan199 10.131.162.1/29   ← Dalkia
-    │
-    ether2 (tagged trunk — všechny VLANy)
-    │
-Eagle switch (VLAN trunk)
-    │
-CSS326 MASTER (trunk P24; access porty P1–P22 s PVID)
-    ├── P1  PVID=101  → místnost 10
-    ├── P2  PVID=102  → místnost 42
-    ...
-    ├── P23 trunk → CSS326 SLAVE
-    └── P24 trunk → Eagle / CCR2116
-
-CSS326 SLAVE (trunk P24; access porty P1–P23 s PVID)
-    ├── P1  PVID=123  → místnost 229
-    ...
-    └── P24 trunk → MASTER CSS326
+Internet (GTS)
+      │  194.108.250.73/30
+      │
+ CCR2116-12G-4S+
+ ether1 = WAN
+ ether2 = VLAN trunk (tagged)
+ bridge-isp (vlan-filtering=yes)
+   ├── vlan101 → 10.131.161.1/29 (#01, DHCP server)
+   ├── vlan102 → 10.131.161.9/29 (#02, DHCP server)
+   │   ...
+   ├── vlan132 → 10.131.161.249/29 (#32, DHCP server)
+   └── vlan199 → 10.131.162.1/29 (Dalkia, DHCP server)
+      │  tagged trunk
+      │
+ Eagle switch (RouterOS)
+ — trunk, přenáší všechny VLANy tagged
+      │  tagged trunk
+      │
+ MASTER CSS326 (SwOS)
+ ├── P1 (PVID=101, access) → místnost 10 → tenant #01
+ ├── P2 (PVID=102, access) → místnost 42 → tenant #02
+ │   ...
+ ├── P23 (trunk, tagged) → SLAVE CSS326
+ └── P24 (trunk, tagged) → Eagle
+      │
+ SLAVE CSS326 (SwOS)
+ ├── P1 (PVID=xxx, access) → místnost 229 → tenant #xx
+ │   ...
+ └── P24 (trunk, tagged) → MASTER
 ```
 
-**Výsledek:** Každý nájemce je v samostatné broadcast doméně (VLAN).
-Klient nevidí žádný VLAN tag — CSS326 přidá/odstraní tag transparentně.
-Žádná rekonfigurace na straně nájemce není nutná.
+### 2.3 Princip VLAN transparentnosti pro klienta
+
+```
+Klientovo zařízení:
+  posílá: [untagged frame | src: MAC-klienta | dst: gateway]
+                 ↓
+CSS326 access port (PVID=101):
+  přidá tag: [VLAN101 tag | src: MAC-klienta | dst: gateway]
+                 ↓
+Eagle → CCR2116 bridge-isp → interface vlan101
+                 ↓
+CCR2116 zpracuje, src-NAT → internet
+                 ↓
+odpověď přijde na vlan101 → Eagle → CSS326
+CSS326 odstraní VLAN101 tag → klient dostane [untagged frame]
+```
+**Klient nevidí žádné VLAN tagy, konfigurace se ho netýká.**
 
 ---
 
-## 3. Fáze 1 — Okamžité opravy (bez výpadku, ~15 min)
+## 3. Fáze 1 — Okamžité opravy (bez výpadku, ~20 min)
 
-### 3.1 CSS326 MASTER a SLAVE — Port Isolation
+### 3.1 CSS326 MASTER (SwOS, IP: 10.131.161.251, přístup: :8081)
 
-**Co:** V záložce **Ports** → sloupec **Isolation** zaškrtnout porty P1–P23.
-Port P24 (UPLINK/LinkSwitch) nechat **nezaškrtnutý**.
+#### A) Port Isolation zapnout
+- Záložka **Ports** → sloupec **Isolation**
+- Zaškrtnout: **P1 – P23**
+- Nezaškrtnout: **P24** (uplink — musí být průchozí pro veškerý provoz)
+- Kliknout **Apply**
 
-**Proč:** Po zapnutí port isolation smí každý port komunikovat **výhradně přes P24** (uplink).
-Tenant A (P1) nemůže posílat L2 rámce přímo na port tenanta B (P2).
-Veškerý provoz jde přes Eagle → CCR2116, kde ho firewall může zachytit.
+**Proč:** Port isolation zajistí, že každý přístupový port komunikuje výhradně přes
+uplink (P24). Dva tenanti na P1 a P2 si nemohou posílat pakety přímo na L2 —
+veškerý jejich provoz jde přes Eagle → CCR2116, kde ho firewall může zachytit.
 
-**Dopad:** Okamžitý efekt, nulový výpadek pro klienty (jejich provoz na internet funguje stejně).
+#### B) DHCP Snooping — opravit trusted porty
+- Záložka **System** → sekce **DHCP & PPPoE Snooping**
+- **Důvěryhodné přístavy**: odškrtnout P1–P23, ponechat pouze **P24**
+- Kliknout **Apply**
 
+**Proč:** Pokud jsou všechny porty trusted, DHCP snooping nechrání před tím,
+aby si tenant spustil vlastní DHCP server. Pouze uplink (P24) přináší legitimní
+DHCP odpovědi od CCR2116.
+
+#### C) SNMP community
+- Záložka **SNMP** → pole **Community** → změnit z `public` na silný řetězec
+- Kliknout **Apply**
+
+### 3.2 CSS326 SLAVE (SwOS, IP: 10.131.161.250, přístup: :8082)
+
+Stejné kroky jako MASTER (viz 3.1 A, B, C).
+- Port isolation: P1–P23 zaškrtnout, P24 (LinkSwitch1 → MASTER) nezaškrtnout
+- DHCP Snooping: pouze P24 trusted
+
+### 3.3 CCR2116 — firewall a bezpečnostní opravy
+
+Soubor: `phase1-immediate-fixes.rsc` — importovat přes Winbox nebo SSH:
 ```
-Postup (SwOS GUI přes DNAT 8081/8082):
-1. System → Ports → Isolation: ✓ P1–P23, □ P24
-2. Použít vše
-3. Opakovat na SLAVE (DNAT port 8082)
-```
-
-### 3.2 CSS326 MASTER a SLAVE — DHCP Snooping oprava
-
-**Co:** System → DHCP & PPPoE Snooping → Důvěryhodné přístavy:
-odškrtnout P1–P23, ponechat zaškrtnutý **pouze P24**.
-
-**Proč:** Aktuálně jsou všechny porty trusted → jakýkoliv nájemce může spustit
-vlastní DHCP server a přidělovat IP adresy ostatním.
-
-### 3.3 CSS326 MASTER a SLAVE — SNMP
-
-**Co:** System → SNMP → Community string: změnit z `public` na bezpečný řetězec.
-
-### 3.4 CCR2116 — Forward DROP pravidla
-
-Soubor: `phase1-immediate-fixes.rsc`
-
-**Co se přidává:**
-
-```routeros
-# DROP cross-tenant provoz (10.131.161.x ↔ 10.131.161.x)
-/ip firewall filter
-add chain=forward src-address=10.131.161.0/24 dst-address=10.131.161.0/24 \
-    action=drop comment="SECURITY: blokovat cross-tenant provoz" place-before=0
-
-# DROP cross-tenant Dalkia ↔ tenant
-add chain=forward src-address=10.131.162.0/24 dst-address=10.131.161.0/24 \
-    action=drop comment="SECURITY: Dalkia nesmí vidět nájemce" place-before=1
-add chain=forward src-address=10.131.161.0/24 dst-address=10.131.162.0/24 \
-    action=drop comment="SECURITY: nájemce nesmí vidět Dalkia" place-before=2
-
-# DROP blackhole pool
-add chain=forward src-address=10.131.190.0/24 \
-    action=drop comment="SECURITY: blackhole pool" place-before=3
-add chain=forward dst-address=10.131.190.0/24 \
-    action=drop comment="SECURITY: blackhole pool" place-before=4
+/import file-name=phase1-immediate-fixes.rsc
 ```
 
-**Proč:** CCR2116 aktuálně v forward chain explicitně ACCEPTUJE veškerý provoz
-z/do 10.131.161.0/24. Toto pravidlo musí být **vloženo před** stávající ACCEPT pravidla.
-Bez port isolation by toto pravidlo samo nestačilo (L2 bypass),
-ale jako druhá vrstva obrany (defense-in-depth) je nutné.
-
-### 3.5 CCR2116 — Bezpečnostní opravy
-
-```routeros
-# IPSec: 3DES → AES-256-GCM
-/ip ipsec proposal set [find] enc-algorithms=aes-256-gcm
-
-# Zakázat PPTP server
-/interface pptp-server server set enabled=no
-
-# Zakázat SSH remote forwarding
-/ip ssh set forwarding-enabled=no
-
-# DNS: zakázat přístup z nájemníků (ponechat jen management)
-/ip dns set allow-remote-requests=no
-```
+Obsahuje:
+- DROP pravidla pro cross-tenant provoz (10.131.161.x ↔ 10.131.161.x)
+- DROP pro blackhole pool (10.131.190.0/24)
+- Oprava IPSec: 3DES → AES-256-GCM
+- Zakázání PPTP
+- Oprava SSH forwarding
+- Omezení DNS resolveru
 
 ---
 
 ## 4. Fáze 2 — VLAN segmentace (maintenance window ~30 min)
 
-### 4.1 VLAN tabulka
+### 4.1 Prerekvizity před maintenance window
 
-| VLAN ID | Místnost/nájemce | CSS326 port | Podsíť |
-|---------|-----------------|-------------|--------|
-| 101 | Místnost 10 | MASTER P1 | 10.131.161.x/29 |
-| 102 | Místnost 42 | MASTER P2 | 10.131.161.x/29 |
-| 103 | Místnost 43 | MASTER P3 | 10.131.161.x/29 |
-| 104 | Místnost 45 | MASTER P4 | 10.131.161.x/29 |
-| 105 | Místnost 49 | MASTER P5 | 10.131.161.x/29 |
-| 106 | Místnost 51 | MASTER P6 | 10.131.161.x/29 |
-| 107 | Místnost 52 | MASTER P7 | 10.131.161.x/29 |
-| 108 | Místnost 89 | MASTER P8 | 10.131.161.x/29 |
-| 109 | Místnost 91 | MASTER P9 | 10.131.161.x/29 |
-| 110 | Místnost 93 | MASTER P10 | 10.131.161.x/29 |
-| 111 | Místnost 94 | MASTER P11 | 10.131.161.x/29 |
-| 112 | Místnost 97 | MASTER P12 | 10.131.161.x/29 |
-| 113 | Místnost 130 | MASTER P13 | 10.131.161.x/29 |
-| 114 | Místnost 131 | MASTER P14 | 10.131.161.x/29 |
-| 115 | Místnost 132 | MASTER P15 | 10.131.161.x/29 |
-| 116 | Místnost 133/1 | MASTER P16 | 10.131.161.x/29 |
-| 117 | Místnost 133/2 | MASTER P17 | 10.131.161.x/29 |
-| 118 | Místnost 201 | MASTER P18 | 10.131.161.x/29 |
-| 119 | Bistro | MASTER P19 | 10.131.161.x/29 |
-| 120 | Výměník | MASTER P20 | 10.131.161.x/29 |
-| 121 | Malá zasedačka | MASTER P21 | 10.131.161.x/29 |
-| 122 | Velký sál | MASTER P22 | 10.131.161.x/29 |
-| 123 | Místnost 229 | SLAVE P1 | 10.131.161.x/29 |
-| 124 | Místnost 233 | SLAVE P2 | 10.131.161.x/29 |
-| 125 | Místnost 235 | SLAVE P3 | 10.131.161.x/29 |
-| 126 | Místnost 301 | SLAVE P4 | 10.131.161.x/29 |
-| 127 | Místnost 373 | SLAVE P5 | 10.131.161.x/29 |
-| 128 | Místnost 402 | SLAVE P6 | 10.131.161.x/29 |
-| 129 | Místnost 403 | SLAVE P7 | 10.131.161.x/29 |
-| 130 | Místnost 404 | SLAVE P8 | 10.131.161.x/29 |
-| 131 | Místnost 416 | SLAVE P9 | 10.131.161.x/29 |
-| 132 | Místnost 430 | SLAVE P10/P11 | 10.131.161.x/29 |
-| 133 | Místnost 504 | SLAVE P12 | 10.131.161.x/29 |
-| 134–144 | Nepojmenované | SLAVE P13–P23 | rezerva |
-| 199 | Dalkia | (vlastní port/trunk) | 10.131.162.x/29 |
+1. Ověřit přístup na Eagle switch (Winbox port 8292)
+2. Mít konzolový přístup na CCR2116 (pro případ výpadku management přístupu)
+3. Záloha CCR2116 před změnami: `/system backup save name=pre-vlan-backup`
 
-*Poznámka: Podsítě (x/29) doplnit podle aktuální DHCP tabulky před implementací.*
-
-### 4.2 CCR2116 konfigurace
-
-Soubor: `phase2-vlan-ccr2116.rsc`
-
-```routeros
-# 1. Vytvořit bridge s VLAN filtering
-/interface bridge
-add name=bridge-isp vlan-filtering=yes frame-types=admit-only-vlan-tagged \
-    comment="ISP tenant bridge s VLAN izolací"
-
-# 2. ether2 přidat do bridge jako tagged trunk
-/interface bridge port
-add bridge=bridge-isp interface=ether2 frame-types=admit-only-vlan-tagged
-
-# 3. Vytvořit VLAN interfacy na bridge
-/interface vlan
-add interface=bridge-isp name=vlan101 vlan-id=101 comment="Místnost 10"
-add interface=bridge-isp name=vlan102 vlan-id=102 comment="Místnost 42"
-... (vlan103 – vlan144, vlan199)
-
-# 4. Přiřadit IP adresy na VLAN interfacy (přesunout z ether2)
-/ip address
-remove [find interface=ether2]
-add address=10.131.161.X/29 interface=vlan101 comment="Tenant místnost 10"
-...
-
-# 5. DHCP servery přemigrovat na VLAN interfacy
-/ip dhcp-server
-set [find name=ISP] interface=vlan101  # nebo vytvořit nové per-VLAN
-```
-
-### 4.3 CSS326 konfigurace (SwOS VLAN)
-
-Soubor: `phase2-vlan-crs326-template.rsc`
-
-CSS326 SwOS VLAN konfigurace se provádí **přes GUI** (SwOS nemá plnohodnotné CLI
-pro VLAN import), ale logika je:
-
-**MASTER CSS326:**
-
-| Port | Typ | PVID | Tagged VLANy |
-|------|-----|------|--------------|
-| P1–P22 | Access | 101–122 | — |
-| P23 | Trunk | 1 | 101–144, 199 |
-| P24 | Trunk | 1 | 101–144, 199 |
-
-**SLAVE CSS326:**
-
-| Port | Typ | PVID | Tagged VLANy |
-|------|-----|------|--------------|
-| P1–P23 | Access | 123–144 | — |
-| P24 | Trunk | 1 | 101–144, 199 |
-
-### 4.4 Postup migrace (maintenance window)
+### 4.2 Postup (pořadí je důležité)
 
 ```
-Příprava (bez výpadku):
-1. Vytvořit bridge-isp a VLAN interfacy na CCR2116 (bez přesunu IP)
-2. Testovat VLAN konfiguraci na nepoužívaném portu CSS326
-3. Naplánovat maintenance window (doporučeno: víkend nebo noc)
+Krok 1: CCR2116 — vytvořit bridge-isp + VLAN interfacy (bez přesunu ether2)
+         → Vytvoří novou síťovou strukturu, ether2 zatím stále funguje nezávisle
+         → Doba: ~5 min, žádný výpadek
 
-Maintenance window (cca 30 min):
-4.  [CCR2116] Přidat ether2 do bridge-isp
-5.  [CSS326 MASTER] Nastavit PVID na access portech, trunk na P23+P24
-6.  [CSS326 SLAVE]  Nastavit PVID na access portech, trunk na P24
-7.  [Eagle switch]  Ověřit VLAN trunk konfiguraci
-8.  [CCR2116] Přesunout IP adresy z ether2 na VLAN interfacy
-9.  [CCR2116] Restartovat DHCP servery
-10. Ověřit konektivitu (viz sekce 6)
-11. Pokud OK: hotovo. Pokud problém: rollback (obnovit zálohu)
+Krok 2: Eagle switch — nakonfigurovat VLAN trunk (dle konkrétní platformy)
+         → Přidat tagged porty pro všechny VLANy na uplink k CCR2116 a downlink k MASTER
+
+Krok 3: CSS326 MASTER + SLAVE — nastavit PVID per port + trunk porty
+         → Každý přístupový port dostane PVID odpovídající tenantovi
+         → P24/P23 jako tagged trunk
+
+Krok 4: CCR2116 — přidat ether2 do bridge-isp + přesunout IP adresy + DHCP
+         → TOTO JE MAINTENANCE WINDOW (~5 min výpadek)
+         → Provést přes konzoli (ne Winbox přes ether2!)
+
+Krok 5: Ověření konektivity
 ```
+
+### 4.3 VLAN mapování portů — MASTER CSS326
+
+| Port | Název | PVID (VLAN) | Podsíť tenanta |
+|------|-------|-------------|----------------|
+| P1 | P1-10 | 101 | 10.131.161.0/29 |
+| P2 | P2-42 | 102 | 10.131.161.8/29 |
+| P3 | P3-43 | 103 | 10.131.161.16/29 |
+| P4 | P4-45 | 104 | 10.131.161.24/29 |
+| P5 | P5-49 | 105 | 10.131.161.32/29 |
+| P6 | P6-51 | 106 | 10.131.161.40/29 |
+| P7 | P7-52 | 107 | 10.131.161.48/29 |
+| P8 | P8-89 | 108 | 10.131.161.56/29 |
+| P9 | P9-91 | 109 | 10.131.161.64/29 |
+| P10 | P10-93 | 110 | 10.131.161.72/29 |
+| P11 | P11-94 | 111 | 10.131.161.80/29 |
+| P12 | P12-97 | 112 | 10.131.161.88/29 |
+| P13 | P13-130 | 113 | 10.131.161.96/29 |
+| P14 | P14-131 | 114 | 10.131.161.104/29 |
+| P15 | P15-132 | 115 | 10.131.161.112/29 |
+| P16 | P16-133/1 | 116 | 10.131.161.120/29 |
+| P17 | P17-133/2 | 116 | 10.131.161.120/29 *(stejná firma jako P16)* |
+| P18 | P18-201 | 118 | 10.131.161.136/29 |
+| P19 | P19-Bistro | 119 | 10.131.161.144/29 |
+| P20 | P20-Výměník | 120 | 10.131.161.152/29 |
+| P21 | P21-Malá zasedačka | 121 | 10.131.161.160/29 |
+| P22 | P22-Velký sál | 122 | 10.131.161.168/29 |
+| P23 | LinkSwitch2 | trunk | tagged: 101–132, 199 |
+| P24 | UPLINKEagle | trunk | tagged: 101–132, 199 |
+
+> **Poznámka:** PVID 117 je rezervováno pro Dalkia (10.131.162.0/29 = vlan199).
+> Mapování PVID → podsíť je flexibilní; pořadí v tabulce odpovídá pořadí DHCP leasů v konfiguraci.
+
+### 4.4 VLAN mapování portů — SLAVE CSS326
+
+| Port | Název | PVID (VLAN) | Podsíť tenanta |
+|------|-------|-------------|----------------|
+| P1 | P1-229 | 123 | 10.131.161.176/29 |
+| P2 | P2-233 | 124 | 10.131.161.184/29 |
+| P3 | P3-235 | 125 | 10.131.161.192/29 |
+| P4 | P4-301 | 126 | 10.131.161.200/29 |
+| P5 | P5-373 | 127 | 10.131.161.208/29 |
+| P6 | P6-402 | 128 | 10.131.161.216/29 |
+| P7 | P7-403 | 129 | 10.131.161.224/29 |
+| P8 | P8-404 | 130 | 10.131.161.232/29 |
+| P9 | P9-416 | 131 | 10.131.161.240/29 |
+| P10 | P10-430/1 | 132 | 10.131.161.248/29 |
+| P11 | P11-430/1 | 132 | 10.131.161.248/29 *(stejná firma jako P10)* |
+| P12 | P12-504 | 199 | 10.131.162.0/29 (Dalkia) |
+| P13–P23 | nepojmenované | dle potřeby | k přiřazení |
+| P24 | LinkSwitch1 | trunk | tagged: 101–132, 199 |
 
 ---
 
-## 5. Dopad na klienty
+## 5. Ověření po implementaci
 
-| Scénář | Fáze 1 (port isolation) | Fáze 2 (VLANy) |
-|--------|------------------------|-----------------|
-| Internet funguje | ✓ beze změny | ✓ beze změny |
-| Klientská rekonfigurace | žádná | žádná |
-| Cross-tenant komunikace | **BLOKOVÁNA** | **BLOKOVÁNA** |
-| Klient za unmanaged switchem (jiný nájemce) | L3 blokován, L2 leak | **Plná izolace** |
-| DHCP lease | beze změny | beze změny (stejné IP) |
-| VIP klienti ether10/11/12 | nedotčeni | nedotčeni |
+### Fáze 1 — checklist
 
----
+- [ ] Z IP tenanta #01 (10.131.161.2–6): `ping 10.131.161.10` → **Request timeout** (drop)
+- [ ] Z IP tenanta #01: `ping 8.8.8.8` → **OK** (internet funguje)
+- [ ] Spustit DHCP server na libovolném přístupovém portu CSS326 → CCR2116 alert email dorazí
+- [ ] SNMP community "public" → `snmpwalk -c public 10.131.161.251` → **Timeout** (nefunguje)
+- [ ] VIP klienti: `ping 194.108.11.34` (Ostravia router) → **OK** (nedotčeno)
 
-## 6. Ověření po implementaci
+### Fáze 2 — checklist
 
-### Fáze 1
-
-```bash
-# Test cross-tenant blokování (z PC nájemce A):
-ping <IP_nájemce_B>          # musí selhat (DROP)
-traceroute <IP_nájemce_B>    # musí selhat na CCR2116
-
-# Test internet stále funguje:
-ping 8.8.8.8                  # musí projít
-curl -I https://google.com    # musí vrátit HTTP 301
-
-# Test VIP klientů (z administrátorského PC):
-ping 10.131.16x.x             # ether10/11/12 klienti — musí fungovat
-```
-
-### Fáze 2
-
-```routeros
-# Na CCR2116:
-/ip dhcp-server lease print   # leasy přiřazeny přes VLAN servery
-/interface bridge host print  # MAC adresy izolované po VLANech
-/ip route print               # trasy na VLAN interfacy
-
-# Test VLAN tagování:
-/tool packet-sniffer interface=bridge-isp protocol=ip duration=10
-# Pakety mají VLAN tag odpovídající nájemci
-```
+- [ ] DHCP lease: klient dostane IP ze správné /29 podsítě (stejná jako dříve)
+- [ ] Gateway ping: klient pinge svou gateway (pr. 10.131.161.1) → **OK**
+- [ ] Cross-tenant ping → **Request timeout**
+- [ ] CCR2116: `/ip dhcp-server lease print` → leasy viditelné per VLAN server
+- [ ] CCR2116: `/interface bridge host print` → MAC adresy ve správných VLANech
+- [ ] NAT: `curl ifconfig.me` z klienta → dostane svou přiřazenou veřejnou IP
 
 ---
 
-## 7. Rollback postup
+## 6. Bezpečnostní opravy — souhrn
 
-```routeros
-# CCR2116: smazat přidané DROP pravidla
-/ip firewall filter remove [find comment~"SECURITY:"]
-
-# CCR2116: zakázat bridge-isp (Fáze 2 rollback)
-/interface bridge disable bridge-isp
-/ip address remove [find interface~"vlan"]
-# Obnovit původní IP na ether2 ze zálohy
-
-# CSS326: obnovit zálohu přes SwOS → Systém → Obnovit zálohu
-# (zálohy jsou: CSS326_2.18.swb a CSS326_2.18_1.swb)
-```
+| Oprava | Důvod |
+|--------|-------|
+| 3DES → AES-256-GCM (IPSec) | RFC 8996 zakazuje 3DES; Sweet32 útok (2016) |
+| Zakázat PPTP | Prolomitelné MS-CHAPv2 šifrování; nahradit WireGuard nebo L2TP/IPSec |
+| SSH forwarding=no | Remote port forwarding umožňuje obcházet firewall |
+| DNS restrict | Omezit `allow-remote-requests` jen na management/loopback |
+| Credentials v scriptech | Přesunout FTP heslo z backup-ftp scriptu do `/system environment` |
+| Telegram bot token | Přesunout z netwatch scriptů do proměnné nebo Vault |
 
 ---
 
-## 8. Shrnutí priorit
+## 7. Budoucí doporučení
 
-| Priorita | Akce | Čas | Výpadek |
-|----------|------|-----|---------|
-| **1. URGENTNÍ** | Port isolation na CSS326 MASTER+SLAVE | 10 min | Ne |
-| **2. URGENTNÍ** | DROP forward pravidla na CCR2116 | 10 min | Ne |
-| **3. VYSOKÁ** | DHCP Snooping oprava (jen P24 trusted) | 5 min | Ne |
-| **4. VYSOKÁ** | SNMP community změna | 5 min | Ne |
-| **5. STŘEDNÍ** | IPSec 3DES → AES-256 | 5 min | Krátký reset VPN |
-| **6. STŘEDNÍ** | PPTP zakázat, SSH forwarding zakázat | 5 min | Ne |
-| **7. PLÁNOVANÁ** | Fáze 2: VLAN migrace | 30 min | Maintenance window |
+1. **Nemanageable switche v patrech** — postupně nahradit za CSS326 nebo CRS326.
+   Dokud existují, L2 izolace platí jen do úrovně CSS326 MASTER/SLAVE.
+   Zařízení za nemanageable switchem sdílejí L2 navzájem (ale ne s ostatními nájemníky).
+
+2. **802.1X autentizace** — pro enterprise prostředí; každý port vyžaduje autentizaci
+   certifikátem nebo heslem před přidělením VLAN. Vyžaduje RADIUS server.
+
+3. **IPv6** — aktuálně žádná IPv6 konfigurace. Zvážit při rozšíření.
+
+4. **WireGuard VPN** — nahradit PPTP pro vzdálený přístup zaměstnanců.
+
+5. **Per-tenant monitoring v Dude** — po VLAN migraci snadno přidat per-tenant grafy
+   sledující provoz na vlan101–vlan132 interface.
