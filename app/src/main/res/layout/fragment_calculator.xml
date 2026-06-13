@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/spacing_md">
+
+        <!-- Tab výběr CIDR / VLSM -->
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tab_layout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+            <com.google.android.material.tabs.TabItem android:text="CIDR" />
+            <com.google.android.material.tabs.TabItem android:text="VLSM" />
+        </com.google.android.material.tabs.TabLayout>
+
+        <!-- CIDR sekce -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/layout_cidr_input"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_md"
+            android:hint="@string/cidr_input_hint"
+            app:layout_constraintTop_toBottomOf="@id/tab_layout"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edit_cidr_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text"
+                android:imeOptions="actionDone"
+                android:singleLine="true" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_cidr_calculate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_sm"
+            android:text="@string/cidr_calculate"
+            app:layout_constraintTop_toBottomOf="@id/layout_cidr_input"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Výsledková karta CIDR -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/card_cidr_result"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_md"
+            android:visibility="gone"
+            app:cardCornerRadius="@dimen/card_radius"
+            app:cardElevation="@dimen/card_elevation"
+            app:layout_constraintTop_toBottomOf="@id/btn_cidr_calculate"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="@dimen/spacing_md">
+
+                <TextView android:id="@+id/text_cidr_network"    android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="@dimen/text_body" />
+                <TextView android:id="@+id/text_cidr_broadcast"  android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="@dimen/text_body" android:layout_marginTop="@dimen/spacing_xs" />
+                <TextView android:id="@+id/text_cidr_first"      android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="@dimen/text_body" android:layout_marginTop="@dimen/spacing_xs" />
+                <TextView android:id="@+id/text_cidr_last"       android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="@dimen/text_body" android:layout_marginTop="@dimen/spacing_xs" />
+                <TextView android:id="@+id/text_cidr_hosts"      android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="@dimen/text_body" android:layout_marginTop="@dimen/spacing_xs" />
+                <TextView android:id="@+id/text_cidr_mask"       android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="@dimen/text_body" android:layout_marginTop="@dimen/spacing_xs" />
+                <TextView android:id="@+id/text_cidr_wildcard"   android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="@dimen/text_body" android:layout_marginTop="@dimen/spacing_xs" />
+
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- VLSM sekce (skrytá při CIDR tabu) -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/section_vlsm"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_md"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@id/tab_layout"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layout_vlsm_base"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:hint="@string/vlsm_base_network"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edit_vlsm_base"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:singleLine="true" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <LinearLayout
+                android:id="@+id/container_vlsm_subnets"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="@dimen/spacing_sm"
+                app:layout_constraintTop_toBottomOf="@id/layout_vlsm_base"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_vlsm_add"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_sm"
+                android:text="@string/vlsm_add_subnet"
+                app:layout_constraintTop_toBottomOf="@id/container_vlsm_subnets"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_vlsm_calculate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_sm"
+                android:text="@string/vlsm_calculate"
+                app:layout_constraintTop_toBottomOf="@id/container_vlsm_subnets"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler_vlsm_results"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_md"
+                android:nestedScrollingEnabled="false"
+                app:layout_constraintTop_toBottomOf="@id/btn_vlsm_calculate"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

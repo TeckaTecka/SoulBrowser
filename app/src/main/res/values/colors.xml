@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="primary">         #1565C0</color>
+    <color name="primary_dark">    #0D47A1</color>
+    <color name="primary_light">   #1976D2</color>
+    <color name="accent">          #00BCD4</color>
+    <color name="background">      #FAFAFA</color>
+    <color name="surface">         #FFFFFF</color>
+    <color name="on_primary">      #FFFFFF</color>
+    <color name="on_surface">      #212121</color>
+    <color name="text_secondary">  #757575</color>
+    <color name="divider">         #E0E0E0</color>
+    <color name="error">           #D32F2F</color>
+    <color name="success">         #388E3C</color>
+    <color name="warning">         #F57C00</color>
+
+    <!-- Stavové barvy pro porty / hopy -->
+    <color name="port_open">       #388E3C</color>
+    <color name="port_closed">     #757575</color>
+    <color name="port_filtered">   #F57C00</color>
+    <color name="host_up">         #388E3C</color>
+    <color name="host_down">       #D32F2F</color>
+
+    <!-- WiFi síla signálu -->
+    <color name="signal_excellent"> #388E3C</color>
+    <color name="signal_good">      #7CB342</color>
+    <color name="signal_fair">      #F9A825</color>
+    <color name="signal_poor">      #D32F2F</color>
+</resources>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/scannerFragment">
+
+    <fragment
+        android:id="@+id/scannerFragment"
+        android:name="com.teckatecka.netadmin.ui.scanner.ScannerFragment"
+        android:label="@string/scanner_title" />
+
+    <fragment
+        android:id="@+id/diagnosticsFragment"
+        android:name="com.teckatecka.netadmin.ui.diagnostics.DiagnosticsFragment"
+        android:label="@string/diag_title" />
+
+    <fragment
+        android:id="@+id/wifiFragment"
+        android:name="com.teckatecka.netadmin.ui.wifi.WifiFragment"
+        android:label="@string/wifi_title" />
+
+    <fragment
+        android:id="@+id/calculatorFragment"
+        android:name="com.teckatecka.netadmin.ui.calculator.CalculatorFragment"
+        android:label="@string/cidr_title" />
+
+    <fragment
+        android:id="@+id/moreFragment"
+        android:name="com.teckatecka.netadmin.ui.main.MoreFragment"
+        android:label="@string/nav_more" />
+
+</navigation>

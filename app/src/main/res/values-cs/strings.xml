@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Aplikace -->
+    <string name="app_name">Net Admin</string>
+
+    <!-- Navigace -->
+    <string name="nav_dashboard">Přehled</string>
+    <string name="nav_scanner">Scanner</string>
+    <string name="nav_diagnostics">Diagnostika</string>
+    <string name="nav_wifi">Wi-Fi</string>
+    <string name="nav_calculator">Kalkulátor</string>
+    <string name="nav_more">Více</string>
+
+    <!-- Dashboard -->
+    <string name="dashboard_title">Network Admin</string>
+    <string name="dashboard_subtitle">Vyberte nástroj</string>
+
+    <!-- LAN Scanner -->
+    <string name="scanner_title">LAN Scanner</string>
+    <string name="scanner_start">Spustit sken</string>
+    <string name="scanner_stop">Zastavit</string>
+    <string name="scanner_scanning">Skenuji…</string>
+    <string name="scanner_found_devices">Nalezeno %1$d zařízení</string>
+    <string name="scanner_host_unknown">Neznámý</string>
+    <string name="scanner_vendor_unknown">Neznámý výrobce</string>
+    <string name="scanner_wol_sent">Wake-on-LAN odesláno na %1$s</string>
+
+    <!-- Port Scanner -->
+    <string name="port_scanner_title">Port Scanner</string>
+    <string name="port_scanner_target_hint">Cílová IP nebo hostname</string>
+    <string name="port_scanner_scan">Skenovat porty</string>
+    <string name="port_scanner_top100">Top 100</string>
+    <string name="port_scanner_top1000">Top 1000</string>
+    <string name="port_scanner_custom">Vlastní rozsah</string>
+    <string name="port_open">otevřený</string>
+    <string name="port_closed">zavřený</string>
+    <string name="port_filtered">filtrovaný</string>
+
+    <!-- CIDR Kalkulátor -->
+    <string name="cidr_title">CIDR Kalkulátor</string>
+    <string name="cidr_input_hint">např. 192.168.1.0/24</string>
+    <string name="cidr_calculate">Vypočítat</string>
+    <string name="cidr_network">Adresa sítě</string>
+    <string name="cidr_broadcast">Broadcast</string>
+    <string name="cidr_first_host">První host</string>
+    <string name="cidr_last_host">Poslední host</string>
+    <string name="cidr_host_count">Počet hostů</string>
+    <string name="cidr_subnet_mask">Maska podsítě</string>
+    <string name="cidr_wildcard">Wildcard maska</string>
+    <string name="cidr_prefix_length">Délka prefixu</string>
+    <string name="cidr_invalid_input">Neplatný vstup IP/prefix</string>
+
+    <!-- VLSM Kalkulátor -->
+    <string name="vlsm_title">VLSM Kalkulátor</string>
+    <string name="vlsm_base_network">Základní síť (např. 10.0.0.0/8)</string>
+    <string name="vlsm_add_subnet">Přidat podsíť</string>
+    <string name="vlsm_subnet_name">Název</string>
+    <string name="vlsm_hosts_needed">Potřebných hostů</string>
+    <string name="vlsm_calculate">Vypočítat VLSM</string>
+    <string name="vlsm_result_network">Síť</string>
+    <string name="vlsm_result_mask">Maska</string>
+    <string name="vlsm_result_hosts">Využitelných hostů</string>
+    <string name="vlsm_insufficient_space">Nedostatek adresního prostoru pro požadované podsítě</string>
+    <string name="vlsm_remove">Odebrat</string>
+
+    <!-- Diagnostika -->
+    <string name="diag_title">Diagnostika</string>
+    <string name="diag_ping">Ping</string>
+    <string name="diag_traceroute">Traceroute</string>
+    <string name="diag_dns">DNS Lookup</string>
+    <string name="diag_whois">WHOIS</string>
+    <string name="diag_bgp">BGP Lookup</string>
+
+    <!-- Ping -->
+    <string name="ping_title">Ping</string>
+    <string name="ping_target_hint">Host nebo IP adresa</string>
+    <string name="ping_count_hint">Počet (výchozí 4)</string>
+    <string name="ping_start">Ping</string>
+    <string name="ping_stop">Zastavit</string>
+    <string name="ping_result_stats">%1$d paketů: min=%2$dms průměr=%3$dms max=%4$dms ztráta=%5$d%%</string>
+    <string name="ping_unreachable">Host nedosažitelný</string>
+
+    <!-- Traceroute -->
+    <string name="traceroute_title">Traceroute</string>
+    <string name="traceroute_target_hint">Host nebo IP adresa</string>
+    <string name="traceroute_start">Trasovat</string>
+    <string name="traceroute_hop">Hop %1$d</string>
+    <string name="traceroute_timeout">* * *</string>
+
+    <!-- DNS -->
+    <string name="dns_title">DNS Lookup</string>
+    <string name="dns_domain_hint">Název domény</string>
+    <string name="dns_lookup">Vyhledat</string>
+    <string name="dns_record_type">Typ záznamu</string>
+
+    <!-- WiFi Analyzer -->
+    <string name="wifi_title">Wi-Fi Analyzátor</string>
+    <string name="wifi_scan">Skenovat</string>
+    <string name="wifi_channel_graph">Graf kanálů</string>
+    <string name="wifi_networks_found">Nalezeno %1$d sítí</string>
+    <string name="wifi_channel">Kan. %1$d</string>
+    <string name="wifi_signal">Signál</string>
+    <string name="wifi_security">Zabezpečení</string>
+    <string name="wifi_band_24">2,4 GHz</string>
+    <string name="wifi_band_5">5 GHz</string>
+    <string name="wifi_band_6">6 GHz</string>
+    <string name="wifi_open">Otevřená</string>
+    <string name="wifi_permission_needed">Pro skenování Wi-Fi je vyžadováno oprávnění k poloze</string>
+
+    <!-- Speed Test -->
+    <string name="speedtest_title">Test rychlosti</string>
+    <string name="speedtest_start">Spustit test</string>
+    <string name="speedtest_testing">Měřím…</string>
+    <string name="speedtest_download">Stahování</string>
+    <string name="speedtest_upload">Nahrávání</string>
+    <string name="speedtest_ping_label">Ping</string>
+    <string name="speedtest_unit_mbps">Mbps</string>
+    <string name="speedtest_unit_ms">ms</string>
+    <string name="speedtest_history">Historie</string>
+
+    <!-- RouterOS -->
+    <string name="routeros_title">RouterOS</string>
+    <string name="routeros_connect">Připojit</string>
+    <string name="routeros_disconnect">Odpojit</string>
+    <string name="routeros_host_hint">IP adresa routeru</string>
+    <string name="routeros_port_hint">Port (výchozí 8728)</string>
+    <string name="routeros_username_hint">Uživatelské jméno</string>
+    <string name="routeros_password_hint">Heslo</string>
+    <string name="routeros_connected">Připojeno k %1$s</string>
+    <string name="routeros_disconnected">Odpojeno</string>
+    <string name="routeros_connection_error">Chyba připojení: %1$s</string>
+    <string name="routeros_dashboard">Přehled</string>
+    <string name="routeros_interfaces">Rozhraní</string>
+    <string name="routeros_routes">Routy</string>
+    <string name="routeros_dhcp">DHCP Leases</string>
+    <string name="routeros_firewall">Firewall</string>
+    <string name="routeros_logs">Logy</string>
+    <string name="routeros_cpu">CPU</string>
+    <string name="routeros_memory">Paměť</string>
+    <string name="routeros_uptime">Uptime</string>
+
+    <!-- Obecné -->
+    <string name="action_copy">Kopírovat</string>
+    <string name="action_share">Sdílet</string>
+    <string name="action_settings">Nastavení</string>
+    <string name="action_clear">Vymazat</string>
+    <string name="copied_to_clipboard">Zkopírováno do schránky</string>
+    <string name="error_network">Chyba sítě: %1$s</string>
+    <string name="error_timeout">Vypršelo časové omezení</string>
+    <string name="error_invalid_host">Neplatná adresa hostu</string>
+    <string name="loading">Načítám…</string>
+    <string name="no_results">Žádné výsledky</string>
+    <string name="cancel">Zrušit</string>
+    <string name="ok">OK</string>
+    <string name="save">Uložit</string>
+</resources>

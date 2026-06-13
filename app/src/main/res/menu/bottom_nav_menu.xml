@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/nav_scanner"
+        android:icon="@android:drawable/ic_menu_search"
+        android:title="@string/nav_scanner" />
+
+    <item
+        android:id="@+id/nav_diagnostics"
+        android:icon="@android:drawable/ic_menu_info_details"
+        android:title="@string/nav_diagnostics" />
+
+    <item
+        android:id="@+id/nav_wifi"
+        android:icon="@android:drawable/stat_sys_wifi_signal_3"
+        android:title="@string/nav_wifi" />
+
+    <item
+        android:id="@+id/nav_calculator"
+        android:icon="@android:drawable/ic_menu_edit"
+        android:title="@string/nav_calculator" />
+
+    <item
+        android:id="@+id/nav_more"
+        android:icon="@android:drawable/ic_menu_more"
+        android:title="@string/nav_more" />
+
+</menu>

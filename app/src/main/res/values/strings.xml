@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Aplikace -->
+    <string name="app_name">Net Admin</string>
+
+    <!-- Navigace -->
+    <string name="nav_dashboard">Dashboard</string>
+    <string name="nav_scanner">Scanner</string>
+    <string name="nav_diagnostics">Diagnostics</string>
+    <string name="nav_wifi">Wi-Fi</string>
+    <string name="nav_calculator">Calculator</string>
+    <string name="nav_more">More</string>
+
+    <!-- Dashboard -->
+    <string name="dashboard_title">Network Admin</string>
+    <string name="dashboard_subtitle">Select a tool to get started</string>
+
+    <!-- LAN Scanner -->
+    <string name="scanner_title">LAN Scanner</string>
+    <string name="scanner_start">Start Scan</string>
+    <string name="scanner_stop">Stop</string>
+    <string name="scanner_scanning">Scanning…</string>
+    <string name="scanner_found_devices">%1$d devices found</string>
+    <string name="scanner_host_unknown">Unknown</string>
+    <string name="scanner_vendor_unknown">Unknown vendor</string>
+    <string name="scanner_wol_sent">Wake-on-LAN sent to %1$s</string>
+
+    <!-- Port Scanner -->
+    <string name="port_scanner_title">Port Scanner</string>
+    <string name="port_scanner_target_hint">Target IP or hostname</string>
+    <string name="port_scanner_scan">Scan Ports</string>
+    <string name="port_scanner_top100">Top 100</string>
+    <string name="port_scanner_top1000">Top 1000</string>
+    <string name="port_scanner_custom">Custom range</string>
+    <string name="port_open">open</string>
+    <string name="port_closed">closed</string>
+    <string name="port_filtered">filtered</string>
+
+    <!-- CIDR Kalkulátor -->
+    <string name="cidr_title">CIDR Calculator</string>
+    <string name="cidr_input_hint">e.g. 192.168.1.0/24</string>
+    <string name="cidr_calculate">Calculate</string>
+    <string name="cidr_network">Network address</string>
+    <string name="cidr_broadcast">Broadcast</string>
+    <string name="cidr_first_host">First host</string>
+    <string name="cidr_last_host">Last host</string>
+    <string name="cidr_host_count">Host count</string>
+    <string name="cidr_subnet_mask">Subnet mask</string>
+    <string name="cidr_wildcard">Wildcard mask</string>
+    <string name="cidr_prefix_length">Prefix length</string>
+    <string name="cidr_invalid_input">Invalid IP/prefix input</string>
+
+    <!-- VLSM Kalkulátor -->
+    <string name="vlsm_title">VLSM Calculator</string>
+    <string name="vlsm_base_network">Base network (e.g. 10.0.0.0/8)</string>
+    <string name="vlsm_add_subnet">Add subnet</string>
+    <string name="vlsm_subnet_name">Name</string>
+    <string name="vlsm_hosts_needed">Hosts needed</string>
+    <string name="vlsm_calculate">Calculate VLSM</string>
+    <string name="vlsm_result_network">Network</string>
+    <string name="vlsm_result_mask">Mask</string>
+    <string name="vlsm_result_hosts">Usable hosts</string>
+    <string name="vlsm_insufficient_space">Insufficient address space for required subnets</string>
+    <string name="vlsm_remove">Remove</string>
+
+    <!-- Diagnostika -->
+    <string name="diag_title">Diagnostics</string>
+    <string name="diag_ping">Ping</string>
+    <string name="diag_traceroute">Traceroute</string>
+    <string name="diag_dns">DNS Lookup</string>
+    <string name="diag_whois">WHOIS</string>
+    <string name="diag_bgp">BGP Lookup</string>
+
+    <!-- Ping -->
+    <string name="ping_title">Ping</string>
+    <string name="ping_target_hint">Host or IP address</string>
+    <string name="ping_count_hint">Count (default 4)</string>
+    <string name="ping_start">Ping</string>
+    <string name="ping_stop">Stop</string>
+    <string name="ping_result_stats">%1$d packets: min=%2$dms avg=%3$dms max=%4$dms loss=%5$d%%</string>
+    <string name="ping_unreachable">Host unreachable</string>
+
+    <!-- Traceroute -->
+    <string name="traceroute_title">Traceroute</string>
+    <string name="traceroute_target_hint">Host or IP address</string>
+    <string name="traceroute_start">Trace</string>
+    <string name="traceroute_hop">Hop %1$d</string>
+    <string name="traceroute_timeout">* * *</string>
+
+    <!-- DNS -->
+    <string name="dns_title">DNS Lookup</string>
+    <string name="dns_domain_hint">Domain name</string>
+    <string name="dns_lookup">Lookup</string>
+    <string name="dns_record_type">Record type</string>
+
+    <!-- WiFi Analyzer -->
+    <string name="wifi_title">Wi-Fi Analyzer</string>
+    <string name="wifi_scan">Scan</string>
+    <string name="wifi_channel_graph">Channel Graph</string>
+    <string name="wifi_networks_found">%1$d networks found</string>
+    <string name="wifi_channel">Ch %1$d</string>
+    <string name="wifi_signal">Signal</string>
+    <string name="wifi_security">Security</string>
+    <string name="wifi_band_24">2.4 GHz</string>
+    <string name="wifi_band_5">5 GHz</string>
+    <string name="wifi_band_6">6 GHz</string>
+    <string name="wifi_open">Open</string>
+    <string name="wifi_permission_needed">Location permission required for Wi-Fi scanning</string>
+
+    <!-- Speed Test -->
+    <string name="speedtest_title">Speed Test</string>
+    <string name="speedtest_start">Start Test</string>
+    <string name="speedtest_testing">Testing…</string>
+    <string name="speedtest_download">Download</string>
+    <string name="speedtest_upload">Upload</string>
+    <string name="speedtest_ping_label">Ping</string>
+    <string name="speedtest_unit_mbps">Mbps</string>
+    <string name="speedtest_unit_ms">ms</string>
+    <string name="speedtest_history">History</string>
+
+    <!-- RouterOS -->
+    <string name="routeros_title">RouterOS</string>
+    <string name="routeros_connect">Connect</string>
+    <string name="routeros_disconnect">Disconnect</string>
+    <string name="routeros_host_hint">Router IP address</string>
+    <string name="routeros_port_hint">Port (default 8728)</string>
+    <string name="routeros_username_hint">Username</string>
+    <string name="routeros_password_hint">Password</string>
+    <string name="routeros_connected">Connected to %1$s</string>
+    <string name="routeros_disconnected">Disconnected</string>
+    <string name="routeros_connection_error">Connection failed: %1$s</string>
+    <string name="routeros_dashboard">Dashboard</string>
+    <string name="routeros_interfaces">Interfaces</string>
+    <string name="routeros_routes">Routes</string>
+    <string name="routeros_dhcp">DHCP Leases</string>
+    <string name="routeros_firewall">Firewall</string>
+    <string name="routeros_logs">Logs</string>
+    <string name="routeros_cpu">CPU</string>
+    <string name="routeros_memory">Memory</string>
+    <string name="routeros_uptime">Uptime</string>
+
+    <!-- Obecné -->
+    <string name="action_copy">Copy</string>
+    <string name="action_share">Share</string>
+    <string name="action_settings">Settings</string>
+    <string name="action_clear">Clear</string>
+    <string name="copied_to_clipboard">Copied to clipboard</string>
+    <string name="error_network">Network error: %1$s</string>
+    <string name="error_timeout">Connection timed out</string>
+    <string name="error_invalid_host">Invalid host address</string>
+    <string name="loading">Loading…</string>
+    <string name="no_results">No results</string>
+    <string name="cancel">Cancel</string>
+    <string name="ok">OK</string>
+    <string name="save">Save</string>
+</resources>
