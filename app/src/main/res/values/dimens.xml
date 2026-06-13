@@ -6,11 +6,14 @@
     <dimen name="spacing_lg">   24dp</dimen>
     <dimen name="spacing_xl">   32dp</dimen>
 
-    <dimen name="card_radius">   8dp</dimen>
-    <dimen name="card_elevation">2dp</dimen>
+    <dimen name="card_radius">        8dp</dimen>
+    <dimen name="card_corner_radius"> 8dp</dimen>
+    <dimen name="card_elevation">     2dp</dimen>
 
-    <dimen name="text_small">   12sp</dimen>
-    <dimen name="text_body">    14sp</dimen>
+    <dimen name="text_small">      12sp</dimen>
+    <dimen name="text_size_small"> 12sp</dimen>
+    <dimen name="text_body">       14sp</dimen>
+    <dimen name="text_size_normal">14sp</dimen>
     <dimen name="text_title">   16sp</dimen>
     <dimen name="text_headline">20sp</dimen>
     <dimen name="text_display"> 28sp</dimen>
