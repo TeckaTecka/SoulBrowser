@@ -34,6 +34,8 @@
         android:background="@color/surface"
         app:menu="@menu/bottom_nav_menu"
         app:labelVisibilityMode="labeled"
+        app:itemIconTint="@color/bottom_nav_item"
+        app:itemTextColor="@color/bottom_nav_item"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />

@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.teckatecka.netadmin.data.model.ScanResult
 import com.teckatecka.netadmin.network.scanner.LanScanner
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -38,6 +39,8 @@ class ScannerViewModel : ViewModel() {
                     _state.value = ScannerUiState.Scanning(found.toList())
                 }
                 _state.value = ScannerUiState.Done(found.toList())
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 _state.value = ScannerUiState.Error(e.message ?: "Scan failed")
             }
