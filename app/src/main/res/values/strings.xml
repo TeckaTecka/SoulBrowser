@@ -139,6 +139,69 @@
     <string name="routeros_memory">Memory</string>
     <string name="routeros_uptime">Uptime</string>
 
+    <!-- Speed Test -->
+    <string name="speedtest_server">Server</string>
+    <string name="speedtest_isp">ISP</string>
+    <string name="speedtest_result_download">%.1f Mbps</string>
+    <string name="speedtest_result_upload">%.1f Mbps</string>
+    <string name="speedtest_result_ping">%d ms</string>
+    <string name="speedtest_phase_ping">Measuring latency…</string>
+    <string name="speedtest_phase_download">Measuring download…</string>
+    <string name="speedtest_phase_upload">Measuring upload…</string>
+
+    <!-- Port Scanner -->
+    <string name="port_scanner_from_hint">From port</string>
+    <string name="port_scanner_to_hint">To port</string>
+    <string name="port_scanner_scanning">Scanning ports…</string>
+    <string name="port_scanner_done">%1$d open ports found</string>
+    <string name="port_scanner_none">No open ports found</string>
+
+    <!-- BGP / WHOIS -->
+    <string name="bgp_title">BGP / WHOIS Lookup</string>
+    <string name="bgp_input_hint">IP, ASN (AS12345) or domain</string>
+    <string name="bgp_lookup">Lookup</string>
+    <string name="bgp_section_ip">IP Information</string>
+    <string name="bgp_section_bgp">BGP Prefix</string>
+    <string name="bgp_section_whois">WHOIS</string>
+    <string name="bgp_asn">ASN</string>
+    <string name="bgp_prefix">Prefix</string>
+    <string name="bgp_country">Country</string>
+    <string name="bgp_isp">ISP / Org</string>
+    <string name="bgp_rir">RIR</string>
+    <string name="bgp_error">Lookup failed: %1$s</string>
+
+    <!-- Terminal Server Manager -->
+    <string name="terminal_title">Terminal Server</string>
+    <string name="terminal_add_profile">Add RDP Profile</string>
+    <string name="terminal_host_hint">Host / IP address</string>
+    <string name="terminal_port_hint">Port (default 3389)</string>
+    <string name="terminal_username_hint">Username</string>
+    <string name="terminal_domain_hint">Domain (optional)</string>
+    <string name="terminal_connect">Connect via RDP</string>
+    <string name="terminal_edit">Edit</string>
+    <string name="terminal_delete">Delete</string>
+    <string name="terminal_no_profiles">No RDP profiles saved.\nTap + to add one.</string>
+    <string name="terminal_no_rdp_client">No RDP client installed. Install Microsoft Remote Desktop.</string>
+    <string name="terminal_winrm_check">Check WinRM</string>
+    <string name="terminal_winrm_ok">WinRM reachable on port 5985</string>
+    <string name="terminal_winrm_fail">WinRM not reachable: %1$s</string>
+    <string name="terminal_profile_saved">Profile saved</string>
+    <string name="terminal_profile_deleted">Profile deleted</string>
+
+    <!-- Monitoring -->
+    <string name="monitoring_title">Monitoring</string>
+    <string name="monitoring_add_host">Add Host</string>
+    <string name="monitoring_host_hint">Host / IP to monitor</string>
+    <string name="monitoring_interval_hint">Interval (minutes)</string>
+    <string name="monitoring_type_ping">Ping</string>
+    <string name="monitoring_type_http">HTTP</string>
+    <string name="monitoring_type_port">TCP Port</string>
+    <string name="monitoring_status_up">UP</string>
+    <string name="monitoring_status_down">DOWN</string>
+    <string name="monitoring_no_hosts">No hosts monitored.\nTap + to add one.</string>
+    <string name="monitoring_alert_down">%1$s is DOWN!</string>
+    <string name="monitoring_alert_up">%1$s is back UP</string>
+
     <!-- Obecné -->
     <string name="action_copy">Copy</string>
     <string name="action_share">Share</string>

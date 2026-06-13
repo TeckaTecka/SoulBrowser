@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="@dimen/spacing_sm"
+    android:gravity="center_vertical">
+
+    <TextView
+        android:id="@+id/text_history_time"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:textSize="@dimen/text_small"
+        android:textColor="@color/text_secondary" />
+
+    <TextView
+        android:id="@+id/text_history_download"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/spacing_sm"
+        android:textSize="@dimen/text_body"
+        android:textColor="@color/primary" />
+
+    <TextView
+        android:id="@+id/text_history_upload"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/spacing_sm"
+        android:textSize="@dimen/text_body"
+        android:textColor="@color/success" />
+
+    <TextView
+        android:id="@+id/text_history_ping"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/spacing_sm"
+        android:textSize="@dimen/text_body"
+        android:textColor="@color/accent" />
+
+</LinearLayout>

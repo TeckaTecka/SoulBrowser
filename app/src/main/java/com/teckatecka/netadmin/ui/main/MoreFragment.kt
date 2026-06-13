@@ -5,11 +5,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
+import com.teckatecka.netadmin.R
 import com.teckatecka.netadmin.databinding.FragmentMoreBinding
 
-/**
- * Fragment "Více" — obsahuje RouterOS správu, Speed Test, Monitoring a nastavení.
- */
 class MoreFragment : Fragment() {
 
     private var _binding: FragmentMoreBinding? = null
@@ -22,7 +21,25 @@ class MoreFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        // TODO: Fáze 2 — navigace na RouterOS, Speed Test, Monitoring, Terminal Server Manager
+
+        binding.btnRouteros.setOnClickListener {
+            findNavController().navigate(R.id.action_more_to_routeros)
+        }
+        binding.btnSpeedtest.setOnClickListener {
+            findNavController().navigate(R.id.action_more_to_speedtest)
+        }
+        binding.btnPortScanner.setOnClickListener {
+            findNavController().navigate(R.id.action_more_to_portscanner)
+        }
+        binding.btnBgpWhois.setOnClickListener {
+            findNavController().navigate(R.id.action_more_to_bgpwhois)
+        }
+        binding.btnMonitoring.setOnClickListener {
+            findNavController().navigate(R.id.action_more_to_monitoring)
+        }
+        binding.btnTerminal.setOnClickListener {
+            findNavController().navigate(R.id.action_more_to_terminal)
+        }
     }
 
     override fun onDestroyView() {

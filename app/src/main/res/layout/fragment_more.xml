@@ -11,56 +11,87 @@
         android:orientation="vertical"
         android:padding="@dimen/spacing_md">
 
-        <!-- RouterOS sekce -->
+        <!-- Síťové nástroje -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/routeros_title"
-            android:textSize="@dimen/text_headline"
-            android:textStyle="bold"
-            android:layout_marginBottom="@dimen/spacing_sm" />
+            android:text="Network Tools"
+            android:textSize="@dimen/text_small"
+            android:textColor="@color/text_secondary"
+            android:textAllCaps="true"
+            android:letterSpacing="0.1"
+            android:layout_marginBottom="@dimen/spacing_xs" />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_routeros"
+            android:id="@+id/btn_port_scanner"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/routeros_title" />
+            android:layout_marginBottom="@dimen/spacing_xs"
+            android:text="@string/port_scanner_title"
+            android:gravity="start|center_vertical"
+            android:paddingStart="@dimen/spacing_md" />
 
-        <!-- Speed Test -->
-        <TextView
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_bgp_whois"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/speedtest_title"
-            android:textSize="@dimen/text_headline"
-            android:textStyle="bold"
-            android:layout_marginTop="@dimen/spacing_lg"
-            android:layout_marginBottom="@dimen/spacing_sm" />
+            android:layout_marginBottom="@dimen/spacing_xs"
+            android:text="@string/bgp_title"
+            android:gravity="start|center_vertical"
+            android:paddingStart="@dimen/spacing_md" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_speedtest"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/speedtest_title" />
+            android:layout_marginBottom="@dimen/spacing_xs"
+            android:text="@string/speedtest_title"
+            android:gravity="start|center_vertical"
+            android:paddingStart="@dimen/spacing_md" />
 
-        <!-- Monitoring -->
+        <!-- Správa infrastruktury -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Infrastructure"
+            android:textSize="@dimen/text_small"
+            android:textColor="@color/text_secondary"
+            android:textAllCaps="true"
+            android:letterSpacing="0.1"
+            android:layout_marginTop="@dimen/spacing_lg"
+            android:layout_marginBottom="@dimen/spacing_xs" />
+
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_monitoring"
+            android:id="@+id/btn_routeros"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_sm"
-            android:text="Monitoring" />
+            android:layout_marginBottom="@dimen/spacing_xs"
+            android:text="@string/routeros_title"
+            android:gravity="start|center_vertical"
+            android:paddingStart="@dimen/spacing_md" />
 
-        <!-- Terminal Server -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_terminal"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_sm"
-            android:text="Terminal Server Manager" />
+            android:layout_marginBottom="@dimen/spacing_xs"
+            android:text="@string/terminal_title"
+            android:gravity="start|center_vertical"
+            android:paddingStart="@dimen/spacing_md" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_monitoring"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/monitoring_title"
+            android:gravity="start|center_vertical"
+            android:paddingStart="@dimen/spacing_md" />
 
     </LinearLayout>
 </ScrollView>

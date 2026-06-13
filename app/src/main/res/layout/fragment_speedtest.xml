@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="@dimen/spacing_md">
+
+    <!-- Výsledky — tři karty vedle sebe -->
+    <LinearLayout
+        android:id="@+id/layout_results"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- Download -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:padding="@dimen/spacing_sm">
+
+            <TextView
+                android:id="@+id/text_download_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="--"
+                android:textSize="@dimen/text_display"
+                android:textStyle="bold"
+                android:textColor="@color/primary" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/speedtest_unit_mbps"
+                android:textSize="@dimen/text_small"
+                android:textColor="@color/text_secondary" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/speedtest_download"
+                android:textSize="@dimen/text_body"
+                android:layout_marginTop="@dimen/spacing_xs" />
+        </LinearLayout>
+
+        <!-- Divider -->
+        <View android:layout_width="1dp" android:layout_height="60dp" android:background="@color/divider" />
+
+        <!-- Ping -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:padding="@dimen/spacing_sm">
+
+            <TextView
+                android:id="@+id/text_ping_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="--"
+                android:textSize="@dimen/text_display"
+                android:textStyle="bold"
+                android:textColor="@color/accent" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/speedtest_unit_ms"
+                android:textSize="@dimen/text_small"
+                android:textColor="@color/text_secondary" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/speedtest_ping_label"
+                android:textSize="@dimen/text_body"
+                android:layout_marginTop="@dimen/spacing_xs" />
+        </LinearLayout>
+
+        <!-- Divider -->
+        <View android:layout_width="1dp" android:layout_height="60dp" android:background="@color/divider" />
+
+        <!-- Upload -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:padding="@dimen/spacing_sm">
+
+            <TextView
+                android:id="@+id/text_upload_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="--"
+                android:textSize="@dimen/text_display"
+                android:textStyle="bold"
+                android:textColor="@color/success" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/speedtest_unit_mbps"
+                android:textSize="@dimen/text_small"
+                android:textColor="@color/text_secondary" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/speedtest_upload"
+                android:textSize="@dimen/text_body"
+                android:layout_marginTop="@dimen/spacing_xs" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Stavový text (aktuální fáze) -->
+    <TextView
+        android:id="@+id/text_status"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacing_md"
+        android:gravity="center"
+        android:textSize="@dimen/text_body"
+        android:textColor="@color/text_secondary"
+        app:layout_constraintTop_toBottomOf="@id/layout_results"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Progress bar -->
+    <ProgressBar
+        android:id="@+id/progress_test"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="0dp"
+        android:layout_height="8dp"
+        android:layout_marginTop="@dimen/spacing_sm"
+        android:visibility="gone"
+        android:max="100"
+        android:progressTint="@color/primary"
+        app:layout_constraintTop_toBottomOf="@id/text_status"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Start tlačítko -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_start_test"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacing_lg"
+        android:text="@string/speedtest_start"
+        app:layout_constraintTop_toBottomOf="@id/progress_test"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Historie testů -->
+    <TextView
+        android:id="@+id/label_history"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacing_lg"
+        android:text="@string/speedtest_history"
+        android:textSize="@dimen/text_title"
+        android:textStyle="bold"
+        app:layout_constraintTop_toBottomOf="@id/btn_start_test"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_history"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="@dimen/spacing_xs"
+        app:layout_constraintTop_toBottomOf="@id/label_history"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

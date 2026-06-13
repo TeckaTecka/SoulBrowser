@@ -35,5 +35,6 @@ androidx-junit                 = { group = "androidx.test.ext",         name = "
 androidx-espresso-core         = { group = "androidx.test.espresso",    name = "espresso-core",                     version.ref = "espresso" }
 
 [plugins]
-android-application  = { id = "com.android.application",  version.ref = "agp" }
-kotlin-android       = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+android-application      = { id = "com.android.application",                    version.ref = "agp" }
+kotlin-android           = { id = "org.jetbrains.kotlin.android",               version.ref = "kotlin" }
+navigation-safeargs      = { id = "androidx.navigation.safe-args-gradle-plugin", version.ref = "navigation" }

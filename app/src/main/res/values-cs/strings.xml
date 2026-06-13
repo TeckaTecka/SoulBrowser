@@ -139,6 +139,69 @@
     <string name="routeros_memory">Paměť</string>
     <string name="routeros_uptime">Uptime</string>
 
+    <!-- Speed Test -->
+    <string name="speedtest_server">Server</string>
+    <string name="speedtest_isp">ISP</string>
+    <string name="speedtest_result_download">%.1f Mbps</string>
+    <string name="speedtest_result_upload">%.1f Mbps</string>
+    <string name="speedtest_result_ping">%d ms</string>
+    <string name="speedtest_phase_ping">Měřím latenci…</string>
+    <string name="speedtest_phase_download">Měřím stahování…</string>
+    <string name="speedtest_phase_upload">Měřím nahrávání…</string>
+
+    <!-- Port Scanner -->
+    <string name="port_scanner_from_hint">Od portu</string>
+    <string name="port_scanner_to_hint">Do portu</string>
+    <string name="port_scanner_scanning">Skenuji porty…</string>
+    <string name="port_scanner_done">Nalezeno %1$d otevřených portů</string>
+    <string name="port_scanner_none">Žádné otevřené porty nenalezeny</string>
+
+    <!-- BGP / WHOIS -->
+    <string name="bgp_title">BGP / WHOIS Lookup</string>
+    <string name="bgp_input_hint">IP, ASN (AS12345) nebo doména</string>
+    <string name="bgp_lookup">Vyhledat</string>
+    <string name="bgp_section_ip">Informace o IP</string>
+    <string name="bgp_section_bgp">BGP prefix</string>
+    <string name="bgp_section_whois">WHOIS</string>
+    <string name="bgp_asn">ASN</string>
+    <string name="bgp_prefix">Prefix</string>
+    <string name="bgp_country">Země</string>
+    <string name="bgp_isp">ISP / Org</string>
+    <string name="bgp_rir">RIR</string>
+    <string name="bgp_error">Lookup selhal: %1$s</string>
+
+    <!-- Terminal Server Manager -->
+    <string name="terminal_title">Terminálový server</string>
+    <string name="terminal_add_profile">Přidat RDP profil</string>
+    <string name="terminal_host_hint">Host / IP adresa</string>
+    <string name="terminal_port_hint">Port (výchozí 3389)</string>
+    <string name="terminal_username_hint">Uživatelské jméno</string>
+    <string name="terminal_domain_hint">Doména (volitelné)</string>
+    <string name="terminal_connect">Připojit přes RDP</string>
+    <string name="terminal_edit">Upravit</string>
+    <string name="terminal_delete">Smazat</string>
+    <string name="terminal_no_profiles">Žádné RDP profily.\nKlepněte na + pro přidání.</string>
+    <string name="terminal_no_rdp_client">Není nainstalován RDP klient. Nainstalujte Microsoft Remote Desktop.</string>
+    <string name="terminal_winrm_check">Zkontrolovat WinRM</string>
+    <string name="terminal_winrm_ok">WinRM dostupné na portu 5985</string>
+    <string name="terminal_winrm_fail">WinRM nedostupné: %1$s</string>
+    <string name="terminal_profile_saved">Profil uložen</string>
+    <string name="terminal_profile_deleted">Profil smazán</string>
+
+    <!-- Monitoring -->
+    <string name="monitoring_title">Monitoring</string>
+    <string name="monitoring_add_host">Přidat host</string>
+    <string name="monitoring_host_hint">Host / IP ke sledování</string>
+    <string name="monitoring_interval_hint">Interval (minuty)</string>
+    <string name="monitoring_type_ping">Ping</string>
+    <string name="monitoring_type_http">HTTP</string>
+    <string name="monitoring_type_port">TCP Port</string>
+    <string name="monitoring_status_up">DOSTUPNÝ</string>
+    <string name="monitoring_status_down">NEDOSTUPNÝ</string>
+    <string name="monitoring_no_hosts">Žádné sledované hosty.\nKlepněte na + pro přidání.</string>
+    <string name="monitoring_alert_down">%1$s je NEDOSTUPNÝ!</string>
+    <string name="monitoring_alert_up">%1$s je opět DOSTUPNÝ</string>
+
     <!-- Obecné -->
     <string name="action_copy">Kopírovat</string>
     <string name="action_share">Sdílet</string>
