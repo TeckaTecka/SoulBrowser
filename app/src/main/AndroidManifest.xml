@@ -23,7 +23,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.NetAdmin">
+        android:theme="@style/Theme.NetAdmin.NoActionBar">
 
         <activity
             android:name=".ui.main.MainActivity"
