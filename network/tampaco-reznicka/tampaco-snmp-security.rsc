@@ -17,8 +17,9 @@
 #   (nevyzaduje fyzicky pristup, jen webovy prohlizec na management PC)
 # =============================================================================
 
-# Upravte tento retezec! Pouzijte min. 16 znaku, velka+mala+cisla
-:local newCommunity "TAMPACO-monitor-2024x"
+# UPRAVTE TENTO RETEZEC pred spustenim! Min. 16 znaku, velka+mala+cisla+specialni.
+# Priklad: openssl rand -base64 16
+:local newCommunity "ZDE-DOPLNTE-SILNY-RETEZEC"
 
 /snmp community {
   # Zmenime default community

@@ -97,5 +97,5 @@ Při výměně RB951 → RB4011 je nutné:
 
 ## CSS326 – doporučené manuální změny (webGUI)
 
-- `http://192.168.170.200` → System → Password → změnit z `L95GA`
+- `http://192.168.170.200` → System → Password → změnit na silné heslo (min. 12 znaků)
 - System → SNMP → Community → změnit z `public` na stejný řetězec jako na routeru
