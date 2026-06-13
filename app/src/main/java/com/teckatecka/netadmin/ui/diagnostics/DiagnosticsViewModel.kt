@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.teckatecka.netadmin.utils.IpUtils
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -106,7 +107,7 @@ class DiagnosticsViewModel : ViewModel() {
                     implField.isAccessible = true
                     val impl = implField.get(socket)
                     impl.javaClass.getMethod("setOption", Int::class.java, Any::class.java)
-                        .invoke(impl, java.net.SocketOptions.IP_TTL, ttl)
+                        .invoke(impl, 0x1E /* IP_TTL */, ttl)
 
                     socket.connect(java.net.InetSocketAddress(targetIp, 80), timeoutMs)
                     hopMs       = System.currentTimeMillis() - start
