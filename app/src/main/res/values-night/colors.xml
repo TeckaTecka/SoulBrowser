@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="primary">         #42A5F5</color>
+    <color name="primary_dark">    #1976D2</color>
+    <color name="primary_light">   #90CAF9</color>
+    <color name="accent">          #00E5FF</color>
+    <color name="background">      #000000</color>
+    <color name="surface">         #121212</color>
+    <color name="on_primary">      #000000</color>
+    <color name="on_surface">      #FFFFFF</color>
+    <color name="text_secondary">  #9E9E9E</color>
+    <color name="divider">         #2C2C2C</color>
+    <color name="error">           #EF9A9A</color>
+    <color name="success">         #A5D6A7</color>
+    <color name="warning">         #FFCC80</color>
+
+    <color name="port_open">       #A5D6A7</color>
+    <color name="port_closed">     #9E9E9E</color>
+    <color name="port_filtered">   #FFCC80</color>
+    <color name="host_up">         #A5D6A7</color>
+    <color name="host_down">       #EF9A9A</color>
+
+    <color name="signal_excellent"> #A5D6A7</color>
+    <color name="signal_good">      #C5E1A5</color>
+    <color name="signal_fair">      #FFF59D</color>
+    <color name="signal_poor">      #EF9A9A</color>
+</resources>

@@ -234,6 +234,10 @@
     <string name="monitoring_channel_name">Upozornění monitoringu</string>
     <string name="monitoring_channel_desc">Notifikace při výpadku nebo obnovení sledovaného hostu</string>
 
+    <!-- Nastavení -->
+    <string name="settings_section">Nastavení</string>
+    <string name="settings_dark_mode">Tmavý režim (černé téma)</string>
+
     <!-- Obecné -->
     <string name="action_copy">Kopírovat</string>
     <string name="action_share">Sdílet</string>

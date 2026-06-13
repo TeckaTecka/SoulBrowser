@@ -125,5 +125,25 @@
             android:gravity="start|center_vertical"
             android:paddingStart="@dimen/spacing_md" />
 
+        <!-- Nastavení -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/settings_section"
+            android:textSize="@dimen/text_size_small"
+            android:textColor="@color/text_secondary"
+            android:textAllCaps="true"
+            android:letterSpacing="0.1"
+            android:layout_marginTop="@dimen/spacing_lg"
+            android:layout_marginBottom="@dimen/spacing_xs" />
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/switch_dark_mode"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="@dimen/spacing_sm"
+            android:paddingEnd="@dimen/spacing_sm"
+            android:text="@string/settings_dark_mode" />
+
     </LinearLayout>
 </ScrollView>

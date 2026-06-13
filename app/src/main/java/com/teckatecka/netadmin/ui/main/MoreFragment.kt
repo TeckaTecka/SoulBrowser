@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.teckatecka.netadmin.R
 import com.teckatecka.netadmin.databinding.FragmentMoreBinding
+import com.teckatecka.netadmin.utils.ThemeManager
 
 class MoreFragment : Fragment() {
 
@@ -45,6 +46,11 @@ class MoreFragment : Fragment() {
         }
         binding.btnSnmp.setOnClickListener {
             findNavController().navigate(R.id.action_more_to_snmp)
+        }
+
+        binding.switchDarkMode.isChecked = ThemeManager.isNightMode(requireContext())
+        binding.switchDarkMode.setOnCheckedChangeListener { _, isChecked ->
+            ThemeManager.setNightMode(requireContext(), isChecked)
         }
     }
 
