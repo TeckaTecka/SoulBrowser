@@ -3,147 +3,217 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/background">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="@dimen/spacing_md">
+        android:paddingStart="@dimen/spacing_md"
+        android:paddingEnd="@dimen/spacing_md"
+        android:paddingTop="@dimen/spacing_md"
+        android:paddingBottom="@dimen/spacing_lg">
 
-        <!-- Síťové nástroje -->
-        <TextView
+        <!-- ── Network Tools ──────────────────────────────────── -->
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Network Tools"
-            android:textSize="@dimen/text_small"
-            android:textColor="@color/text_secondary"
-            android:textAllCaps="true"
-            android:letterSpacing="0.1"
-            android:layout_marginBottom="@dimen/spacing_xs" />
+            android:layout_marginBottom="@dimen/spacing_md"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="2dp"
+            app:strokeWidth="0dp">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_port_scanner"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    style="@style/SectionHeader"
+                    android:text="@string/more_section_network" />
+
+                <!-- Port Scanner -->
+                <LinearLayout android:id="@+id/btn_port_scanner"
+                    style="@style/MoreRow">
+                    <ImageView android:id="@+id/icon_port"
+                        style="@style/MoreRowIcon"
+                        android:src="@drawable/ic_tool_port" />
+                    <TextView android:id="@+id/title_port"
+                        style="@style/MoreRowTitle"
+                        android:text="@string/port_scanner_title" />
+                    <ImageView style="@style/MoreRowChevron" />
+                </LinearLayout>
+
+                <View style="@style/RowDivider" />
+
+                <!-- BGP / WHOIS -->
+                <LinearLayout android:id="@+id/btn_bgp_whois"
+                    style="@style/MoreRow">
+                    <ImageView android:id="@+id/icon_bgp"
+                        style="@style/MoreRowIcon"
+                        android:src="@drawable/ic_tool_bgp" />
+                    <TextView android:id="@+id/title_bgp"
+                        style="@style/MoreRowTitle"
+                        android:text="@string/bgp_title" />
+                    <ImageView style="@style/MoreRowChevron" />
+                </LinearLayout>
+
+                <View style="@style/RowDivider" />
+
+                <!-- Speed Test -->
+                <LinearLayout android:id="@+id/btn_speedtest"
+                    style="@style/MoreRow">
+                    <ImageView android:id="@+id/icon_speed"
+                        style="@style/MoreRowIcon"
+                        android:src="@drawable/ic_tool_speedtest" />
+                    <TextView android:id="@+id/title_speed"
+                        style="@style/MoreRowTitle"
+                        android:text="@string/speedtest_title" />
+                    <ImageView style="@style/MoreRowChevron" />
+                </LinearLayout>
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- ── Infrastructure ────────────────────────────────── -->
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/spacing_xs"
-            android:text="@string/port_scanner_title"
-            android:gravity="start|center_vertical"
-            android:paddingStart="@dimen/spacing_md" />
+            android:layout_marginBottom="@dimen/spacing_md"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="2dp"
+            app:strokeWidth="0dp">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_bgp_whois"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    style="@style/SectionHeader"
+                    android:text="@string/more_section_infra" />
+
+                <!-- RouterOS -->
+                <LinearLayout android:id="@+id/btn_routeros"
+                    style="@style/MoreRow">
+                    <ImageView android:id="@+id/icon_ros"
+                        style="@style/MoreRowIcon"
+                        android:src="@drawable/ic_tool_routeros" />
+                    <TextView android:id="@+id/title_ros"
+                        style="@style/MoreRowTitle"
+                        android:text="@string/routeros_title" />
+                    <ImageView style="@style/MoreRowChevron" />
+                </LinearLayout>
+
+                <View style="@style/RowDivider" />
+
+                <!-- Terminal Server -->
+                <LinearLayout android:id="@+id/btn_terminal"
+                    style="@style/MoreRow">
+                    <ImageView android:id="@+id/icon_term"
+                        style="@style/MoreRowIcon"
+                        android:src="@drawable/ic_tool_terminal" />
+                    <TextView android:id="@+id/title_term"
+                        style="@style/MoreRowTitle"
+                        android:text="@string/terminal_title" />
+                    <ImageView style="@style/MoreRowChevron" />
+                </LinearLayout>
+
+                <View style="@style/RowDivider" />
+
+                <!-- Monitoring -->
+                <LinearLayout android:id="@+id/btn_monitoring"
+                    style="@style/MoreRow">
+                    <ImageView android:id="@+id/icon_mon"
+                        style="@style/MoreRowIcon"
+                        android:src="@drawable/ic_tool_monitoring" />
+                    <TextView android:id="@+id/title_mon"
+                        style="@style/MoreRowTitle"
+                        android:text="@string/monitoring_title" />
+                    <ImageView style="@style/MoreRowChevron" />
+                </LinearLayout>
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- ── Advanced ───────────────────────────────────────── -->
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/spacing_xs"
-            android:text="@string/bgp_title"
-            android:gravity="start|center_vertical"
-            android:paddingStart="@dimen/spacing_md" />
+            android:layout_marginBottom="@dimen/spacing_md"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="2dp"
+            app:strokeWidth="0dp">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_speedtest"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    style="@style/SectionHeader"
+                    android:text="@string/more_section_advanced" />
+
+                <!-- SSH Terminal -->
+                <LinearLayout android:id="@+id/btn_ssh"
+                    style="@style/MoreRow">
+                    <ImageView android:id="@+id/icon_ssh"
+                        style="@style/MoreRowIcon"
+                        android:src="@drawable/ic_tool_ssh" />
+                    <TextView android:id="@+id/title_ssh"
+                        style="@style/MoreRowTitle"
+                        android:text="@string/ssh_title" />
+                    <ImageView style="@style/MoreRowChevron" />
+                </LinearLayout>
+
+                <View style="@style/RowDivider" />
+
+                <!-- SNMP Browser -->
+                <LinearLayout android:id="@+id/btn_snmp"
+                    style="@style/MoreRow">
+                    <ImageView android:id="@+id/icon_snmp"
+                        style="@style/MoreRowIcon"
+                        android:src="@drawable/ic_tool_snmp" />
+                    <TextView android:id="@+id/title_snmp"
+                        style="@style/MoreRowTitle"
+                        android:text="@string/snmp_title" />
+                    <ImageView style="@style/MoreRowChevron" />
+                </LinearLayout>
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- ── Settings ───────────────────────────────────────── -->
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/spacing_xs"
-            android:text="@string/speedtest_title"
-            android:gravity="start|center_vertical"
-            android:paddingStart="@dimen/spacing_md" />
+            android:layout_marginBottom="@dimen/spacing_md"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="2dp"
+            app:strokeWidth="0dp">
 
-        <!-- Správa infrastruktury -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Infrastructure"
-            android:textSize="@dimen/text_small"
-            android:textColor="@color/text_secondary"
-            android:textAllCaps="true"
-            android:letterSpacing="0.1"
-            android:layout_marginTop="@dimen/spacing_lg"
-            android:layout_marginBottom="@dimen/spacing_xs" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_routeros"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/spacing_xs"
-            android:text="@string/routeros_title"
-            android:gravity="start|center_vertical"
-            android:paddingStart="@dimen/spacing_md" />
+                <TextView
+                    style="@style/SectionHeader"
+                    android:text="@string/settings_section" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_terminal"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/spacing_xs"
-            android:text="@string/terminal_title"
-            android:gravity="start|center_vertical"
-            android:paddingStart="@dimen/spacing_md" />
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/switch_dark_mode"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:paddingStart="@dimen/spacing_md"
+                    android:paddingEnd="@dimen/spacing_md"
+                    android:text="@string/settings_dark_mode"
+                    android:textSize="15sp"
+                    android:textColor="@color/on_surface" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_monitoring"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/spacing_xs"
-            android:text="@string/monitoring_title"
-            android:gravity="start|center_vertical"
-            android:paddingStart="@dimen/spacing_md" />
-
-        <!-- Fáze 3 -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Advanced"
-            android:textSize="@dimen/text_small"
-            android:textColor="@color/text_secondary"
-            android:textAllCaps="true"
-            android:letterSpacing="0.1"
-            android:layout_marginTop="@dimen/spacing_lg"
-            android:layout_marginBottom="@dimen/spacing_xs" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_ssh"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/spacing_xs"
-            android:text="@string/ssh_title"
-            android:gravity="start|center_vertical"
-            android:paddingStart="@dimen/spacing_md" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_snmp"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/snmp_title"
-            android:gravity="start|center_vertical"
-            android:paddingStart="@dimen/spacing_md" />
-
-        <!-- Nastavení -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/settings_section"
-            android:textSize="@dimen/text_size_small"
-            android:textColor="@color/text_secondary"
-            android:textAllCaps="true"
-            android:letterSpacing="0.1"
-            android:layout_marginTop="@dimen/spacing_lg"
-            android:layout_marginBottom="@dimen/spacing_xs" />
-
-        <com.google.android.material.switchmaterial.SwitchMaterial
-            android:id="@+id/switch_dark_mode"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingStart="@dimen/spacing_sm"
-            android:paddingEnd="@dimen/spacing_sm"
-            android:text="@string/settings_dark_mode" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
     </LinearLayout>
 </ScrollView>

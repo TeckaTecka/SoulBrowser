@@ -234,6 +234,11 @@
     <string name="monitoring_channel_name">Upozornění monitoringu</string>
     <string name="monitoring_channel_desc">Notifikace při výpadku nebo obnovení sledovaného hostu</string>
 
+    <!-- More sekce -->
+    <string name="more_section_network">Síťové nástroje</string>
+    <string name="more_section_infra">Infrastruktura</string>
+    <string name="more_section_advanced">Pokročilé</string>
+
     <!-- Nastavení -->
     <string name="settings_section">Nastavení</string>
     <string name="settings_dark_mode">Tmavý režim (černé téma)</string>

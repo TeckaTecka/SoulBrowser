@@ -234,6 +234,11 @@
     <string name="monitoring_channel_name">Host Monitoring Alerts</string>
     <string name="monitoring_channel_desc">Notifications when monitored hosts go down or recover</string>
 
+    <!-- More sekce -->
+    <string name="more_section_network">Network Tools</string>
+    <string name="more_section_infra">Infrastructure</string>
+    <string name="more_section_advanced">Advanced</string>
+
     <!-- Nastavení -->
     <string name="settings_section">Settings</string>
     <string name="settings_dark_mode">Dark mode (black theme)</string>
