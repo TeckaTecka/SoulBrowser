@@ -43,4 +43,4 @@ androidx-espresso-core         = { group = "androidx.test.espresso",    name = "
 [plugins]
 android-application      = { id = "com.android.application",                    version.ref = "agp" }
 kotlin-android           = { id = "org.jetbrains.kotlin.android",               version.ref = "kotlin" }
-navigation-safeargs      = { id = "androidx.navigation.safe-args-gradle-plugin", version.ref = "navigation" }
+navigation-safeargs      = { id = "androidx.navigation.safeargs.kotlin",           version.ref = "navigation" }
