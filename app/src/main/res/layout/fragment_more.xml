@@ -89,7 +89,39 @@
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/spacing_xs"
             android:text="@string/monitoring_title"
+            android:gravity="start|center_vertical"
+            android:paddingStart="@dimen/spacing_md" />
+
+        <!-- Fáze 3 -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Advanced"
+            android:textSize="@dimen/text_small"
+            android:textColor="@color/text_secondary"
+            android:textAllCaps="true"
+            android:letterSpacing="0.1"
+            android:layout_marginTop="@dimen/spacing_lg"
+            android:layout_marginBottom="@dimen/spacing_xs" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_ssh"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/spacing_xs"
+            android:text="@string/ssh_title"
+            android:gravity="start|center_vertical"
+            android:paddingStart="@dimen/spacing_md" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_snmp"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/snmp_title"
             android:gravity="start|center_vertical"
             android:paddingStart="@dimen/spacing_md" />
 

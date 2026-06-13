@@ -202,6 +202,38 @@
     <string name="monitoring_alert_down">%1$s je NEDOSTUPNÝ!</string>
     <string name="monitoring_alert_up">%1$s je opět DOSTUPNÝ</string>
 
+    <!-- SSH Terminál -->
+    <string name="ssh_title">SSH Terminál</string>
+    <string name="ssh_host">Host / IP adresa</string>
+    <string name="ssh_port">Port (výchozí 22)</string>
+    <string name="ssh_command_hint">Příkaz…</string>
+    <string name="connect">Připojit</string>
+    <string name="disconnect">Odpojit</string>
+    <string name="send">Odeslat</string>
+    <string name="username">Uživatelské jméno</string>
+    <string name="password">Heslo</string>
+    <string name="fill_required_fields">Vyplňte všechna povinná pole</string>
+
+    <!-- SNMP Browser -->
+    <string name="snmp_title">SNMP Browser</string>
+    <string name="snmp_host">Host / IP adresa</string>
+    <string name="snmp_community">Community (výchozí: public)</string>
+    <string name="snmp_oid">OID</string>
+    <string name="snmp_walk">Walk</string>
+    <string name="snmp_get">GET</string>
+    <string name="snmp_preset_system">Systémové info</string>
+    <string name="snmp_preset_interfaces">Rozhraní</string>
+    <string name="snmp_empty_hint">Zadejte host a OID, pak stiskněte Walk nebo GET</string>
+    <string name="port">Port</string>
+
+    <!-- Monitoring notifikace -->
+    <string name="monitoring_alert_down_title">Host nedostupný</string>
+    <string name="monitoring_alert_down_body">%1$s neodpovídá</string>
+    <string name="monitoring_alert_up_title">Host obnoven</string>
+    <string name="monitoring_alert_up_body">%1$s je opět dostupný</string>
+    <string name="monitoring_channel_name">Upozornění monitoringu</string>
+    <string name="monitoring_channel_desc">Notifikace při výpadku nebo obnovení sledovaného hostu</string>
+
     <!-- Obecné -->
     <string name="action_copy">Kopírovat</string>
     <string name="action_share">Sdílet</string>

@@ -8,12 +8,17 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.teckatecka.netadmin.R
 import com.teckatecka.netadmin.databinding.DialogAddMonitorHostBinding
 import com.teckatecka.netadmin.databinding.FragmentMonitoringBinding
+import com.teckatecka.netadmin.service.MonitoringWorker
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import java.util.concurrent.TimeUnit
 
 class MonitoringFragment : Fragment() {
 
@@ -38,6 +43,7 @@ class MonitoringFragment : Fragment() {
         binding.recyclerHosts.adapter       = adapter
 
         binding.fabAddHost.setOnClickListener { showAddDialog() }
+        scheduleBackgroundMonitoring()
 
         lifecycleScope.launch {
             viewModel.hosts.collectLatest { hosts ->
@@ -46,6 +52,16 @@ class MonitoringFragment : Fragment() {
                 adapter.submitList(hosts)
             }
         }
+    }
+
+    private fun scheduleBackgroundMonitoring() {
+        val request = PeriodicWorkRequestBuilder<MonitoringWorker>(15, TimeUnit.MINUTES)
+            .build()
+        WorkManager.getInstance(requireContext()).enqueueUniquePeriodicWork(
+            MonitoringWorker.WORK_NAME,
+            ExistingPeriodicWorkPolicy.KEEP,
+            request
+        )
     }
 
     private fun showAddDialog() {

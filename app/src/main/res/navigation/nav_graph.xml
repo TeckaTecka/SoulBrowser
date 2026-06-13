@@ -35,6 +35,8 @@
         <action android:id="@+id/action_more_to_bgpwhois"        app:destination="@id/bgpWhoisFragment" />
         <action android:id="@+id/action_more_to_terminal"        app:destination="@id/terminalServerFragment" />
         <action android:id="@+id/action_more_to_monitoring"      app:destination="@id/monitoringFragment" />
+        <action android:id="@+id/action_more_to_ssh"             app:destination="@id/sshTerminalFragment" />
+        <action android:id="@+id/action_more_to_snmp"            app:destination="@id/snmpFragment" />
     </fragment>
 
     <!-- Fáze 2 fragmenty (navigovatelné z MoreFragment) -->
@@ -74,5 +76,16 @@
         android:id="@+id/monitoringFragment"
         android:name="com.teckatecka.netadmin.ui.monitoring.MonitoringFragment"
         android:label="@string/monitoring_title" />
+
+    <!-- Fáze 3 fragmenty -->
+    <fragment
+        android:id="@+id/sshTerminalFragment"
+        android:name="com.teckatecka.netadmin.ui.ssh.SshTerminalFragment"
+        android:label="@string/ssh_title" />
+
+    <fragment
+        android:id="@+id/snmpFragment"
+        android:name="com.teckatecka.netadmin.ui.snmp.SnmpFragment"
+        android:label="@string/snmp_title" />
 
 </navigation>

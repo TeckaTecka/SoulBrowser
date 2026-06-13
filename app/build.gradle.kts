@@ -55,6 +55,9 @@ dependencies {
     implementation(libs.okhttp)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.mpandroidchart)
+    implementation(libs.workmanager.ktx)
+    implementation(libs.jsch)
+    implementation(libs.snmp4j)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

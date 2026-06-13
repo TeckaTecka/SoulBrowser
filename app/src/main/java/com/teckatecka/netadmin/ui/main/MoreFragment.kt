@@ -40,6 +40,12 @@ class MoreFragment : Fragment() {
         binding.btnTerminal.setOnClickListener {
             findNavController().navigate(R.id.action_more_to_terminal)
         }
+        binding.btnSsh.setOnClickListener {
+            findNavController().navigate(R.id.action_more_to_ssh)
+        }
+        binding.btnSnmp.setOnClickListener {
+            findNavController().navigate(R.id.action_more_to_snmp)
+        }
     }
 
     override fun onDestroyView() {

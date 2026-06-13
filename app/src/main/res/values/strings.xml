@@ -202,6 +202,38 @@
     <string name="monitoring_alert_down">%1$s is DOWN!</string>
     <string name="monitoring_alert_up">%1$s is back UP</string>
 
+    <!-- SSH Terminál -->
+    <string name="ssh_title">SSH Terminal</string>
+    <string name="ssh_host">Host / IP address</string>
+    <string name="ssh_port">Port (default 22)</string>
+    <string name="ssh_command_hint">Command…</string>
+    <string name="connect">Connect</string>
+    <string name="disconnect">Disconnect</string>
+    <string name="send">Send</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="fill_required_fields">Please fill in all required fields</string>
+
+    <!-- SNMP Browser -->
+    <string name="snmp_title">SNMP Browser</string>
+    <string name="snmp_host">Host / IP address</string>
+    <string name="snmp_community">Community (default: public)</string>
+    <string name="snmp_oid">OID</string>
+    <string name="snmp_walk">Walk</string>
+    <string name="snmp_get">GET</string>
+    <string name="snmp_preset_system">System Info</string>
+    <string name="snmp_preset_interfaces">Interfaces</string>
+    <string name="snmp_empty_hint">Enter host and OID, then press Walk or GET</string>
+    <string name="port">Port</string>
+
+    <!-- Monitoring notifikace -->
+    <string name="monitoring_alert_down_title">Host Down</string>
+    <string name="monitoring_alert_down_body">%1$s is not responding</string>
+    <string name="monitoring_alert_up_title">Host Recovered</string>
+    <string name="monitoring_alert_up_body">%1$s is back online</string>
+    <string name="monitoring_channel_name">Host Monitoring Alerts</string>
+    <string name="monitoring_channel_desc">Notifications when monitored hosts go down or recover</string>
+
     <!-- Obecné -->
     <string name="action_copy">Copy</string>
     <string name="action_share">Share</string>
