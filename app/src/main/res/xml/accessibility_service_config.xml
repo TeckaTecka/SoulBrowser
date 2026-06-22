@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Accessibility service config for BT Hotspot Auto.
+
+    Key settings:
+    - typeWindowStateChanged: detects when Quick Settings panel opens
+    - typeWindowContentChanged: detects when tiles load/refresh within the panel
+    - canRetrieveWindowContent: required to search the accessibility tree for the hotspot tile
+    - flagIncludeNotImportantViews: needed to find tile views that may be marked non-important
+    - flagReportViewIds: helps identify views by resource ID as fallback
+-->
+<accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
+    android:accessibilityEventTypes="typeWindowStateChanged|typeWindowContentChanged"
+    android:accessibilityFlags="flagDefault|flagIncludeNotImportantViews|flagReportViewIds"
+    android:accessibilityFeedbackType="feedbackGeneric"
+    android:canRetrieveWindowContent="true"
+    android:description="@string/accessibility_service_description"
+    android:notificationTimeout="100"
+    android:settingsActivity="com.soulbrowser.bthotspot.MainActivity" />

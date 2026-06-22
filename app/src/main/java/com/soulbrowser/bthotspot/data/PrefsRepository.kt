@@ -1,0 +1,50 @@
+package com.soulbrowser.bthotspot.data
+
+import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+
+private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "bthotspot_prefs")
+
+class PrefsRepository(private val context: Context) {
+
+    companion object {
+        private val KEY_DEVICE_ADDRESS = stringPreferencesKey("selected_device_address")
+        private val KEY_DEVICE_NAME = stringPreferencesKey("selected_device_name")
+        private val KEY_SERVICE_ENABLED = booleanPreferencesKey("service_enabled")
+    }
+
+    val selectedDevice: Flow<DeviceInfo?> = context.dataStore.data.map { prefs ->
+        val address = prefs[KEY_DEVICE_ADDRESS] ?: return@map null
+        val name = prefs[KEY_DEVICE_NAME] ?: address
+        DeviceInfo(address = address, name = name)
+    }
+
+    val serviceEnabled: Flow<Boolean> = context.dataStore.data.map { prefs ->
+        prefs[KEY_SERVICE_ENABLED] ?: true
+    }
+
+    suspend fun saveSelectedDevice(device: DeviceInfo?) {
+        context.dataStore.edit { prefs ->
+            if (device == null) {
+                prefs.remove(KEY_DEVICE_ADDRESS)
+                prefs.remove(KEY_DEVICE_NAME)
+            } else {
+                prefs[KEY_DEVICE_ADDRESS] = device.address
+                prefs[KEY_DEVICE_NAME] = device.name
+            }
+        }
+    }
+
+    suspend fun setServiceEnabled(enabled: Boolean) {
+        context.dataStore.edit { prefs ->
+            prefs[KEY_SERVICE_ENABLED] = enabled
+        }
+    }
+}

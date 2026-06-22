@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">BT Hotspot Auto</string>
+
+    <!-- Accessibility service -->
+    <string name="accessibility_service_label">BT Hotspot Auto</string>
+    <string name="accessibility_service_description">
+        Umožňuje aplikaci automaticky zapnout nebo vypnout WiFi hotspot kliknutím na dlaždici
+        v Rychlém nastavení při připojení/odpojení vybraného Bluetooth zařízení.
+        Služba se aktivuje pouze při změně stavu Bluetooth.
+    </string>
+
+    <!-- Status -->
+    <string name="status_active">Aktivní</string>
+    <string name="status_stopped">Zastaveno</string>
+    <string name="accessibility_not_enabled">Není povolena — klepněte pro nastavení</string>
+    <string name="open_accessibility_settings">Povolit</string>
+    <string name="bluetooth_status">Bluetooth</string>
+    <string name="bt_on">Zapnuto</string>
+    <string name="bt_off">Vypnuto</string>
+    <string name="open_bt_settings">Zapnout</string>
+
+    <!-- Device selection -->
+    <string name="selected_device">Sledované BT zařízení (handsfree)</string>
+    <string name="tap_to_select">Klepněte pro výběr párovaného zařízení…</string>
+    <string name="paired_devices">Párovaná Bluetooth zařízení</string>
+    <string name="no_paired_devices">Žádná párovaná zařízení nenalezena.\nNejprve spárujte handsfree v nastavení Bluetooth.</string>
+    <string name="cancel">Zrušit</string>
+    <string name="clear_selection">Odebrat výběr</string>
+
+    <!-- Notification -->
+    <string name="service_notification_title">BT Hotspot Auto</string>
+    <string name="service_notification_text">Monitoruje připojení Bluetooth</string>
+    <string name="channel_name">Stav služby</string>
+    <string name="channel_description">Oznámení o stavu BT Hotspot Auto</string>
+
+    <!-- Info -->
+    <string name="how_it_works_title">Jak to funguje</string>
+    <string name="how_it_works_body">
+        Po připojení telefonu k vybranému Bluetooth zařízení (handsfree v autě) se automaticky
+        zapne WiFi Hotspot. Po odpojení se hotspot vypne.\n\n
+        Metody (zkoušeny v pořadí):\n
+        1. TetheringManager API — spolehlivé na rootovaných zařízeních\n
+        2. Root shell příkaz — pro rootovaná zařízení\n
+        3. Accessibility Service — kliknutí na dlaždici v Rychlém nastavení (nevyžaduje root)
+    </string>
+</resources>
