@@ -1,5 +1,6 @@
 package com.soulbrowser.bthotspot.service
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -12,6 +13,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
 import android.os.Build
 import android.os.IBinder
@@ -106,22 +108,38 @@ class BluetoothMonitorService : Service() {
 
     @SuppressLint("MissingPermission")
     private fun checkAlreadyConnected() {
+        // BLUETOOTH_CONNECT is a dangerous runtime permission on Android 12+.
+        // Without it, proxy.connectedDevices throws SecurityException → crash.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
+            checkSelfPermission(Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED
+        ) {
+            Log.w(TAG, "BLUETOOTH_CONNECT not granted — skipping checkAlreadyConnected")
+            return
+        }
         val adapter = getSystemService(BluetoothManager::class.java).adapter ?: return
         // Check both A2DP (music) and HEADSET/HFP (handsfree calls) — car stereos may use either
         for (profile in listOf(BluetoothProfile.A2DP, BluetoothProfile.HEADSET)) {
             adapter.getProfileProxy(this, object : BluetoothProfile.ServiceListener {
                 private var triggered = false
                 override fun onServiceConnected(p: Int, proxy: BluetoothProfile) {
-                    val addresses = proxy.connectedDevices.map { it.address }.toSet()
-                    adapter.closeProfileProxy(p, proxy)
-                    if (triggered) return
-                    scope.launch {
-                        val target = prefs.selectedDevice.first() ?: return@launch
-                        if (target.address in addresses && !triggered) {
-                            triggered = true
-                            Log.i(TAG, "Device already connected (profile=$p) — enabling hotspot")
-                            HotspotController.enable(applicationContext)
+                    try {
+                        val addresses = proxy.connectedDevices.map { it.address }.toSet()
+                        adapter.closeProfileProxy(p, proxy)
+                        if (triggered) return
+                        scope.launch {
+                            val target = prefs.selectedDevice.first() ?: return@launch
+                            if (target.address in addresses && !triggered) {
+                                triggered = true
+                                Log.i(TAG, "Device already connected (profile=$p) — enabling hotspot")
+                                HotspotController.enable(applicationContext)
+                            }
                         }
+                    } catch (e: SecurityException) {
+                        Log.w(TAG, "SecurityException in checkAlreadyConnected: ${e.message}")
+                        adapter.closeProfileProxy(p, proxy)
+                    } catch (e: Exception) {
+                        Log.w(TAG, "Exception in checkAlreadyConnected: ${e.message}")
+                        adapter.closeProfileProxy(p, proxy)
                     }
                 }
                 override fun onServiceDisconnected(p: Int) {}
