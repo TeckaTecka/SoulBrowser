@@ -6,6 +6,8 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
 import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothManager
+import android.bluetooth.BluetoothProfile
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -82,6 +84,7 @@ class BluetoothMonitorService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         startAsForeground()
+        checkAlreadyConnected()
         return START_STICKY
     }
 
@@ -95,6 +98,26 @@ class BluetoothMonitorService : Service() {
     override fun onBind(intent: Intent?): IBinder? = null
 
     // -------- helpers --------
+
+    @SuppressLint("MissingPermission")
+    private fun checkAlreadyConnected() {
+        val adapter = getSystemService(BluetoothManager::class.java).adapter ?: return
+        // Use A2DP profile — covers car handsfree systems
+        adapter.getProfileProxy(this, object : BluetoothProfile.ServiceListener {
+            override fun onServiceConnected(profile: Int, proxy: BluetoothProfile) {
+                val connectedAddresses = proxy.connectedDevices.map { it.address }.toSet()
+                adapter.closeProfileProxy(profile, proxy)
+                scope.launch {
+                    val target = prefs.selectedDevice.first() ?: return@launch
+                    if (target.address in connectedAddresses) {
+                        Log.i(TAG, "Device already connected on service start — enabling hotspot")
+                        HotspotController.enable(applicationContext)
+                    }
+                }
+            }
+            override fun onServiceDisconnected(profile: Int) {}
+        }, BluetoothProfile.A2DP)
+    }
 
     private fun registerBluetoothReceiver() {
         val filter = IntentFilter().apply {

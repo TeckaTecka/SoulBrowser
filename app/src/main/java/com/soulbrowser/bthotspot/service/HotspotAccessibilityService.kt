@@ -4,6 +4,7 @@ import android.accessibilityservice.AccessibilityService
 import android.content.Intent
 import android.os.Handler
 import android.os.Looper
+import android.os.PowerManager
 import android.util.Log
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
@@ -11,9 +12,11 @@ import java.lang.ref.WeakReference
 
 private const val TAG = "HotspotA11y"
 private const val MAX_ATTEMPTS = 6
-private const val SEARCH_DELAY_MS = 400L
+private const val WAKE_DELAY_MS = 600L      // let screen turn on fully before opening QS
+private const val SEARCH_DELAY_MS = 800L    // let QS panel load after opening
 private const val RETRY_DELAY_MS = 700L
 private const val CLOSE_DELAY_MS = 800L
+private const val WAKELOCK_TIMEOUT_MS = 25_000L
 
 /**
  * Accessibility service that controls the WiFi hotspot by tapping the Quick Settings tile.
@@ -39,6 +42,7 @@ class HotspotAccessibilityService : AccessibilityService() {
     private val handler = Handler(Looper.getMainLooper())
     private var pendingEnable: Boolean? = null
     private var attempts = 0
+    private var wakeLock: PowerManager.WakeLock? = null
 
     // -------- companion: static singleton handle --------
 
@@ -71,23 +75,37 @@ class HotspotAccessibilityService : AccessibilityService() {
     override fun onDestroy() {
         instance = null
         handler.removeCallbacksAndMessages(null)
+        releaseWakeLock()
         super.onDestroy()
     }
 
     override fun onInterrupt() {
         pendingEnable = null
         handler.removeCallbacksAndMessages(null)
+        releaseWakeLock()
     }
 
     // -------- action entry point --------
 
     private fun startAction(enable: Boolean) {
+        // Wake the screen so performGlobalAction works even when phone is in pocket/screen off
+        @Suppress("DEPRECATION")
+        val pm = getSystemService(PowerManager::class.java)
+        releaseWakeLock()
+        @Suppress("DEPRECATION")
+        wakeLock = pm.newWakeLock(
+            PowerManager.FULL_WAKE_LOCK or PowerManager.ACQUIRE_CAUSES_WAKEUP,
+            "BTHotspot::QSTile"
+        ).also { it.acquire(WAKELOCK_TIMEOUT_MS) }
+
         pendingEnable = enable
         attempts = 0
         handler.removeCallbacksAndMessages(null)
-        Log.d(TAG, "Opening Quick Settings to ${if (enable) "enable" else "disable"} hotspot")
-        performGlobalAction(GLOBAL_ACTION_QUICK_SETTINGS)
-        handler.postDelayed({ searchForTile() }, SEARCH_DELAY_MS)
+        Log.d(TAG, "Waking screen, then opening QS to ${if (enable) "enable" else "disable"} hotspot")
+        handler.postDelayed({
+            performGlobalAction(GLOBAL_ACTION_QUICK_SETTINGS)
+            handler.postDelayed({ searchForTile() }, SEARCH_DELAY_MS)
+        }, WAKE_DELAY_MS)
     }
 
     // -------- accessibility event handler --------
@@ -119,6 +137,7 @@ class HotspotAccessibilityService : AccessibilityService() {
             Log.i(TAG, "Hotspot tile clicked (enable=${pendingEnable})")
             pendingEnable = null
             handler.removeCallbacksAndMessages(null)
+            releaseWakeLock()
             handler.postDelayed({ performGlobalAction(GLOBAL_ACTION_HOME) }, CLOSE_DELAY_MS)
             return
         }
@@ -130,8 +149,14 @@ class HotspotAccessibilityService : AccessibilityService() {
         } else {
             Log.w(TAG, "Gave up finding hotspot tile after $MAX_ATTEMPTS attempts")
             pendingEnable = null
+            releaseWakeLock()
             performGlobalAction(GLOBAL_ACTION_BACK)
         }
+    }
+
+    private fun releaseWakeLock() {
+        wakeLock?.let { if (it.isHeld) it.release() }
+        wakeLock = null
     }
 
     /**
