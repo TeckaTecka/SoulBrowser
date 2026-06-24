@@ -31,6 +31,7 @@
     <!-- Notification -->
     <string name="service_notification_title">BT Hotspot Auto</string>
     <string name="service_notification_text">Monitoruje připojení Bluetooth</string>
+    <string name="enable_hotspot_action">Zapnout Hotspot</string>
     <string name="channel_name">Stav služby</string>
     <string name="channel_description">Oznámení o stavu BT Hotspot Auto</string>
 

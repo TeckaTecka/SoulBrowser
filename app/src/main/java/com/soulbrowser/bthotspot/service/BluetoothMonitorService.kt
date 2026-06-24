@@ -31,6 +31,7 @@ import kotlinx.coroutines.launch
 private const val TAG = "BTMonitorService"
 private const val NOTIFICATION_ID = 1
 private const val CHANNEL_ID = "bthotspot_service"
+private const val ACTION_ENABLE_HOTSPOT = "com.soulbrowser.bthotspot.ENABLE_HOTSPOT"
 
 /**
  * Long-running foreground service that registers a BroadcastReceiver for Bluetooth
@@ -83,6 +84,10 @@ class BluetoothMonitorService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        if (intent?.action == ACTION_ENABLE_HOTSPOT) {
+            HotspotController.enable(applicationContext)
+            return START_STICKY
+        }
         startAsForeground()
         checkAlreadyConnected()
         return START_STICKY
@@ -102,21 +107,26 @@ class BluetoothMonitorService : Service() {
     @SuppressLint("MissingPermission")
     private fun checkAlreadyConnected() {
         val adapter = getSystemService(BluetoothManager::class.java).adapter ?: return
-        // Use A2DP profile — covers car handsfree systems
-        adapter.getProfileProxy(this, object : BluetoothProfile.ServiceListener {
-            override fun onServiceConnected(profile: Int, proxy: BluetoothProfile) {
-                val connectedAddresses = proxy.connectedDevices.map { it.address }.toSet()
-                adapter.closeProfileProxy(profile, proxy)
-                scope.launch {
-                    val target = prefs.selectedDevice.first() ?: return@launch
-                    if (target.address in connectedAddresses) {
-                        Log.i(TAG, "Device already connected on service start — enabling hotspot")
-                        HotspotController.enable(applicationContext)
+        // Check both A2DP (music) and HEADSET/HFP (handsfree calls) — car stereos may use either
+        for (profile in listOf(BluetoothProfile.A2DP, BluetoothProfile.HEADSET)) {
+            adapter.getProfileProxy(this, object : BluetoothProfile.ServiceListener {
+                private var triggered = false
+                override fun onServiceConnected(p: Int, proxy: BluetoothProfile) {
+                    val addresses = proxy.connectedDevices.map { it.address }.toSet()
+                    adapter.closeProfileProxy(p, proxy)
+                    if (triggered) return
+                    scope.launch {
+                        val target = prefs.selectedDevice.first() ?: return@launch
+                        if (target.address in addresses && !triggered) {
+                            triggered = true
+                            Log.i(TAG, "Device already connected (profile=$p) — enabling hotspot")
+                            HotspotController.enable(applicationContext)
+                        }
                     }
                 }
-            }
-            override fun onServiceDisconnected(profile: Int) {}
-        }, BluetoothProfile.A2DP)
+                override fun onServiceDisconnected(p: Int) {}
+            }, profile)
+        }
     }
 
     private fun registerBluetoothReceiver() {
@@ -140,11 +150,18 @@ class BluetoothMonitorService : Service() {
             PendingIntent.FLAG_IMMUTABLE
         )
 
+        val enableHotspotIntent = PendingIntent.getService(
+            this, 1,
+            Intent(this, BluetoothMonitorService::class.java).apply { action = ACTION_ENABLE_HOTSPOT },
+            PendingIntent.FLAG_IMMUTABLE
+        )
+
         val notification = NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle(getString(R.string.service_notification_title))
             .setContentText(getString(R.string.service_notification_text))
             .setSmallIcon(R.drawable.ic_notification)
             .setContentIntent(openAppIntent)
+            .addAction(R.drawable.ic_notification, getString(R.string.enable_hotspot_action), enableHotspotIntent)
             .setOngoing(true)
             .setSilent(true)
             .build()
