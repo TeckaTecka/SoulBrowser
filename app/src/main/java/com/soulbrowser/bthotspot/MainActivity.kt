@@ -118,7 +118,29 @@ fun MainScreen(viewModel: MainViewModel) {
             verticalArrangement = Arrangement.spacedBy(12.dp),
             contentPadding = PaddingValues(vertical = 16.dp)
         ) {
-            // Accessibility Service status card
+            // Write settings — primary hotspot method
+            item {
+                StatusCard(
+                    title = stringResource(R.string.write_settings_title),
+                    ok = uiState.writeSettingsGranted,
+                    okText = stringResource(R.string.write_settings_granted),
+                    failText = stringResource(R.string.write_settings_missing),
+                    icon = { Icon(Icons.Default.Settings, null) },
+                    action = if (!uiState.writeSettingsGranted) {
+                        {
+                            context.startActivity(
+                                Intent(
+                                    Settings.ACTION_MANAGE_WRITE_SETTINGS,
+                                    Uri.parse("package:${context.packageName}")
+                                )
+                            )
+                        }
+                    } else null,
+                    actionLabel = stringResource(R.string.write_settings_grant)
+                )
+            }
+
+            // Accessibility Service status card (fallback method)
             item {
                 StatusCard(
                     title = stringResource(R.string.accessibility_service_label),

@@ -20,6 +20,12 @@
     <string name="bt_off">Vypnuto</string>
     <string name="open_bt_settings">Zapnout</string>
 
+    <!-- Write settings (primary hotspot method) -->
+    <string name="write_settings_title">Změna nastavení systému</string>
+    <string name="write_settings_granted">Povoleno — hotspot se přepíná přímo</string>
+    <string name="write_settings_missing">Není povoleno — klepněte pro povolení</string>
+    <string name="write_settings_grant">Povolit</string>
+
     <!-- Device selection -->
     <string name="selected_device">Sledované BT zařízení (handsfree)</string>
     <string name="tap_to_select">Klepněte pro výběr párovaného zařízení…</string>
@@ -41,8 +47,8 @@
         Po připojení telefonu k vybranému Bluetooth zařízení (handsfree v autě) se automaticky
         zapne WiFi Hotspot. Po odpojení se hotspot vypne.\n\n
         Metody (zkoušeny v pořadí):\n
-        1. TetheringManager API — spolehlivé na rootovaných zařízeních\n
+        1. Tethering API — vyžaduje oprávnění „Změna nastavení systému" (bez rootu)\n
         2. Root shell příkaz — pro rootovaná zařízení\n
-        3. Accessibility Service — kliknutí na dlaždici v Rychlém nastavení (nevyžaduje root)
+        3. Accessibility Service — kliknutí na dlaždici v Rychlém nastavení (záloha)
     </string>
 </resources>

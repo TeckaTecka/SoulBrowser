@@ -7,6 +7,7 @@ import android.bluetooth.BluetoothManager
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.provider.Settings
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.soulbrowser.bthotspot.data.DeviceInfo
@@ -26,6 +27,7 @@ data class UiState(
     val accessibilityEnabled: Boolean = false,
     val serviceRunning: Boolean = false,
     val btEnabled: Boolean = false,
+    val writeSettingsGranted: Boolean = false,
 )
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
@@ -47,6 +49,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 accessibilityEnabled = accessibilityEnabled,
                 serviceRunning = true, // Service is kept alive by the system
                 btEnabled = btAdapter?.isEnabled == true,
+                writeSettingsGranted = Settings.System.canWrite(getApplication()),
             )
         }
     }
