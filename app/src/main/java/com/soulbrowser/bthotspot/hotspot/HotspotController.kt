@@ -36,6 +36,11 @@ object HotspotController {
 
     private val bg: Executor = Executors.newSingleThreadExecutor()
 
+    // Separate executor for the startTethering callback. It MUST NOT be the same
+    // thread that blocks on the latch below, otherwise the callback is queued behind
+    // the blocked task and can never run (self-deadlock → timeout).
+    private val callbackExecutor: Executor = Executors.newCachedThreadPool()
+
     fun enable(context: Context) {
         val app = context.applicationContext
         bg.execute {
@@ -155,7 +160,7 @@ object HotspotController {
                 requestClass,
                 Executor::class.java,
                 callbackClass
-            ).invoke(tm, request, bg, callback)
+            ).invoke(tm, request, callbackExecutor, callback)
 
             latch.await(TETHER_TIMEOUT_S, TimeUnit.SECONDS)
             val r = result.get()
