@@ -39,6 +39,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val selectedDevice: StateFlow<DeviceInfo?> = prefs.selectedDevice
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
+    val autoDisableOnDisconnect: StateFlow<Boolean> = prefs.autoDisableOnDisconnect
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), true)
+
     private val _uiState = MutableStateFlow(UiState())
     val uiState: StateFlow<UiState> = _uiState.asStateFlow()
 
@@ -69,6 +72,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun selectDevice(device: DeviceInfo?) {
         viewModelScope.launch {
             prefs.saveSelectedDevice(device)
+        }
+    }
+
+    fun setAutoDisableOnDisconnect(enabled: Boolean) {
+        viewModelScope.launch {
+            prefs.setAutoDisableOnDisconnect(enabled)
         }
     }
 

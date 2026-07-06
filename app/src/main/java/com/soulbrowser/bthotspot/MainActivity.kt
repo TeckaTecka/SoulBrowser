@@ -98,6 +98,7 @@ class MainActivity : ComponentActivity() {
 fun MainScreen(viewModel: MainViewModel) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val selectedDevice by viewModel.selectedDevice.collectAsStateWithLifecycle()
+    val autoDisable by viewModel.autoDisableOnDisconnect.collectAsStateWithLifecycle()
     val context = LocalContext.current
     var showDevicePicker by remember { mutableStateOf(false) }
 
@@ -176,6 +177,14 @@ fun MainScreen(viewModel: MainViewModel) {
                 SelectedDeviceCard(
                     device = selectedDevice,
                     onClick = { showDevicePicker = true }
+                )
+            }
+
+            // Auto-disable on disconnect setting
+            item {
+                AutoDisableCard(
+                    checked = autoDisable,
+                    onCheckedChange = { viewModel.setAutoDisableOnDisconnect(it) }
                 )
             }
 
@@ -277,6 +286,36 @@ fun SelectedDeviceCard(device: DeviceInfo?, onClick: () -> Unit) {
                 }
             }
             Icon(Icons.Default.Wifi, null)
+        }
+    }
+}
+
+@Composable
+fun AutoDisableCard(checked: Boolean, onCheckedChange: (Boolean) -> Unit) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onCheckedChange(!checked) }
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Icon(Icons.Default.Wifi, null)
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    stringResource(R.string.auto_disable_title),
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Text(
+                    stringResource(R.string.auto_disable_desc),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            Switch(checked = checked, onCheckedChange = onCheckedChange)
         }
     }
 }

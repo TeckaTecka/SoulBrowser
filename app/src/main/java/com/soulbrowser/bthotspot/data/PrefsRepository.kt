@@ -18,6 +18,7 @@ class PrefsRepository(private val context: Context) {
         private val KEY_DEVICE_ADDRESS = stringPreferencesKey("selected_device_address")
         private val KEY_DEVICE_NAME = stringPreferencesKey("selected_device_name")
         private val KEY_SERVICE_ENABLED = booleanPreferencesKey("service_enabled")
+        private val KEY_AUTO_DISABLE = booleanPreferencesKey("auto_disable_on_disconnect")
     }
 
     val selectedDevice: Flow<DeviceInfo?> = context.dataStore.data.map { prefs ->
@@ -28,6 +29,10 @@ class PrefsRepository(private val context: Context) {
 
     val serviceEnabled: Flow<Boolean> = context.dataStore.data.map { prefs ->
         prefs[KEY_SERVICE_ENABLED] ?: true
+    }
+
+    val autoDisableOnDisconnect: Flow<Boolean> = context.dataStore.data.map { prefs ->
+        prefs[KEY_AUTO_DISABLE] ?: true
     }
 
     suspend fun saveSelectedDevice(device: DeviceInfo?) {
@@ -45,6 +50,12 @@ class PrefsRepository(private val context: Context) {
     suspend fun setServiceEnabled(enabled: Boolean) {
         context.dataStore.edit { prefs ->
             prefs[KEY_SERVICE_ENABLED] = enabled
+        }
+    }
+
+    suspend fun setAutoDisableOnDisconnect(enabled: Boolean) {
+        context.dataStore.edit { prefs ->
+            prefs[KEY_AUTO_DISABLE] = enabled
         }
     }
 }
