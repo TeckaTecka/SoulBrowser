@@ -12,8 +12,8 @@ android {
         applicationId = "com.soulbrowser.bthotspot"
         minSdk = 29
         targetSdk = 36
-        versionCode = 6
-        versionName = "2.2.0"
+        versionCode = 7
+        versionName = "2.3.0"
     }
 
     signingConfigs {
@@ -66,5 +66,6 @@ dependencies {
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.hiddenapibypass)
+    implementation(libs.androidx.work.runtime.ktx)
     debugImplementation(libs.androidx.ui.tooling)
 }

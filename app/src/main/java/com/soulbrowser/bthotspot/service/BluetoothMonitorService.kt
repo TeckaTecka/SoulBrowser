@@ -27,7 +27,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 private const val TAG = "BTMonitorService"
@@ -45,6 +47,7 @@ class BluetoothMonitorService : Service() {
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private lateinit var prefs: PrefsRepository
+    private var heartbeatStarted = false
 
     private val btReceiver = object : BroadcastReceiver() {
         @SuppressLint("MissingPermission")
@@ -96,7 +99,21 @@ class BluetoothMonitorService : Service() {
         }
         startAsForeground()
         checkAlreadyConnected()
+        ServiceWatchdog.schedule(applicationContext)
+        startHeartbeat()
         return START_STICKY
+    }
+
+    /** Every 60s while alive: post/clear the "accessibility disabled" warning. */
+    private fun startHeartbeat() {
+        if (heartbeatStarted) return
+        heartbeatStarted = true
+        scope.launch {
+            while (isActive) {
+                ServiceWatchdog.checkHealth(applicationContext)
+                delay(60_000)
+            }
+        }
     }
 
     override fun onDestroy() {

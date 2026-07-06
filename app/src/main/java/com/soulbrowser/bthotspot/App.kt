@@ -3,6 +3,7 @@ package com.soulbrowser.bthotspot
 import android.app.Application
 import android.content.Intent
 import android.os.Build
+import com.soulbrowser.bthotspot.service.ServiceWatchdog
 import org.lsposed.hiddenapibypass.HiddenApiBypass
 
 class App : Application() {
@@ -22,5 +23,8 @@ class App : Application() {
         } else {
             startService(intent)
         }
+
+        // Periodic watchdog — restarts the service and warns if accessibility is disabled.
+        ServiceWatchdog.schedule(this)
     }
 }

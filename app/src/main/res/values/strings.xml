@@ -26,6 +26,12 @@
     <string name="write_settings_missing">Není povoleno — klepněte pro povolení</string>
     <string name="write_settings_grant">Povolit</string>
 
+    <!-- Watchdog -->
+    <string name="watchdog_warn_title">⚠️ Hlídání hotspotu je vypnuté</string>
+    <string name="watchdog_warn_text">Služba přístupnosti byla vypnuta — hotspot se v autě nebude zapínat sám. Klepněte pro opětovné zapnutí.</string>
+    <string name="watchdog_channel_name">Upozornění na výpadek</string>
+    <string name="watchdog_channel_desc">Upozorní, když se hlídací služba vypne</string>
+
     <!-- Auto-disable setting -->
     <string name="auto_disable_title">Vypnout hotspot po odpojení</string>
     <string name="auto_disable_desc">Po odpojení sledovaného Bluetooth zařízení automaticky vypne WiFi hotspot</string>

@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import com.soulbrowser.bthotspot.service.BluetoothMonitorService
+import com.soulbrowser.bthotspot.service.ServiceWatchdog
 
 class BootReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
@@ -20,5 +21,8 @@ class BootReceiver : BroadcastReceiver() {
         } else {
             context.startService(serviceIntent)
         }
+
+        // Re-arm the periodic watchdog after reboot.
+        ServiceWatchdog.schedule(context)
     }
 }
