@@ -1,14 +1,17 @@
 package com.soulbrowser.bthotspot
 
 import android.Manifest
+import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -19,6 +22,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bluetooth
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Wifi
 import androidx.compose.material3.*
@@ -99,6 +103,10 @@ fun MainScreen(viewModel: MainViewModel) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val selectedDevice by viewModel.selectedDevice.collectAsStateWithLifecycle()
     val autoDisable by viewModel.autoDisableOnDisconnect.collectAsStateWithLifecycle()
+    val watchdogWarn by viewModel.watchdogWarningEnabled.collectAsStateWithLifecycle()
+    val eventNotif by viewModel.eventNotificationsEnabled.collectAsStateWithLifecycle()
+    val enableSoundUri by viewModel.enableSoundUri.collectAsStateWithLifecycle()
+    val disableSoundUri by viewModel.disableSoundUri.collectAsStateWithLifecycle()
     val context = LocalContext.current
     var showDevicePicker by remember { mutableStateOf(false) }
 
@@ -185,6 +193,20 @@ fun MainScreen(viewModel: MainViewModel) {
                 AutoDisableCard(
                     checked = autoDisable,
                     onCheckedChange = { viewModel.setAutoDisableOnDisconnect(it) }
+                )
+            }
+
+            // Notifications & sounds
+            item {
+                NotificationsSoundsCard(
+                    watchdogWarn = watchdogWarn,
+                    onWatchdogWarnChange = { viewModel.setWatchdogWarningEnabled(it) },
+                    eventNotif = eventNotif,
+                    onEventNotifChange = { viewModel.setEventNotificationsEnabled(it) },
+                    enableSoundUri = enableSoundUri,
+                    onEnableSoundChange = { viewModel.setEnableSoundUri(it) },
+                    disableSoundUri = disableSoundUri,
+                    onDisableSoundChange = { viewModel.setDisableSoundUri(it) }
                 )
             }
 
@@ -287,6 +309,120 @@ fun SelectedDeviceCard(device: DeviceInfo?, onClick: () -> Unit) {
             }
             Icon(Icons.Default.Wifi, null)
         }
+    }
+}
+
+@Composable
+fun NotificationsSoundsCard(
+    watchdogWarn: Boolean,
+    onWatchdogWarnChange: (Boolean) -> Unit,
+    eventNotif: Boolean,
+    onEventNotifChange: (Boolean) -> Unit,
+    enableSoundUri: String?,
+    onEnableSoundChange: (String?) -> Unit,
+    disableSoundUri: String?,
+    onDisableSoundChange: (String?) -> Unit,
+) {
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                Icon(Icons.Default.Notifications, null)
+                Text(
+                    stringResource(R.string.notifications_section),
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
+
+            SwitchRow(
+                title = stringResource(R.string.watchdog_warn_setting_title),
+                desc = stringResource(R.string.watchdog_warn_setting_desc),
+                checked = watchdogWarn,
+                onCheckedChange = onWatchdogWarnChange
+            )
+            SwitchRow(
+                title = stringResource(R.string.event_notif_title),
+                desc = stringResource(R.string.event_notif_desc),
+                checked = eventNotif,
+                onCheckedChange = onEventNotifChange
+            )
+            SoundRow(
+                title = stringResource(R.string.sound_enable_title),
+                currentUri = enableSoundUri,
+                onPicked = onEnableSoundChange
+            )
+            SoundRow(
+                title = stringResource(R.string.sound_disable_title),
+                currentUri = disableSoundUri,
+                onPicked = onDisableSoundChange
+            )
+        }
+    }
+}
+
+@Composable
+fun SwitchRow(title: String, desc: String, checked: Boolean, onCheckedChange: (Boolean) -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onCheckedChange(!checked) },
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(title, style = MaterialTheme.typography.bodyLarge)
+            Text(desc, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        Switch(checked = checked, onCheckedChange = onCheckedChange)
+    }
+}
+
+@Composable
+fun SoundRow(title: String, currentUri: String?, onPicked: (String?) -> Unit) {
+    val context = LocalContext.current
+    val soundName = remember(currentUri) {
+        if (currentUri.isNullOrEmpty()) null
+        else runCatching {
+            RingtoneManager.getRingtone(context, Uri.parse(currentUri))?.getTitle(context)
+        }.getOrNull()
+    }
+    val launcher = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            @Suppress("DEPRECATION")
+            val uri: Uri? = result.data?.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI)
+            onPicked(uri?.toString())
+        }
+    }
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(title, style = MaterialTheme.typography.bodyLarge)
+            Text(
+                soundName ?: stringResource(R.string.sound_none),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        if (!currentUri.isNullOrEmpty()) {
+            TextButton(onClick = { onPicked(null) }) { Text(stringResource(R.string.sound_clear)) }
+        }
+        TextButton(onClick = {
+            val intent = Intent(RingtoneManager.ACTION_RINGTONE_PICKER).apply {
+                putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_ALL)
+                putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, title)
+                putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, true)
+                putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, false)
+                if (!currentUri.isNullOrEmpty()) {
+                    putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, Uri.parse(currentUri))
+                }
+            }
+            launcher.launch(intent)
+        }) { Text(stringResource(R.string.sound_pick)) }
     }
 }
 

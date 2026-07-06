@@ -19,6 +19,10 @@ class PrefsRepository(private val context: Context) {
         private val KEY_DEVICE_NAME = stringPreferencesKey("selected_device_name")
         private val KEY_SERVICE_ENABLED = booleanPreferencesKey("service_enabled")
         private val KEY_AUTO_DISABLE = booleanPreferencesKey("auto_disable_on_disconnect")
+        private val KEY_WATCHDOG_WARN = booleanPreferencesKey("watchdog_warning_enabled")
+        private val KEY_EVENT_NOTIF = booleanPreferencesKey("event_notifications_enabled")
+        private val KEY_SOUND_ENABLE_URI = stringPreferencesKey("sound_on_enable_uri")
+        private val KEY_SOUND_DISABLE_URI = stringPreferencesKey("sound_on_disable_uri")
     }
 
     val selectedDevice: Flow<DeviceInfo?> = context.dataStore.data.map { prefs ->
@@ -33,6 +37,24 @@ class PrefsRepository(private val context: Context) {
 
     val autoDisableOnDisconnect: Flow<Boolean> = context.dataStore.data.map { prefs ->
         prefs[KEY_AUTO_DISABLE] ?: true
+    }
+
+    val watchdogWarningEnabled: Flow<Boolean> = context.dataStore.data.map { prefs ->
+        prefs[KEY_WATCHDOG_WARN] ?: true
+    }
+
+    val eventNotificationsEnabled: Flow<Boolean> = context.dataStore.data.map { prefs ->
+        prefs[KEY_EVENT_NOTIF] ?: false
+    }
+
+    /** URI of the sound to play when the hotspot is turned on, or null for none. */
+    val enableSoundUri: Flow<String?> = context.dataStore.data.map { prefs ->
+        prefs[KEY_SOUND_ENABLE_URI]
+    }
+
+    /** URI of the sound to play when the hotspot is turned off, or null for none. */
+    val disableSoundUri: Flow<String?> = context.dataStore.data.map { prefs ->
+        prefs[KEY_SOUND_DISABLE_URI]
     }
 
     suspend fun saveSelectedDevice(device: DeviceInfo?) {
@@ -56,6 +78,30 @@ class PrefsRepository(private val context: Context) {
     suspend fun setAutoDisableOnDisconnect(enabled: Boolean) {
         context.dataStore.edit { prefs ->
             prefs[KEY_AUTO_DISABLE] = enabled
+        }
+    }
+
+    suspend fun setWatchdogWarningEnabled(enabled: Boolean) {
+        context.dataStore.edit { prefs ->
+            prefs[KEY_WATCHDOG_WARN] = enabled
+        }
+    }
+
+    suspend fun setEventNotificationsEnabled(enabled: Boolean) {
+        context.dataStore.edit { prefs ->
+            prefs[KEY_EVENT_NOTIF] = enabled
+        }
+    }
+
+    suspend fun setEnableSoundUri(uri: String?) {
+        context.dataStore.edit { prefs ->
+            if (uri == null) prefs.remove(KEY_SOUND_ENABLE_URI) else prefs[KEY_SOUND_ENABLE_URI] = uri
+        }
+    }
+
+    suspend fun setDisableSoundUri(uri: String?) {
+        context.dataStore.edit { prefs ->
+            if (uri == null) prefs.remove(KEY_SOUND_DISABLE_URI) else prefs[KEY_SOUND_DISABLE_URI] = uri
         }
     }
 }

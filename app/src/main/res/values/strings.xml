@@ -36,6 +36,24 @@
     <string name="auto_disable_title">Vypnout hotspot po odpojení</string>
     <string name="auto_disable_desc">Po odpojení sledovaného Bluetooth zařízení automaticky vypne WiFi hotspot</string>
 
+    <!-- Notifications & sounds -->
+    <string name="notifications_section">Oznámení a zvuky</string>
+    <string name="watchdog_warn_setting_title">Upozornění na výpadek hlídání</string>
+    <string name="watchdog_warn_setting_desc">Upozorní, když se služba přístupnosti vypne</string>
+    <string name="event_notif_title">Oznámení zapnutí/vypnutí</string>
+    <string name="event_notif_desc">Zobrazí oznámení při zapnutí a vypnutí hotspotu (přenese se i na hodinky, např. Garmin)</string>
+    <string name="sound_enable_title">Zvuk při zapnutí</string>
+    <string name="sound_disable_title">Zvuk při vypnutí</string>
+    <string name="sound_none">Žádný</string>
+    <string name="sound_pick">Vybrat</string>
+    <string name="sound_clear">Zrušit</string>
+
+    <!-- Event titles / channel -->
+    <string name="event_enabled_title">Hotspot zapnut</string>
+    <string name="event_disabled_title">Hotspot vypnut</string>
+    <string name="event_channel_name">Zapnutí / vypnutí hotspotu</string>
+    <string name="event_channel_desc">Oznámení při změně stavu hotspotu (lze zrcadlit na hodinky)</string>
+
     <!-- Diagnostic test -->
     <string name="test_hotspot_title">Test zapnutí hotspotu</string>
     <string name="test_hotspot_desc">Zkusí zapnout hotspot teď a ukáže přesný výsledek</string>

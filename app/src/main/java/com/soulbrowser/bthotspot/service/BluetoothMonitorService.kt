@@ -71,11 +71,13 @@ class BluetoothMonitorService : Service() {
                     BluetoothDevice.ACTION_ACL_CONNECTED -> {
                         Log.i(TAG, "Matched device connected — enabling hotspot")
                         HotspotController.enable(applicationContext)
+                        HotspotEvents.onEnabled(applicationContext)
                     }
                     BluetoothDevice.ACTION_ACL_DISCONNECTED -> {
                         if (prefs.autoDisableOnDisconnect.first()) {
                             Log.i(TAG, "Matched device disconnected — disabling hotspot")
                             HotspotController.disable(applicationContext)
+                            HotspotEvents.onDisabled(applicationContext)
                         } else {
                             Log.i(TAG, "Matched device disconnected — auto-disable off, leaving hotspot on")
                         }
@@ -153,6 +155,7 @@ class BluetoothMonitorService : Service() {
                                 triggered = true
                                 Log.i(TAG, "Device already connected (profile=$p) — enabling hotspot")
                                 HotspotController.enable(applicationContext)
+                                HotspotEvents.onEnabled(applicationContext)
                             }
                         }
                     } catch (e: SecurityException) {

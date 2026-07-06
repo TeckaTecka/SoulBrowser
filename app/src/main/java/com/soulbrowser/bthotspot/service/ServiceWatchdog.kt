@@ -16,6 +16,8 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.soulbrowser.bthotspot.R
+import com.soulbrowser.bthotspot.data.PrefsRepository
+import kotlinx.coroutines.flow.first
 import java.util.concurrent.TimeUnit
 
 private const val TAG = "ServiceWatchdog"
@@ -65,9 +67,14 @@ object ServiceWatchdog {
     }
 
     /** Posts or clears the "accessibility service is off" warning notification. */
-    fun checkHealth(context: Context) {
-        createWarningChannel(context)
+    suspend fun checkHealth(context: Context) {
         val nm = context.getSystemService(NotificationManager::class.java)
+        // Respect the user's toggle — if warnings are off, never show one.
+        if (!PrefsRepository(context).watchdogWarningEnabled.first()) {
+            nm.cancel(WARN_NOTIFICATION_ID)
+            return
+        }
+        createWarningChannel(context)
         if (HotspotAccessibilityService.isConnected()) {
             nm.cancel(WARN_NOTIFICATION_ID)
             return

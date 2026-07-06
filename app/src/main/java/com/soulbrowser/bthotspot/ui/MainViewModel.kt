@@ -42,6 +42,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val autoDisableOnDisconnect: StateFlow<Boolean> = prefs.autoDisableOnDisconnect
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), true)
 
+    val watchdogWarningEnabled: StateFlow<Boolean> = prefs.watchdogWarningEnabled
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), true)
+
+    val eventNotificationsEnabled: StateFlow<Boolean> = prefs.eventNotificationsEnabled
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
+
+    val enableSoundUri: StateFlow<String?> = prefs.enableSoundUri
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
+
+    val disableSoundUri: StateFlow<String?> = prefs.disableSoundUri
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
+
     private val _uiState = MutableStateFlow(UiState())
     val uiState: StateFlow<UiState> = _uiState.asStateFlow()
 
@@ -79,6 +91,22 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             prefs.setAutoDisableOnDisconnect(enabled)
         }
+    }
+
+    fun setWatchdogWarningEnabled(enabled: Boolean) {
+        viewModelScope.launch { prefs.setWatchdogWarningEnabled(enabled) }
+    }
+
+    fun setEventNotificationsEnabled(enabled: Boolean) {
+        viewModelScope.launch { prefs.setEventNotificationsEnabled(enabled) }
+    }
+
+    fun setEnableSoundUri(uri: String?) {
+        viewModelScope.launch { prefs.setEnableSoundUri(uri) }
+    }
+
+    fun setDisableSoundUri(uri: String?) {
+        viewModelScope.launch { prefs.setDisableSoundUri(uri) }
     }
 
     fun startService(context: Context) {
