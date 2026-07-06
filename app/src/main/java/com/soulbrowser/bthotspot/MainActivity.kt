@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.soulbrowser.bthotspot.data.DeviceInfo
+import com.soulbrowser.bthotspot.hotspot.HotspotController
 import com.soulbrowser.bthotspot.service.HotspotAccessibilityService
 import com.soulbrowser.bthotspot.ui.MainViewModel
 import com.soulbrowser.bthotspot.ui.theme.BTHotspotTheme
@@ -178,6 +179,15 @@ fun MainScreen(viewModel: MainViewModel) {
                 )
             }
 
+            // Diagnostic test card
+            item {
+                TestHotspotCard(
+                    onTest = { onResult ->
+                        HotspotController.test(context) { result -> onResult(result) }
+                    }
+                )
+            }
+
             // How it works info
             item {
                 HowItWorksCard()
@@ -268,6 +278,49 @@ fun SelectedDeviceCard(device: DeviceInfo?, onClick: () -> Unit) {
             }
             Icon(Icons.Default.Wifi, null)
         }
+    }
+}
+
+@Composable
+fun TestHotspotCard(onTest: ((String) -> Unit) -> Unit) {
+    var resultText by remember { mutableStateOf<String?>(null) }
+    var running by remember { mutableStateOf(false) }
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer)
+    ) {
+        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(
+                stringResource(R.string.test_hotspot_title),
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.SemiBold
+            )
+            Text(stringResource(R.string.test_hotspot_desc), style = MaterialTheme.typography.bodySmall)
+            Button(
+                onClick = {
+                    running = true
+                    onTest { result ->
+                        resultText = result
+                        running = false
+                    }
+                },
+                enabled = !running
+            ) {
+                Text(stringResource(R.string.test_hotspot_button))
+            }
+        }
+    }
+
+    if (resultText != null) {
+        AlertDialog(
+            onDismissRequest = { resultText = null },
+            title = { Text(stringResource(R.string.test_result_title)) },
+            text = { Text(resultText ?: "", style = MaterialTheme.typography.bodyMedium) },
+            confirmButton = {
+                TextButton(onClick = { resultText = null }) { Text(stringResource(R.string.close)) }
+            }
+        )
     }
 }
 

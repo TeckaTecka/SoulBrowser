@@ -1,139 +1,187 @@
 package com.soulbrowser.bthotspot.hotspot
 
 import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import android.net.wifi.WifiManager
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.provider.Settings
 import android.util.Log
 import com.soulbrowser.bthotspot.service.HotspotAccessibilityService
 import java.lang.reflect.InvocationHandler
 import java.lang.reflect.Proxy
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicReference
 
 private const val TAG = "HotspotController"
 private const val TETHERING_WIFI = 0
+private const val TETHER_TIMEOUT_S = 6L
 
 /**
- * Toggles the WiFi hotspot the same way "auto hotspot" apps from Play Store do:
+ * Toggles the WiFi hotspot the way non-root "auto hotspot" apps do: via the hidden
+ * TetheringManager.startTethering/stopTethering API, authorised by the WRITE_SETTINGS
+ * ("Modify system settings") permission. Hidden-API restrictions are lifted in
+ * App.onCreate via HiddenApiBypass.
  *
- * 1. TetheringManager.startTethering/stopTethering via reflection (Android 11+).
- *    TetheringService accepts callers holding TETHER_PRIVILEGED **or** WRITE_SETTINGS
- *    ("Modify system settings"), which the user grants once in the app.
- *    Hidden-API restrictions are lifted in App.onCreate via HiddenApiBypass.
- * 2. ConnectivityManager.startTethering/stopTethering via reflection (Android 10).
- * 3. Root shell command (rooted devices).
- * 4. Accessibility service clicking the QS tile (last-resort fallback).
+ * All work runs on a background executor because startTethering reports its real result
+ * asynchronously via a callback — we block briefly on that callback so we actually know
+ * whether tethering succeeded (and can fall back if not), instead of assuming success.
  */
 object HotspotController {
 
-    private val executor: Executor = Executors.newSingleThreadExecutor()
+    private val bg: Executor = Executors.newSingleThreadExecutor()
 
-    fun enable(context: Context) = toggle(context, true)
-    fun disable(context: Context) = toggle(context, false)
-
-    /** True when the user has granted "Modify system settings". */
-    fun hasWriteSettings(context: Context): Boolean = Settings.System.canWrite(context)
-
-    private fun toggle(context: Context, enable: Boolean) {
-        Log.d(TAG, "toggle(enable=$enable)")
-
-        if (!hasWriteSettings(context)) {
-            Log.w(TAG, "WRITE_SETTINGS not granted — tethering API will be rejected")
-        } else {
-            if (tryTetheringManager(context, enable)) {
-                Log.i(TAG, "TetheringManager OK (enable=$enable)")
-                return
-            }
-            if (tryConnectivityManager(context, enable)) {
-                Log.i(TAG, "ConnectivityManager OK (enable=$enable)")
-                return
-            }
+    fun enable(context: Context) {
+        val app = context.applicationContext
+        bg.execute {
+            val log = StringBuilder()
+            val ok = enableBlocking(app, log)
+            Log.i(TAG, "enable() -> $ok\n$log")
         }
-
-        if (tryRootShell(enable)) {
-            Log.i(TAG, "Root shell OK (enable=$enable)")
-            return
-        }
-
-        if (HotspotAccessibilityService.toggleHotspot(enable)) {
-            Log.i(TAG, "Dispatched to AccessibilityService fallback")
-            return
-        }
-
-        Log.e(TAG, "All methods failed — grant \"Modify system settings\" or enable the Accessibility Service")
     }
 
+    fun disable(context: Context) {
+        val app = context.applicationContext
+        bg.execute {
+            val log = StringBuilder()
+            val ok = disableBlocking(app, log)
+            Log.i(TAG, "disable() -> $ok\n$log")
+        }
+    }
+
+    fun hasWriteSettings(context: Context): Boolean = Settings.System.canWrite(context)
+
     /**
-     * Android 11+ (API 30+): TetheringManager, obtained via Context.getSystemService("tethering").
-     * startTethering(TetheringRequest, Executor, StartTetheringCallback) — the callback must be
-     * non-null (requireNonNull inside), so we build one with a dynamic Proxy.
+     * Diagnostic entry point for the in-app "Test" button. Runs the same enable flow but
+     * returns a human-readable report (which method, success/failure + error code, WiFi
+     * state) on the main thread so the UI can show it.
      */
-    private fun tryTetheringManager(context: Context, enable: Boolean): Boolean {
+    fun test(context: Context, onResult: (String) -> Unit) {
+        val app = context.applicationContext
+        bg.execute {
+            val log = StringBuilder()
+            log.append("WRITE_SETTINGS: ${if (hasWriteSettings(app)) "povoleno ✓" else "NENÍ povoleno ✗"}\n")
+            log.append("WiFi zapnutá: ${wifiState(app)}\n")
+            log.append("Aktivní síť je WiFi: ${if (activeNetworkIsWifi(app)) "ANO (může blokovat hotspot)" else "ne"}\n")
+            log.append("——————\n")
+            val ok = enableBlocking(app, log)
+            log.append("——————\n")
+            log.append(if (ok) "VÝSLEDEK: hotspot zapnut ✓" else "VÝSLEDEK: nepodařilo se ✗")
+            val text = log.toString()
+            Handler(Looper.getMainLooper()).post { onResult(text) }
+        }
+    }
+
+    // -------- core flow --------
+
+    private fun enableBlocking(context: Context, log: StringBuilder): Boolean {
+        if (hasWriteSettings(context)) {
+            if (tetherStartBlocking(context, log)) return true
+        } else {
+            log.append("Tethering API přeskočeno (chybí WRITE_SETTINGS)\n")
+        }
+        if (tryRootShell(true)) {
+            log.append("Root shell: OK\n")
+            return true
+        }
+        if (HotspotAccessibilityService.toggleHotspot(true)) {
+            log.append("Accessibility: příkaz odeslán (výsledek nelze změřit)\n")
+            return true
+        }
+        log.append("Accessibility: služba není připojená\n")
+        return false
+    }
+
+    private fun disableBlocking(context: Context, log: StringBuilder): Boolean {
+        if (hasWriteSettings(context) && tetherStop(context, log)) return true
+        if (tryRootShell(false)) {
+            log.append("Root shell: OK\n")
+            return true
+        }
+        if (HotspotAccessibilityService.toggleHotspot(false)) {
+            log.append("Accessibility: příkaz odeslán\n")
+            return true
+        }
+        return false
+    }
+
+    // -------- TetheringManager (API 30+) --------
+
+    private fun tetherStartBlocking(context: Context, log: StringBuilder): Boolean {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            log.append("Tethering API: vyžaduje Android 11+\n")
+            return false
+        }
+        return try {
+            val tm = context.getSystemService("tethering")
+            if (tm == null) {
+                log.append("Tethering API: služba není dostupná\n")
+                return false
+            }
+            val requestClass = Class.forName("android.net.TetheringManager\$TetheringRequest")
+            val builderClass = Class.forName("android.net.TetheringManager\$TetheringRequest\$Builder")
+            val callbackClass = Class.forName("android.net.TetheringManager\$StartTetheringCallback")
+
+            val builder = builderClass.getConstructor(Int::class.javaPrimitiveType).newInstance(TETHERING_WIFI)
+            val request = builderClass.getMethod("build").invoke(builder)
+
+            val latch = CountDownLatch(1)
+            val result = AtomicReference("časový limit vypršel (bez odpovědi)")
+            val callback = Proxy.newProxyInstance(
+                callbackClass.classLoader,
+                arrayOf(callbackClass),
+                InvocationHandler { proxy, method, args ->
+                    when (method.name) {
+                        "onTetheringStarted" -> { result.set("OK"); latch.countDown(); null }
+                        "onTetheringFailed" -> {
+                            result.set("CHYBA (kód ${args?.getOrNull(0)})")
+                            latch.countDown(); null
+                        }
+                        "hashCode" -> System.identityHashCode(proxy)
+                        "equals" -> proxy === args?.getOrNull(0)
+                        "toString" -> "StartTetheringCallbackProxy"
+                        else -> null
+                    }
+                }
+            )
+
+            tm.javaClass.getMethod(
+                "startTethering",
+                requestClass,
+                Executor::class.java,
+                callbackClass
+            ).invoke(tm, request, bg, callback)
+
+            latch.await(TETHER_TIMEOUT_S, TimeUnit.SECONDS)
+            val r = result.get()
+            log.append("Tethering API výsledek: $r\n")
+            r == "OK"
+        } catch (e: Exception) {
+            log.append("Tethering API výjimka: ${rootCause(e)}\n")
+            false
+        }
+    }
+
+    private fun tetherStop(context: Context, log: StringBuilder): Boolean {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) return false
         return try {
             val tm = context.getSystemService("tethering") ?: return false
-            val tmClass = tm.javaClass
-
-            if (enable) {
-                val requestClass = Class.forName("android.net.TetheringManager\$TetheringRequest")
-                val builderClass = Class.forName("android.net.TetheringManager\$TetheringRequest\$Builder")
-                val callbackClass = Class.forName("android.net.TetheringManager\$StartTetheringCallback")
-
-                val builder = builderClass.getConstructor(Int::class.javaPrimitiveType).newInstance(TETHERING_WIFI)
-                val request = builderClass.getMethod("build").invoke(builder)
-
-                val callback = Proxy.newProxyInstance(
-                    callbackClass.classLoader,
-                    arrayOf(callbackClass),
-                    InvocationHandler { _, method, args ->
-                        when (method.name) {
-                            "onTetheringStarted" -> Log.i(TAG, "onTetheringStarted")
-                            "onTetheringFailed" -> Log.w(TAG, "onTetheringFailed error=${args?.getOrNull(0)}")
-                            "hashCode" -> return@InvocationHandler System.identityHashCode(this)
-                            "equals" -> return@InvocationHandler false
-                            "toString" -> return@InvocationHandler "StartTetheringCallbackProxy"
-                        }
-                        null
-                    }
-                )
-
-                tmClass.getMethod(
-                    "startTethering",
-                    requestClass,
-                    Executor::class.java,
-                    callbackClass
-                ).invoke(tm, request, executor, callback)
-            } else {
-                tmClass.getMethod("stopTethering", Int::class.javaPrimitiveType)
-                    .invoke(tm, TETHERING_WIFI)
-            }
+            tm.javaClass.getMethod("stopTethering", Int::class.javaPrimitiveType)
+                .invoke(tm, TETHERING_WIFI)
+            log.append("Tethering API: stopTethering odesláno\n")
             true
         } catch (e: Exception) {
-            Log.w(TAG, "TetheringManager failed: ${rootCause(e)}")
+            log.append("Tethering API stop výjimka: ${rootCause(e)}\n")
             false
         }
     }
 
-    /**
-     * Android 10 (API 29) fallback: ConnectivityManager.startTethering(int, boolean,
-     * OnStartTetheringCallback, Handler). The callback is a hidden abstract class that
-     * cannot be instantiated via reflection, so enabling only works on API 30+ via
-     * [tryTetheringManager]. On API 29 this returns false and we fall through to the
-     * accessibility tile method. stopTethering(int) has no callback and works on API 29.
-     */
-    private fun tryConnectivityManager(context: Context, enable: Boolean): Boolean {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) return false
-        if (enable) return false
-        return try {
-            val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE)
-            cm.javaClass.getMethod("stopTethering", Int::class.javaPrimitiveType)
-                .invoke(cm, TETHERING_WIFI)
-            true
-        } catch (e: Exception) {
-            Log.w(TAG, "ConnectivityManager failed: ${rootCause(e)}")
-            false
-        }
-    }
+    // -------- root fallback --------
 
     private fun tryRootShell(enable: Boolean): Boolean {
         return try {
@@ -149,7 +197,27 @@ object HotspotController {
                 proc2.waitFor() == 0
             }
         } catch (e: Exception) {
-            Log.d(TAG, "Root shell unavailable: ${e.message}")
+            false
+        }
+    }
+
+    // -------- diagnostics helpers --------
+
+    private fun wifiState(context: Context): String {
+        return try {
+            val wm = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+            if (wm.isWifiEnabled) "ano" else "ne"
+        } catch (e: Exception) {
+            "neznámé"
+        }
+    }
+
+    private fun activeNetworkIsWifi(context: Context): Boolean {
+        return try {
+            val cm = context.getSystemService(ConnectivityManager::class.java)
+            val caps = cm.getNetworkCapabilities(cm.activeNetwork) ?: return false
+            caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
+        } catch (e: Exception) {
             false
         }
     }
