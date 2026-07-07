@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rubicon group – Vzdálená správa IT pro vaši firmu</title>
+  <meta name="description" content="Specialista na vzdálenou pomoc a správu IT. Hot-line, smluvní servis, IT outsourcing, bezpečnost a sítě. Ostrava, celá ČR. Na trhu od roku 1997." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════════
+     TOP BAR
+══════════════════════════════════════════════════════════ -->
+<div class="topbar" id="topbar">
+  <div class="topbar__inner">
+    <span>specialista na vzdálenou pomoc a správu IT</span>
+    <span class="topbar__sep">|</span>
+    <a href="mailto:rubicon@rubicon.cz">rubicon@rubicon.cz</a>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     NAVIGATION
+══════════════════════════════════════════════════════════ -->
+<nav class="nav" role="navigation" aria-label="Hlavní navigace">
+  <div class="nav__inner">
+
+    <a class="nav__logo" href="#uvod" aria-label="Rubicon – domů">
+      <span class="nav__logo-name">Rubicon</span>
+    </a>
+
+    <ul class="nav__links" role="list">
+      <li><a href="#uvod">Domů</a></li>
+      <li><a href="#onas">O nás</a></li>
+      <li><a href="#sluzby">Služby</a></li>
+      <li class="nav__dropdown">
+        <button class="nav__dropdown-btn" aria-haspopup="true" aria-expanded="false">
+          Podpora
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <ul class="nav__dropdown-menu" role="menu">
+          <li role="menuitem"><a href="#pomoc">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+            Stažení Rubicon Supremo
+          </a></li>
+          <li role="menuitem"><a href="tel:+420603477299">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg>
+            Hot-line +420 603 477 299
+          </a></li>
+        </ul>
+      </li>
+      <li><a href="#novinky">Novinky</a></li>
+      <li><a href="#kontakt">Kontakt</a></li>
+      <li><a href="#pomoc" class="nav__pomoc-link">Pomoc</a></li>
+    </ul>
+
+    <button class="nav__hamburger" aria-label="Otevřít menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+
+  </div>
+</nav>
+
+<!-- Mobile menu -->
+<div class="nav__mobile" role="dialog" aria-modal="true" aria-label="Mobilní menu">
+  <a href="#uvod">Domů</a>
+  <a href="#onas">O nás</a>
+  <a href="#sluzby">Služby</a>
+  <a href="#pomoc">Podpora / Pomoc</a>
+  <a href="#novinky">Novinky</a>
+  <a href="#kontakt">Kontakt</a>
+  <a href="https://rubicon.cz/downloads/RubiconSupremo.exe" class="btn btn-dark" style="margin-top:8px">
+    ⬇ Stáhnout Supremo
+  </a>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     HERO
+══════════════════════════════════════════════════════════ -->
+<section class="hero" id="uvod" aria-label="Úvod">
+  <div class="hero__content">
+
+    <span class="hero__label">Vzdálená IT podpora 24/7</span>
+
+    <h1 class="hero__title font-display">
+      Váš IT tým<br>
+      vždy <em>po ruce</em>
+    </h1>
+
+    <p class="hero__subtitle">
+      Specializujeme se na vzdálenou správu sítí, serverů a počítačů
+      pro firmy po celé České republice. Na trhu od roku 1997.
+    </p>
+
+    <div class="hero__actions">
+      <a href="#kontakt" class="btn btn-primary">Nezávazná konzultace</a>
+      <a href="tel:+420603477299" class="hero__phone">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg>
+        +420 603 477 299
+      </a>
+    </div>
+
+  </div>
+
+  <!-- Stats bar -->
+  <div class="hero__stats" aria-label="Klíčové statistiky">
+    <div class="hero__stat">
+      <div class="hero__stat-value font-display">27 let</div>
+      <div class="hero__stat-label">na trhu</div>
+    </div>
+    <div class="hero__stat">
+      <div class="hero__stat-value font-display">450+</div>
+      <div class="hero__stat-label">spravovaných zařízení</div>
+    </div>
+    <div class="hero__stat">
+      <div class="hero__stat-value font-display">99 %</div>
+      <div class="hero__stat-label">dostupnost služeb</div>
+    </div>
+    <div class="hero__stat">
+      <div class="hero__stat-value font-display">&lt; 5 min</div>
+      <div class="hero__stat-label">reakční doba</div>
+    </div>
+  </div>
+</section>
+
+<!-- Floating phone -->
+<a href="tel:+420603477299" class="phone-bubble" aria-label="Zavolejte nám">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg>
+  <div>
+    <strong>+420 603 477 299</strong>
+    <small>Zavolejte pro rychlou pomoc</small>
+  </div>
+</a>
+
+<!-- ══════════════════════════════════════════════════════════
+     SERVICES
+══════════════════════════════════════════════════════════ -->
+<section class="section" id="sluzby" aria-label="Naše služby">
+  <div class="container">
+
+    <div class="services__header reveal">
+      <p class="eyebrow">Naše služby</p>
+      <h2 class="font-display">Kompletní IT péče<br>na dálku i na místě</h2>
+    </div>
+
+    <div class="services__grid">
+
+      <div class="service-card reveal reveal-delay-1">
+        <div class="service-card__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg>
+        </div>
+        <h3>Hot-line &amp; vzdálená podpora</h3>
+        <p>Okamžitá telefonická a elektronická pomoc bez čekání. Problém vyřešíme vzdáleně přímo z vašeho počítače – většinou do několika minut.</p>
+      </div>
+
+      <div class="service-card reveal reveal-delay-2">
+        <div class="service-card__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+        </div>
+        <h3>Smluvní servis &amp; pravidelná správa</h3>
+        <p>Smlouva na pravidelnou IT správu – proaktivní monitoring, aktualizace, zálohy a preventivní péče. Víme o problémech dřív, než si jich všimnete.</p>
+      </div>
+
+      <div class="service-card reveal reveal-delay-3">
+        <div class="service-card__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        </div>
+        <h3>IT Outsourcing</h3>
+        <p>Přebíráme kompletní provoz, údržbu i rozvoj vašeho IT. Klienti se mohou věnovat podnikání – my se staráme o technologie. Bez nákladů na vlastní IT oddělení.</p>
+      </div>
+
+      <div class="service-card reveal reveal-delay-4">
+        <div class="service-card__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <h3>Bezpečnost &amp; antiviry</h3>
+        <p>Komplexní kybernetická ochrana – firewall, antivirus, zálohování a šifrování. Certifikovaný partner <strong>ESET</strong> pro sítě, pracovní stanice a mail servery.</p>
+      </div>
+
+      <div class="service-card reveal reveal-delay-5">
+        <div class="service-card__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
+        </div>
+        <h3>VPN a správa sítí</h3>
+        <p>Návrh a správa firemní síťové infrastruktury. Propojení poboček (WAN), virtuální privátní sítě, routing, switching, VLAN a terminálové servery.</p>
+      </div>
+
+      <div class="service-card reveal reveal-delay-6">
+        <div class="service-card__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        </div>
+        <h3>Emailové systémy</h3>
+        <p>Konfigurace a správa mailových serverů – <strong>Kerio Connect</strong>, Linux mail servery, groupware (sdílení kalendářů a kontaktů). Alternativa k MS Exchange.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     ABOUT
+══════════════════════════════════════════════════════════ -->
+<section class="section section--light" id="onas" aria-label="O nás">
+  <div class="container">
+    <div class="about__inner">
+
+      <div class="about__left">
+        <p class="eyebrow reveal">O nás</p>
+        <h2 class="font-display reveal">27 let<br>spolehlivého IT</h2>
+
+        <div class="about__stats reveal">
+          <div>
+            <div class="about__stat-value font-display">450+</div>
+            <div class="about__stat-label">Spravovaných zařízení</div>
+          </div>
+          <div>
+            <div class="about__stat-value font-display">99 %</div>
+            <div class="about__stat-label">Dostupnost služeb</div>
+          </div>
+          <div>
+            <div class="about__stat-value font-display">&lt; 5 min</div>
+            <div class="about__stat-label">Reakční doba</div>
+          </div>
+          <div>
+            <div class="about__stat-value font-display">1997</div>
+            <div class="about__stat-label">Rok vzniku</div>
+          </div>
+        </div>
+
+        <p class="reveal">
+          Rubicon group působí na českém trhu od roku 1997. Za tu dobu jsme
+          nasbírali zkušenosti, které nám umožňují řešit i ty nejsložitější
+          IT problémy v malých i středních firmách.
+        </p>
+        <p class="reveal">
+          Naším cílem je být prodlouženou rukou IT oddělení vaší firmy –
+          dostupní telefonicky, elektronicky i fyzicky na místě.
+        </p>
+
+        <div class="about__partners reveal">
+          <span class="partner-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Certif. partner ESET
+          </span>
+          <span class="partner-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Certif. instalátor Jablotron
+          </span>
+        </div>
+
+        <a href="#kontakt" class="btn btn-outline reveal" style="margin-top:32px">Kontaktujte nás</a>
+      </div>
+
+      <div class="about__right reveal">
+        <div class="about__card">
+          <h3 class="about__card-title font-display">Proč si zákazníci vybírají Rubicon?</h3>
+          <ul class="about__list">
+            <li>Okamžitá odezva – problém nenahlašujete, ale okamžitě řešíte</li>
+            <li>Jeden kontakt pro vše – síť, servery, bezpečnost i hardware</li>
+            <li>Proaktivní přístup – opravujeme ještě před výpadkem</li>
+            <li>Certifikovaní odborníci (ESET, Jablotron, Kerio Connect)</li>
+            <li>Smluvní servis s garancí dostupnosti a reakčních dob</li>
+            <li>Znalost prostředí malých a středních firem od roku 1997</li>
+            <li>Ostravská firma – rychlý výjezd v celém Moravskoslezském kraji</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     POMOC – RUBICON SUPREMO
+══════════════════════════════════════════════════════════ -->
+<section class="section" id="pomoc" aria-label="Vzdálená pomoc – Rubicon Supremo">
+  <div class="container">
+
+    <div class="supremo__header reveal">
+      <p class="eyebrow">Vzdálená pomoc</p>
+      <h2 class="font-display">Stáhněte si<br>Rubicon Supremo</h2>
+      <p class="supremo__lead">
+        Rubicon Supremo je nástroj pro bezpečné vzdálené připojení. Náš technik
+        se přes něj připojí k vašemu počítači a vyřeší problém přímo – jako by
+        seděl vedle vás.
+      </p>
+    </div>
+
+    <div class="supremo__steps reveal">
+      <div class="supremo__step">
+        <div class="supremo__step-num">1</div>
+        <h3>Zavolejte nám</h3>
+        <p>Kontaktujte naši hot-line na čísle <a href="tel:+420603477299">+420 603 477 299</a>. Technik vám poradí a zahájí vzdálenou relaci.</p>
+      </div>
+      <div class="supremo__step-arrow" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+      <div class="supremo__step">
+        <div class="supremo__step-num">2</div>
+        <h3>Stáhněte a spusťte</h3>
+        <p>Stáhněte Rubicon Supremo níže a spusťte soubor. Instalace není nutná – aplikace se spustí okamžitě.</p>
+      </div>
+      <div class="supremo__step-arrow" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+      <div class="supremo__step">
+        <div class="supremo__step-num">3</div>
+        <h3>Sdělte nám ID</h3>
+        <p>V aplikaci uvidíte vaše ID a heslo. Sdělte je technikovi po telefonu – ten se bezpečně připojí a začne pomáhat.</p>
+      </div>
+    </div>
+
+    <div class="supremo__download reveal">
+      <a href="https://rubicon.cz/downloads/RubiconSupremo.exe" class="supremo__btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Stáhnout Rubicon Supremo
+        <span class="supremo__btn-sub">pro Windows (.exe)</span>
+      </a>
+      <p class="supremo__note">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" style="width:14px;height:14px;flex-shrink:0"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Software je bezpečný a nevyžaduje instalaci. Spouštějte ho pouze při aktivním hovoru s naším technikem.
+      </p>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     NOVINKY
+══════════════════════════════════════════════════════════ -->
+<section class="section section--light" id="novinky" aria-label="Novinky">
+  <div class="container">
+
+    <div class="news__header reveal">
+      <p class="eyebrow">Novinky</p>
+      <h2 class="font-display">Aktuality z IT světa</h2>
+    </div>
+
+    <div class="news__grid">
+
+      <article class="news-card reveal reveal-delay-1">
+        <div class="news-card__meta">
+          <span class="news-card__tag">Bezpečnost</span>
+          <time datetime="2025-05-15">15. 5. 2025</time>
+        </div>
+        <h3>Nová vlna phishingových útoků cílí na české firmy</h3>
+        <p>V posledních týdnech zaznamenáváme zvýšený počet podvodných e-mailů vydávajících se za bankovní instituce a dodavatele energií. Jak se chránit?</p>
+        <a href="#kontakt" class="news-card__link">Číst více →</a>
+      </article>
+
+      <article class="news-card reveal reveal-delay-2">
+        <div class="news-card__meta">
+          <span class="news-card__tag">Windows</span>
+          <time datetime="2025-04-10">10. 4. 2025</time>
+        </div>
+        <h3>Windows 10 – konec podpory v říjnu 2025</h3>
+        <p>Microsoft ukončí bezpečnostní aktualizace Windows 10 v říjnu 2025. Je čas plánovat přechod na Windows 11 – poradíme vám, jak na to hladce a bez výpadků.</p>
+        <a href="#kontakt" class="news-card__link">Číst více →</a>
+      </article>
+
+      <article class="news-card reveal reveal-delay-3">
+        <div class="news-card__meta">
+          <span class="news-card__tag">Cloud</span>
+          <time datetime="2025-03-22">22. 3. 2025</time>
+        </div>
+        <h3>Microsoft 365 Copilot – AI asistent pro vaši firmu</h3>
+        <p>Umělá inteligence přímo v Outlooku, Teams a Wordu. Pomůžeme s nasazením Microsoft 365 Copilot a školením zaměstnanců ve vaší firmě.</p>
+        <a href="#kontakt" class="news-card__link">Číst více →</a>
+      </article>
+
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     CONTACT
+══════════════════════════════════════════════════════════ -->
+<section class="section" id="kontakt" aria-label="Kontakt">
+  <div class="container">
+    <div class="contact__inner">
+
+      <!-- Form -->
+      <div class="contact__left reveal">
+        <p class="eyebrow">Kontakt</p>
+        <h2 class="font-display">Napište nebo<br>zavolejte</h2>
+
+        <form class="form" method="post" novalidate>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="name">Jméno a příjmení</label>
+              <input type="text" id="name" name="name" placeholder="Jan Novák" required />
+            </div>
+            <div class="form-group">
+              <label for="company">Firma</label>
+              <input type="text" id="company" name="company" placeholder="Název společnosti" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="email">E-mail</label>
+              <input type="email" id="email" name="email" placeholder="jan@firma.cz" required />
+            </div>
+            <div class="form-group">
+              <label for="phone">Telefon</label>
+              <input type="tel" id="phone" name="phone" placeholder="+420 000 000 000" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="subject">Zájem o</label>
+            <select id="subject" name="subject">
+              <option value="">Vyberte službu…</option>
+              <option>Hot-line &amp; vzdálená podpora</option>
+              <option>Smluvní servis</option>
+              <option>IT Outsourcing</option>
+              <option>Bezpečnost &amp; antiviry</option>
+              <option>VPN a správa sítí</option>
+              <option>Emailové systémy</option>
+              <option>Jiné</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="message">Zpráva</label>
+            <textarea id="message" name="message" placeholder="Popište váš IT problém nebo dotaz…"></textarea>
+          </div>
+          <button type="submit" class="btn btn-dark">Odeslat zprávu</button>
+        </form>
+      </div>
+
+      <!-- Info -->
+      <div class="contact__info reveal reveal-delay-2">
+
+        <div class="contact__info-item">
+          <div class="contact__info-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg>
+          </div>
+          <div>
+            <div class="contact__info-label">Telefon</div>
+            <div class="contact__info-value">
+              <a href="tel:+420603477299">+420 603 477 299</a>
+              <a href="tel:+420777563529">+420 777 563 529</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="contact__info-item">
+          <div class="contact__info-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          </div>
+          <div>
+            <div class="contact__info-label">E-mail</div>
+            <div class="contact__info-value">
+              <a href="mailto:rubicon@rubicon.cz">rubicon@rubicon.cz</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="contact__info-item">
+          <div class="contact__info-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          </div>
+          <div>
+            <div class="contact__info-label">Adresa</div>
+            <div class="contact__info-value" style="font-size:14px; color:var(--muted); font-weight:400">
+              Rubicon group, spol. s r.o.<br>
+              28. října 2663/150<br>
+              702 00 Ostrava – Moravská Ostrava
+            </div>
+          </div>
+        </div>
+
+        <div class="contact__map">
+          <iframe
+            src="https://www.openstreetmap.org/export/embed.html?bbox=18.265%2C49.833%2C18.295%2C49.843&layer=mapnik&marker=49.838%2C18.28"
+            title="Mapa – Rubicon group, Ostrava"
+            loading="lazy"
+            referrerpolicy="no-referrer"
+          ></iframe>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     FOOTER
+══════════════════════════════════════════════════════════ -->
+<footer class="footer" role="contentinfo">
+  <div class="container">
+    <div class="footer__inner">
+
+      <div>
+        <div class="footer__brand-name">Rubicon group</div>
+        <div class="footer__brand-desc">
+          Specialista na vzdálenou pomoc a správu IT. Na trhu od roku 1997.
+        </div>
+        <a href="https://rubicon.cz/downloads/RubiconSupremo.exe" class="footer__supremo-link">
+          ⬇ Stáhnout Rubicon Supremo
+        </a>
+      </div>
+
+      <div>
+        <p class="footer__col-title">Služby</p>
+        <ul class="footer__links">
+          <li><a href="#sluzby">Hot-line &amp; podpora</a></li>
+          <li><a href="#sluzby">Smluvní servis</a></li>
+          <li><a href="#sluzby">IT Outsourcing</a></li>
+          <li><a href="#sluzby">Bezpečnost</a></li>
+          <li><a href="#sluzby">VPN &amp; sítě</a></li>
+          <li><a href="#sluzby">E-mail servery</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <p class="footer__col-title">Firma</p>
+        <ul class="footer__links">
+          <li><a href="#onas">O nás</a></li>
+          <li><a href="#novinky">Novinky</a></li>
+          <li><a href="#pomoc">Pomoc / Supremo</a></li>
+          <li><a href="#kontakt">Kontakt</a></li>
+          <li><a href="#">Ochrana osobních údajů</a></li>
+          <li><a href="#">Obchodní podmínky</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <p class="footer__col-title">Kontakt</p>
+        <ul class="footer__links">
+          <li><a href="tel:+420603477299">+420 603 477 299</a></li>
+          <li><a href="tel:+420777563529">+420 777 563 529</a></li>
+          <li><a href="mailto:rubicon@rubicon.cz">rubicon@rubicon.cz</a></li>
+          <li style="margin-top:8px; font-size:12px; line-height:1.6">
+            28. října 2663/150<br>702 00 Ostrava
+          </li>
+        </ul>
+      </div>
+
+    </div>
+
+    <div class="footer__bottom">
+      <span>&copy; 2025 Rubicon group, spol. s r.o. Všechna práva vyhrazena.</span>
+      <span>IČO: 25383477 &nbsp;|&nbsp; DIČ: CZ25383477</span>
+    </div>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
