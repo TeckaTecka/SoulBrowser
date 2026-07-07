@@ -3,7 +3,6 @@ package com.soulbrowser.bthotspot.hotspot
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
-import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
@@ -41,78 +40,108 @@ object HotspotController {
     // the blocked task and can never run (self-deadlock → timeout).
     private val callbackExecutor: Executor = Executors.newCachedThreadPool()
 
-    fun enable(context: Context) {
-        val app = context.applicationContext
-        bg.execute {
-            val log = StringBuilder()
-            val ok = enableBlocking(app, log)
-            Log.i(TAG, "enable() -> $ok\n$log")
-        }
-    }
-
-    fun disable(context: Context) {
-        val app = context.applicationContext
-        bg.execute {
-            val log = StringBuilder()
-            val ok = disableBlocking(app, log)
-            Log.i(TAG, "disable() -> $ok\n$log")
-        }
-    }
+    fun enable(context: Context) = setState(context, true, null)
+    fun disable(context: Context) = setState(context, false, null)
 
     fun hasWriteSettings(context: Context): Boolean = Settings.System.canWrite(context)
 
     /**
-     * Diagnostic entry point for the in-app "Test" button. Runs the same enable flow but
-     * returns a human-readable report (which method, success/failure + error code, WiFi
-     * state) on the main thread so the UI can show it.
+     * Drives the hotspot to [target] and verifies the *actual* SoftAP state afterwards.
+     * [onResult] (on the main thread) reports whether the real state reached the target —
+     * so callers only fire "hotspot on/off" feedback when it genuinely happened.
+     */
+    fun setState(context: Context, target: Boolean, onResult: ((Boolean) -> Unit)?) {
+        val app = context.applicationContext
+        bg.execute {
+            val log = StringBuilder()
+            ensureState(app, target, log) { ok ->
+                Log.i(TAG, "setState($target) -> $ok\n$log")
+                onResult?.let { cb -> Handler(Looper.getMainLooper()).post { cb(ok) } }
+            }
+        }
+    }
+
+    /**
+     * Diagnostic entry point for the in-app "Test" button. Reports the real hotspot state
+     * before and after, plus which method was used.
      */
     fun test(context: Context, onResult: (String) -> Unit) {
         val app = context.applicationContext
         bg.execute {
             val log = StringBuilder()
             log.append("WRITE_SETTINGS: ${if (hasWriteSettings(app)) "povoleno ✓" else "NENÍ povoleno ✗"}\n")
-            log.append("WiFi zapnutá: ${wifiState(app)}\n")
             log.append("Aktivní síť je WiFi: ${if (activeNetworkIsWifi(app)) "ANO (může blokovat hotspot)" else "ne"}\n")
+            log.append("Skutečný stav hotspotu: ${stateStr(HotspotState.isOn(app))}\n")
             log.append("——————\n")
-            val ok = enableBlocking(app, log)
-            log.append("——————\n")
-            log.append(if (ok) "VÝSLEDEK: hotspot zapnut ✓" else "VÝSLEDEK: nepodařilo se ✗")
-            val text = log.toString()
-            Handler(Looper.getMainLooper()).post { onResult(text) }
+            ensureState(app, true, log) { ok ->
+                log.append("——————\n")
+                log.append("Skutečný stav po akci: ${stateStr(HotspotState.isOn(app))}\n")
+                log.append(if (ok) "VÝSLEDEK: hotspot zapnut ✓" else "VÝSLEDEK: nepodařilo se ✗")
+                Handler(Looper.getMainLooper()).post { onResult(log.toString()) }
+            }
         }
     }
 
-    // -------- core flow --------
+    // -------- core flow (runs on bg thread; deliver may be called later by a11y callback) --------
 
-    private fun enableBlocking(context: Context, log: StringBuilder): Boolean {
+    private fun ensureState(context: Context, target: Boolean, log: StringBuilder, deliver: (Boolean) -> Unit) {
+        val cur = HotspotState.isOn(context)
+        log.append("Stav před akcí: ${stateStr(cur)}\n")
+        if (cur == target) {
+            log.append("Už ve správném stavu — nic nedělám\n")
+            deliver(true)
+            return
+        }
+
+        // 1. TetheringManager (silent) — verify the real state afterwards.
         if (hasWriteSettings(context)) {
-            if (tetherStartBlocking(context, log)) return true
+            if (tetherToState(context, target, log) && waitForState(context, target, 5_000, log)) {
+                deliver(true)
+                return
+            }
         } else {
-            log.append("Tethering API přeskočeno (chybí WRITE_SETTINGS)\n")
+            log.append("Tethering přeskočeno (chybí WRITE_SETTINGS)\n")
         }
-        if (tryRootShell(true)) {
+
+        // 2. Root shell.
+        if (tryRootShell(target) && waitForState(context, target, 4_000, log)) {
             log.append("Root shell: OK\n")
-            return true
+            deliver(true)
+            return
         }
-        if (HotspotAccessibilityService.toggleHotspot(true)) {
-            log.append("Accessibility: příkaz odeslán (výsledek nelze změřit)\n")
-            return true
+
+        // 3. Accessibility tile click — state-aware and self-verifying (async).
+        val dispatched = HotspotAccessibilityService.setHotspot(target) { success ->
+            log.append("Accessibility výsledek: ${if (success) "OK" else "nepotvrzeno"}\n")
+            deliver(success)
         }
-        log.append("Accessibility: služba není připojená\n")
+        if (!dispatched) {
+            log.append("Accessibility: služba není připojená\n")
+            deliver(false)
+        }
+    }
+
+    private fun tetherToState(context: Context, target: Boolean, log: StringBuilder): Boolean =
+        if (target) tetherStartBlocking(context, log) else tetherStop(context, log)
+
+    /** Polls the real SoftAP state until it matches [target] or the timeout elapses. */
+    private fun waitForState(context: Context, target: Boolean, timeoutMs: Long, log: StringBuilder): Boolean {
+        val deadline = System.currentTimeMillis() + timeoutMs
+        while (System.currentTimeMillis() < deadline) {
+            if (HotspotState.isOn(context) == target) {
+                log.append("Stav potvrzen: ${stateStr(target)}\n")
+                return true
+            }
+            try { Thread.sleep(300) } catch (e: InterruptedException) { return false }
+        }
+        log.append("Stav se do limitu nepotvrdil\n")
         return false
     }
 
-    private fun disableBlocking(context: Context, log: StringBuilder): Boolean {
-        if (hasWriteSettings(context) && tetherStop(context, log)) return true
-        if (tryRootShell(false)) {
-            log.append("Root shell: OK\n")
-            return true
-        }
-        if (HotspotAccessibilityService.toggleHotspot(false)) {
-            log.append("Accessibility: příkaz odeslán\n")
-            return true
-        }
-        return false
+    private fun stateStr(s: Boolean?): String = when (s) {
+        true -> "zapnuto"
+        false -> "vypnuto"
+        null -> "neznámý/přechod"
     }
 
     // -------- TetheringManager (API 30+) --------
@@ -207,15 +236,6 @@ object HotspotController {
     }
 
     // -------- diagnostics helpers --------
-
-    private fun wifiState(context: Context): String {
-        return try {
-            val wm = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
-            if (wm.isWifiEnabled) "ano" else "ne"
-        } catch (e: Exception) {
-            "neznámé"
-        }
-    }
 
     private fun activeNetworkIsWifi(context: Context): Boolean {
         return try {

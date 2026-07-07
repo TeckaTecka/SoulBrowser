@@ -25,6 +25,7 @@
     <!-- Network state (for checking hotspot status) -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 
     <!-- WRITE_SETTINGS ("Modify system settings") lets TetheringService accept our
          startTethering/stopTethering calls — the same mechanism auto-hotspot apps use. -->
