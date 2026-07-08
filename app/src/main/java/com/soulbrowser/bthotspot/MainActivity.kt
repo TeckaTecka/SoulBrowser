@@ -13,6 +13,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
+import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.clickable
@@ -38,6 +39,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.soulbrowser.bthotspot.data.DeviceInfo
 import com.soulbrowser.bthotspot.hotspot.HotspotController
+import com.soulbrowser.bthotspot.service.CompanionManager
 import com.soulbrowser.bthotspot.service.HotspotAccessibilityService
 import com.soulbrowser.bthotspot.ui.MainViewModel
 import com.soulbrowser.bthotspot.ui.theme.BTHotspotTheme
@@ -50,6 +52,21 @@ class MainActivity : ComponentActivity() {
         ActivityResultContracts.RequestMultiplePermissions()
     ) { onPermissionsResult() }
 
+    private val companionLauncher = registerForActivityResult(
+        ActivityResultContracts.StartIntentSenderForResult()
+    ) { result ->
+        if (result.resultCode == RESULT_OK) {
+            CompanionManager.startObserving(this, viewModel.selectedDevice.value?.address)
+        }
+        viewModel.refresh(HotspotAccessibilityService.isConnected())
+    }
+
+    private fun associateCompanion(mac: String) {
+        CompanionManager.associate(this, mac) { sender ->
+            companionLauncher.launch(IntentSenderRequest.Builder(sender).build())
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
@@ -59,7 +76,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             BTHotspotTheme {
-                MainScreen(viewModel)
+                MainScreen(viewModel, onAssociate = { mac -> associateCompanion(mac) })
             }
         }
     }
@@ -69,6 +86,8 @@ class MainActivity : ComponentActivity() {
         val a11yEnabled = HotspotAccessibilityService.isConnected()
         viewModel.refresh(a11yEnabled)
         viewModel.startService(this)
+        // Re-arm companion presence observation if we're already associated.
+        CompanionManager.associatedMac(this)?.let { CompanionManager.startObserving(this, it) }
     }
 
     private fun requestMissingPermissions() {
@@ -99,7 +118,7 @@ class MainActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(viewModel: MainViewModel) {
+fun MainScreen(viewModel: MainViewModel, onAssociate: (String) -> Unit) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val selectedDevice by viewModel.selectedDevice.collectAsStateWithLifecycle()
     val autoDisable by viewModel.autoDisableOnDisconnect.collectAsStateWithLifecycle()
@@ -186,6 +205,17 @@ fun MainScreen(viewModel: MainViewModel) {
                     device = selectedDevice,
                     onClick = { showDevicePicker = true }
                 )
+            }
+
+            // Companion device (reliable wake-up) — only if supported and a device is selected
+            if (uiState.companionSupported) {
+                item {
+                    CompanionCard(
+                        associated = uiState.companionAssociated,
+                        deviceSelected = selectedDevice != null,
+                        onAssociate = { selectedDevice?.address?.let(onAssociate) }
+                    )
+                }
             }
 
             // Auto-disable on disconnect setting
@@ -426,6 +456,44 @@ fun SoundRow(title: String, currentUri: String?, onPicked: (String?) -> Unit) {
             }
             launcher.launch(intent)
         }) { Text(stringResource(R.string.sound_pick)) }
+    }
+}
+
+@Composable
+fun CompanionCard(associated: Boolean, deviceSelected: Boolean, onAssociate: () -> Unit) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = if (associated) MaterialTheme.colorScheme.primaryContainer
+            else MaterialTheme.colorScheme.surfaceVariant
+        )
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Icon(Icons.Default.Bluetooth, null)
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    stringResource(R.string.companion_title),
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Text(
+                    stringResource(
+                        if (associated) R.string.companion_associated else R.string.companion_desc
+                    ),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            if (associated) {
+                Icon(Icons.Default.Check, null, tint = Color(0xFF2E7D32))
+            } else if (deviceSelected) {
+                TextButton(onClick = onAssociate) { Text(stringResource(R.string.companion_pair)) }
+            }
+        }
     }
 }
 

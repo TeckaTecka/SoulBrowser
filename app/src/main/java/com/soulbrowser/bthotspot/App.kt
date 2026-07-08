@@ -3,6 +3,7 @@ package com.soulbrowser.bthotspot
 import android.app.Application
 import android.content.Intent
 import android.os.Build
+import com.soulbrowser.bthotspot.service.CompanionManager
 import com.soulbrowser.bthotspot.service.ServiceWatchdog
 import org.lsposed.hiddenapibypass.HiddenApiBypass
 
@@ -31,6 +32,12 @@ class App : Application() {
         // Periodic watchdog — restarts the service and warns if accessibility is disabled.
         try {
             ServiceWatchdog.schedule(this)
+        } catch (e: Exception) {
+        }
+
+        // Re-arm companion presence observation on every process start.
+        try {
+            CompanionManager.associatedMac(this)?.let { CompanionManager.startObserving(this, it) }
         } catch (e: Exception) {
         }
     }

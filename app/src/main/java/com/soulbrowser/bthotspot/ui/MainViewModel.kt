@@ -13,6 +13,7 @@ import androidx.lifecycle.viewModelScope
 import com.soulbrowser.bthotspot.data.DeviceInfo
 import com.soulbrowser.bthotspot.data.PrefsRepository
 import com.soulbrowser.bthotspot.service.BluetoothMonitorService
+import com.soulbrowser.bthotspot.service.CompanionManager
 import com.soulbrowser.bthotspot.service.HotspotAccessibilityService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -28,6 +29,8 @@ data class UiState(
     val serviceRunning: Boolean = false,
     val btEnabled: Boolean = false,
     val writeSettingsGranted: Boolean = false,
+    val companionSupported: Boolean = false,
+    val companionAssociated: Boolean = false,
 )
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
@@ -65,6 +68,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 serviceRunning = true, // Service is kept alive by the system
                 btEnabled = btAdapter?.isEnabled == true,
                 writeSettingsGranted = Settings.System.canWrite(getApplication()),
+                companionSupported = CompanionManager.isSupported(),
+                companionAssociated = CompanionManager.isAssociated(getApplication()),
             )
         }
     }
