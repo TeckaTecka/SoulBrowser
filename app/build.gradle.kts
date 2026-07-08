@@ -12,8 +12,8 @@ android {
         applicationId = "com.soulbrowser.bthotspot"
         minSdk = 29
         targetSdk = 36
-        versionCode = 13
-        versionName = "2.6.2"
+        versionCode = 14
+        versionName = "2.7.0"
     }
 
     signingConfigs {

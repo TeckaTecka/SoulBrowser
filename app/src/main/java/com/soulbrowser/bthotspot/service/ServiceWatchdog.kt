@@ -114,6 +114,12 @@ class WatchdogWorker(context: Context, params: WorkerParameters) : CoroutineWork
         Log.i(TAG, "Watchdog tick")
         ServiceWatchdog.ensureServiceRunning(applicationContext)
         ServiceWatchdog.checkHealth(applicationContext)
+        // Safety net: if the car is connected but the hotspot is off, turn it on.
+        try {
+            CatchUp.enableIfCarConnected(applicationContext)
+        } catch (e: Exception) {
+            Log.w(TAG, "catch-up failed: ${e.message}")
+        }
         return Result.success()
     }
 }
