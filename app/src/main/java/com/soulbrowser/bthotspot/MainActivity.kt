@@ -215,6 +215,9 @@ fun MainScreen(viewModel: MainViewModel) {
                 TestHotspotCard(
                     onTest = { onResult ->
                         HotspotController.test(context) { result -> onResult(result) }
+                    },
+                    onTestCycle = { onResult ->
+                        HotspotController.testCycle(context) { result -> onResult(result) }
                     }
                 )
             }
@@ -457,7 +460,10 @@ fun AutoDisableCard(checked: Boolean, onCheckedChange: (Boolean) -> Unit) {
 }
 
 @Composable
-fun TestHotspotCard(onTest: ((String) -> Unit) -> Unit) {
+fun TestHotspotCard(
+    onTest: ((String) -> Unit) -> Unit,
+    onTestCycle: ((String) -> Unit) -> Unit,
+) {
     var resultText by remember { mutableStateOf<String?>(null) }
     var running by remember { mutableStateOf(false) }
 
@@ -472,17 +478,34 @@ fun TestHotspotCard(onTest: ((String) -> Unit) -> Unit) {
                 fontWeight = FontWeight.SemiBold
             )
             Text(stringResource(R.string.test_hotspot_desc), style = MaterialTheme.typography.bodySmall)
-            Button(
-                onClick = {
-                    running = true
-                    onTest { result ->
-                        resultText = result
-                        running = false
-                    }
-                },
-                enabled = !running
-            ) {
-                Text(stringResource(R.string.test_hotspot_button))
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Button(
+                    onClick = {
+                        running = true
+                        onTest { result ->
+                            resultText = result
+                            running = false
+                        }
+                    },
+                    enabled = !running
+                ) {
+                    Text(stringResource(R.string.test_hotspot_button))
+                }
+                OutlinedButton(
+                    onClick = {
+                        running = true
+                        onTestCycle { result ->
+                            resultText = result
+                            running = false
+                        }
+                    },
+                    enabled = !running
+                ) {
+                    Text(stringResource(R.string.test_cycle_button))
+                }
+            }
+            if (running) {
+                Text(stringResource(R.string.test_running), style = MaterialTheme.typography.bodySmall)
             }
         }
     }

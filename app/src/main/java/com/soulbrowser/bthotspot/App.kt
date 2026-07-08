@@ -17,14 +17,21 @@ class App : Application() {
         }
 
         // Auto-start the monitor service when the app process starts
-        val intent = Intent(this, com.soulbrowser.bthotspot.service.BluetoothMonitorService::class.java)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForegroundService(intent)
-        } else {
-            startService(intent)
+        try {
+            val intent = Intent(this, com.soulbrowser.bthotspot.service.BluetoothMonitorService::class.java)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                startForegroundService(intent)
+            } else {
+                startService(intent)
+            }
+        } catch (e: Exception) {
+            // Background FGS start can be blocked on some OEMs — the watchdog retries later.
         }
 
         // Periodic watchdog — restarts the service and warns if accessibility is disabled.
-        ServiceWatchdog.schedule(this)
+        try {
+            ServiceWatchdog.schedule(this)
+        } catch (e: Exception) {
+        }
     }
 }

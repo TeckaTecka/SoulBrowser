@@ -97,14 +97,24 @@ class BluetoothMonitorService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        if (intent?.action == ACTION_ENABLE_HOTSPOT) {
-            HotspotController.enable(applicationContext)
-            return START_STICKY
+        // Always enter the foreground first so we never violate the startForeground()
+        // timeout contract (a source of crashes when started in the background).
+        try {
+            startAsForeground()
+        } catch (e: Exception) {
+            Log.e(TAG, "startForeground failed: ${e.javaClass.simpleName}: ${e.message}")
         }
-        startAsForeground()
-        checkAlreadyConnected()
-        ServiceWatchdog.schedule(applicationContext)
-        startHeartbeat()
+        try {
+            if (intent?.action == ACTION_ENABLE_HOTSPOT) {
+                HotspotController.enable(applicationContext)
+            } else {
+                checkAlreadyConnected()
+            }
+            ServiceWatchdog.schedule(applicationContext)
+            startHeartbeat()
+        } catch (e: Exception) {
+            Log.e(TAG, "onStartCommand error: ${e.javaClass.simpleName}: ${e.message}")
+        }
         return START_STICKY
     }
 

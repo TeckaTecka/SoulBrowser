@@ -82,6 +82,42 @@ object HotspotController {
         }
     }
 
+    /**
+     * Runs 3 on/off cycles (finishing OFF), verifying the real state at each step.
+     * Useful to check reliability of enabling/disabling in one go.
+     */
+    fun testCycle(context: Context, onResult: (String) -> Unit) {
+        val app = context.applicationContext
+        bg.execute {
+            val log = StringBuilder("Test 3× zapnout / vypnout\n")
+            val scratch = StringBuilder()
+            for (i in 1..3) {
+                val on = setStateBlocking(app, true, scratch)
+                log.append("Cyklus $i — zapnout: ${mark(on)} (${stateStr(HotspotState.isOn(app))})\n")
+                Thread.sleep(1500)
+                val off = setStateBlocking(app, false, scratch)
+                log.append("Cyklus $i — vypnout: ${mark(off)} (${stateStr(HotspotState.isOn(app))})\n")
+                Thread.sleep(1500)
+            }
+            // Guarantee we end in the OFF state.
+            setStateBlocking(app, false, scratch)
+            log.append("——————\n")
+            log.append("Ukončeno ve stavu: ${stateStr(HotspotState.isOn(app))}")
+            Handler(Looper.getMainLooper()).post { onResult(log.toString()) }
+        }
+    }
+
+    /** Blocking variant used by testCycle — waits for the (possibly async) result. */
+    private fun setStateBlocking(context: Context, target: Boolean, log: StringBuilder): Boolean {
+        val latch = CountDownLatch(1)
+        val result = AtomicReference(false)
+        ensureState(context, target, log) { ok -> result.set(ok); latch.countDown() }
+        latch.await(30, TimeUnit.SECONDS)
+        return result.get()
+    }
+
+    private fun mark(b: Boolean): String = if (b) "✓" else "✗"
+
     // -------- core flow (runs on bg thread; deliver may be called later by a11y callback) --------
 
     private fun ensureState(context: Context, target: Boolean, log: StringBuilder, deliver: (Boolean) -> Unit) {
