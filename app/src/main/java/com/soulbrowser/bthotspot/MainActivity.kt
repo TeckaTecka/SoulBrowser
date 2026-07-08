@@ -9,6 +9,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -62,9 +63,16 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun associateCompanion(mac: String) {
-        CompanionManager.associate(this, mac) { sender ->
-            companionLauncher.launch(IntentSenderRequest.Builder(sender).build())
-        }
+        Toast.makeText(this, R.string.companion_searching, Toast.LENGTH_LONG).show()
+        CompanionManager.associate(
+            this, mac,
+            launchChooser = { sender ->
+                companionLauncher.launch(IntentSenderRequest.Builder(sender).build())
+            },
+            onError = {
+                Toast.makeText(this, R.string.companion_not_found, Toast.LENGTH_LONG).show()
+            }
+        )
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

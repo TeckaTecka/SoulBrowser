@@ -55,11 +55,20 @@ object CompanionManager {
      * Kicks off the association flow for [mac]. When the system produces the chooser
      * IntentSender, [launchChooser] is invoked so the Activity can show the confirm dialog.
      */
-    fun associate(context: Context, mac: String, launchChooser: (IntentSender) -> Unit) {
-        if (!isSupported()) return
+    fun associate(
+        context: Context,
+        mac: String,
+        launchChooser: (IntentSender) -> Unit,
+        onError: (String) -> Unit,
+    ) {
+        if (!isSupported()) {
+            onError("Nepodporováno na tomto Androidu")
+            return
+        }
         try {
             val cdm = context.getSystemService(CompanionDeviceManager::class.java)
-            val filter = BluetoothDeviceFilter.Builder().setAddress(mac).build()
+            // BluetoothDeviceFilter matches the address case-sensitively; normalise to uppercase.
+            val filter = BluetoothDeviceFilter.Builder().setAddress(mac.uppercase()).build()
             val request = AssociationRequest.Builder()
                 .addDeviceFilter(filter)
                 .setSingleDevice(true)
@@ -74,11 +83,13 @@ object CompanionManager {
                 }
                 override fun onFailure(error: CharSequence?) {
                     Log.w(TAG, "Association failed: $error")
+                    onError(error?.toString() ?: "nenalezeno")
                 }
             }
             cdm.associate(request, callback, null)
         } catch (e: Exception) {
             Log.w(TAG, "associate failed: ${e.message}")
+            onError(e.message ?: e.javaClass.simpleName)
         }
     }
 }

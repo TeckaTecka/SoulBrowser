@@ -41,6 +41,8 @@
     <string name="companion_desc">Nechá systém probudit aplikaci při připojení auta, i když ji telefon vypnul z paměti. Nejdřív vyberte zařízení výše.</string>
     <string name="companion_associated">Spárováno — systém hlídá připojení auta</string>
     <string name="companion_pair">Spárovat</string>
+    <string name="companion_searching">Hledám auto… musíš být v dosahu Bluetooth (nastartované / zapnutý handsfree)</string>
+    <string name="companion_not_found">Auto se nepodařilo najít. Buď v autě se zapnutým handsfree a zkus to znovu.</string>
 
     <!-- Notifications & sounds -->
     <string name="notifications_section">Oznámení a zvuky</string>
