@@ -62,7 +62,7 @@
 
     <!-- Diagnostic test -->
     <string name="test_hotspot_title">Test zapnutí hotspotu</string>
-    <string name="test_hotspot_desc">Zkusí zapnout hotspot teď a ukáže přesný výsledek</string>
+    <string name="test_hotspot_desc">Zkusí hotspot zapnout a zase vypnout (skončí vypnutý) a ukáže výsledek</string>
     <string name="test_hotspot_button">Spustit test</string>
     <string name="test_cycle_button">Test 3× zap/vyp</string>
     <string name="test_running">Probíhá test…</string>

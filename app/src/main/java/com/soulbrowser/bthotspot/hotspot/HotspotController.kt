@@ -71,14 +71,20 @@ object HotspotController {
             val log = StringBuilder()
             log.append("WRITE_SETTINGS: ${if (hasWriteSettings(app)) "povoleno ✓" else "NENÍ povoleno ✗"}\n")
             log.append("Aktivní síť je WiFi: ${if (activeNetworkIsWifi(app)) "ANO (může blokovat hotspot)" else "ne"}\n")
-            log.append("Skutečný stav hotspotu: ${stateStr(HotspotState.isOn(app))}\n")
+            log.append("Stav před testem: ${stateStr(HotspotState.isOn(app))}\n")
             log.append("——————\n")
-            ensureState(app, true, log) { ok ->
-                log.append("——————\n")
-                log.append("Skutečný stav po akci: ${stateStr(HotspotState.isOn(app))}\n")
-                log.append(if (ok) "VÝSLEDEK: hotspot zapnut ✓" else "VÝSLEDEK: nepodařilo se ✗")
-                Handler(Looper.getMainLooper()).post { onResult(log.toString()) }
-            }
+            val scratch = StringBuilder()
+
+            val on = setStateBlocking(app, true, scratch)
+            log.append("Zapnutí: ${mark(on)} (stav: ${stateStr(HotspotState.isOn(app))})\n")
+            Thread.sleep(2000)
+
+            val off = setStateBlocking(app, false, scratch)
+            log.append("Vypnutí: ${mark(off)} (stav: ${stateStr(HotspotState.isOn(app))})\n")
+
+            log.append("——————\n")
+            log.append(if (on && off) "VÝSLEDEK: zapnutí i vypnutí OK ✓" else "VÝSLEDEK: něco selhalo ✗")
+            Handler(Looper.getMainLooper()).post { onResult(log.toString()) }
         }
     }
 
