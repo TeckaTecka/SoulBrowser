@@ -21,3 +21,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "BTHotspot"
 include(":app")
+include(":client")
