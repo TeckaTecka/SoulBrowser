@@ -12,6 +12,7 @@ import android.view.View
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.ScrollView
+import android.widget.Switch
 import android.widget.TextView
 import android.widget.Toast
 
@@ -36,6 +37,10 @@ class MainActivity : Activity() {
             "Tato aplikace hlídá připojení k WiFi hotspotu (z telefonu). " +
                 "Jakmile se auto připojí, přehraje zvuk a zobrazí oznámení — poznáš to i přes Waze."
         ))
+
+        root.addView(switchRow("Oznámení při připojení", KEY_NOTIFY_ENABLED, true))
+        root.addView(switchRow("Zvuk při připojení", KEY_SOUND_ENABLED, true))
+        root.addView(switchRow("Vibrace při připojení", KEY_VIBRATE_ENABLED, false))
 
         soundLabel = body("Zvuk: výchozí")
         root.addView(soundLabel)
@@ -127,6 +132,20 @@ class MainActivity : Activity() {
         this.text = text
         textSize = 15f
         setPadding(0, 8, 0, 8)
+    }
+
+    private fun switchRow(label: String, key: String, default: Boolean) = Switch(this).apply {
+        text = label
+        textSize = 15f
+        isChecked = prefs().getBoolean(key, default)
+        setPadding(0, 16, 0, 16)
+        setOnCheckedChangeListener { _, checked ->
+            prefs().edit().putBoolean(key, checked).apply()
+        }
+        layoutParams = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        )
     }
 
     private fun button(text: String, onClick: () -> Unit) = Button(this).apply {

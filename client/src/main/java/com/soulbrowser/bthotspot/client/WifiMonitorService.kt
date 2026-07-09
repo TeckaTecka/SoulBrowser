@@ -27,6 +27,9 @@ private const val ALERT_ID = 2
 
 const val PREFS = "client"
 const val KEY_SOUND_URI = "sound_uri"
+const val KEY_NOTIFY_ENABLED = "notify_enabled"
+const val KEY_SOUND_ENABLED = "sound_enabled"
+const val KEY_VIBRATE_ENABLED = "vibrate_enabled"
 
 /**
  * Runs on the in-car device. Watches for a WiFi connection (the phone's hotspot) and, when it
@@ -81,9 +84,10 @@ class WifiMonitorService : Service() {
         connected = nowConnected
         Log.i(TAG, "wifi connected=$nowConnected")
         if (nowConnected) {
-            playSound()
-            vibrate()
-            alertConnected()
+            val p = getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+            if (p.getBoolean(KEY_SOUND_ENABLED, true)) playSound()
+            if (p.getBoolean(KEY_VIBRATE_ENABLED, false)) vibrate()
+            if (p.getBoolean(KEY_NOTIFY_ENABLED, true)) alertConnected()
         } else {
             getSystemService(NotificationManager::class.java).cancel(ALERT_ID)
         }
