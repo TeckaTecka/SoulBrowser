@@ -36,14 +36,6 @@
     <string name="auto_disable_title">Vypnout hotspot po odpojení</string>
     <string name="auto_disable_desc">Po odpojení sledovaného Bluetooth zařízení automaticky vypne WiFi hotspot</string>
 
-    <!-- Companion device (reliable wake-up) -->
-    <string name="companion_title">Spolehlivé probuzení v autě</string>
-    <string name="companion_desc">Nechá systém probudit aplikaci při připojení auta, i když ji telefon vypnul z paměti. Nejdřív vyberte zařízení výše.</string>
-    <string name="companion_associated">Spárováno — systém hlídá připojení auta</string>
-    <string name="companion_pair">Spárovat</string>
-    <string name="companion_searching">Hledám auto… musíš být v dosahu Bluetooth (nastartované / zapnutý handsfree)</string>
-    <string name="companion_not_found">Auto se nepodařilo najít. Buď v autě se zapnutým handsfree a zkus to znovu.</string>
-
     <!-- Notifications & sounds -->
     <string name="notifications_section">Oznámení a zvuky</string>
     <string name="watchdog_warn_setting_title">Upozornění na výpadek hlídání</string>
@@ -87,6 +79,7 @@
     <string name="channel_description">Oznámení o stavu BT Hotspot Auto</string>
 
     <!-- Info -->
+    <string name="version_label">Verze %1$s</string>
     <string name="how_it_works_title">Jak to funguje</string>
     <string name="how_it_works_body">
         Po připojení telefonu k vybranému Bluetooth zařízení (handsfree v autě) se automaticky
