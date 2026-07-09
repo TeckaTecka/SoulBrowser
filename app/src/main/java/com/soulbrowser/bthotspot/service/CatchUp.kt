@@ -38,7 +38,10 @@ object CatchUp {
         ) return
 
         val target = PrefsRepository(context).selectedDevice.first() ?: return
-        if (HotspotState.isOn(context) == true) return  // already on — nothing to do
+        // Only act when the hotspot is *definitely* off. If it's on or the state is
+        // unknown/transitioning, do nothing — this avoids re-announcing an already-on
+        // hotspot and avoids blindly toggling when we can't read the state.
+        if (HotspotState.isOn(context) != false) return
 
         if (!isDeviceConnected(context, target.address)) return
 

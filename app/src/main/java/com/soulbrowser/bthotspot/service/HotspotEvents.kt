@@ -25,17 +25,30 @@ object HotspotEvents {
     private const val EVENT_CHANNEL_ID = "bthotspot_events"
     private const val EVENT_NOTIFICATION_ID = 3
 
-    suspend fun onEnabled(context: Context) = fire(
-        context,
-        soundUri = PrefsRepository(context).enableSoundUri.first(),
-        title = context.getString(R.string.event_enabled_title)
-    )
+    // Last state we announced. Prevents duplicate sound/notification for the same state
+    // (e.g. the 15-min catch-up re-confirming an already-enabled hotspot).
+    @Volatile
+    private var lastAnnounced: Boolean? = null
 
-    suspend fun onDisabled(context: Context) = fire(
-        context,
-        soundUri = PrefsRepository(context).disableSoundUri.first(),
-        title = context.getString(R.string.event_disabled_title)
-    )
+    suspend fun onEnabled(context: Context) {
+        if (lastAnnounced == true) return
+        lastAnnounced = true
+        fire(
+            context,
+            soundUri = PrefsRepository(context).enableSoundUri.first(),
+            title = context.getString(R.string.event_enabled_title)
+        )
+    }
+
+    suspend fun onDisabled(context: Context) {
+        if (lastAnnounced == false) return
+        lastAnnounced = false
+        fire(
+            context,
+            soundUri = PrefsRepository(context).disableSoundUri.first(),
+            title = context.getString(R.string.event_disabled_title)
+        )
+    }
 
     private suspend fun fire(context: Context, soundUri: String?, title: String) {
         playSound(context, soundUri)
