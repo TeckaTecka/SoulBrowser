@@ -1,12 +1,18 @@
 package com.soulbrowser.bthotspot
 
 import android.app.Application
+import android.content.Context
 import android.content.Intent
 import android.os.Build
 import com.soulbrowser.bthotspot.service.ServiceWatchdog
 import org.lsposed.hiddenapibypass.HiddenApiBypass
 
 class App : Application() {
+    override fun attachBaseContext(base: Context) {
+        // Apply the chosen UI language app-wide so service notifications are localized too.
+        super.attachBaseContext(LocaleHelper.wrap(base))
+    }
+
     override fun onCreate() {
         super.onCreate()
 

@@ -2,6 +2,7 @@ package com.soulbrowser.bthotspot
 
 import android.Manifest
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.media.RingtoneManager
@@ -55,6 +56,10 @@ class MainActivity : ComponentActivity() {
     private val permissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { onPermissionsResult() }
+
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(LocaleHelper.wrap(newBase))
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -263,6 +268,11 @@ fun MainScreen(viewModel: MainViewModel) {
                         HotspotController.testCycle(context) { result -> onResult(result) }
                     }
                 )
+            }
+
+            // UI language
+            item {
+                LanguageCard()
             }
 
             // How it works info
@@ -691,6 +701,60 @@ fun TestHotspotCard(
                 TextButton(onClick = { resultText = null }) { Text(stringResource(R.string.close)) }
             }
         )
+    }
+}
+
+@Composable
+fun LanguageCard() {
+    val context = LocalContext.current
+    // Autonyms so each language is recognizable regardless of the current UI language.
+    val options = listOf(
+        LocaleHelper.LANG_SYSTEM to stringResource(R.string.language_system),
+        LocaleHelper.LANG_CS to "Čeština",
+        LocaleHelper.LANG_EN to "English",
+        LocaleHelper.LANG_RU to "Русский",
+    )
+    val current = remember { LocaleHelper.getLanguage(context) }
+
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Text(
+                stringResource(R.string.language_title),
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.SemiBold
+            )
+            Text(
+                stringResource(R.string.language_desc),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(bottom = 4.dp)
+            )
+            options.forEach { (code, label) ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            if (code != LocaleHelper.getLanguage(context)) {
+                                LocaleHelper.setLanguage(context, code)
+                                (context as? Activity)?.recreate()
+                            }
+                        },
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    RadioButton(
+                        selected = code == current,
+                        onClick = {
+                            if (code != LocaleHelper.getLanguage(context)) {
+                                LocaleHelper.setLanguage(context, code)
+                                (context as? Activity)?.recreate()
+                            }
+                        }
+                    )
+                    Text(label, style = MaterialTheme.typography.bodyLarge)
+                }
+            }
+        }
     }
 }
 
