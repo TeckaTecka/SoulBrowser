@@ -37,6 +37,7 @@
     <string name="auto_disable_desc">Po odpojení sledovaného Bluetooth zařízení automaticky vypne WiFi hotspot</string>
 
     <!-- Master automation switch -->
+    <string name="tile_label">Auto-hotspot (pauza)</string>
     <string name="automation_title">Automatika zapnutá</string>
     <string name="automation_desc">Když vypnete, aplikace nebude reagovat na připojení/odpojení auta. Lze přepínat i dlaždicí v Rychlém nastavení.</string>
 
@@ -104,10 +105,15 @@
     <string name="how_it_works_title">Jak to funguje</string>
     <string name="how_it_works_body">
         Po připojení telefonu k vybranému Bluetooth zařízení (handsfree v autě) se automaticky
-        zapne WiFi Hotspot. Po odpojení se hotspot vypne.\n\n
-        Metody (zkoušeny v pořadí):\n
-        1. Tethering API — vyžaduje oprávnění „Změna nastavení systému" (bez rootu)\n
-        2. Root shell příkaz — pro rootovaná zařízení\n
-        3. Accessibility Service — kliknutí na dlaždici v Rychlém nastavení (záloha)
+        zapne WiFi hotspot; po odpojení se vypne.\n\n
+        Hotspot se přepíná jednou ze tří metod — zkoušeny v tomto pořadí, použije se první,
+        která na daném telefonu funguje:\n
+        1. Tethering API — tichá systémová metoda (bez rootu), vyžaduje oprávnění „Změna
+        nastavení systému". Někteří výrobci ji ale na svých telefonech blokují.\n
+        2. Root shell — jen na rootovaných telefonech.\n
+        3. Služba přístupnosti — krátce otevře Rychlé nastavení a klepne na dlaždici hotspotu.
+        Funguje bez rootu i tam, kde je metoda 1 blokovaná.\n\n
+        Když jedna metoda selže, aplikace automaticky použije další v pořadí, takže se
+        o přepnutí nemusíš starat.
     </string>
 </resources>

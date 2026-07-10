@@ -2,6 +2,7 @@ package com.soulbrowser.bthotspot.service
 
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
+import com.soulbrowser.bthotspot.R
 import com.soulbrowser.bthotspot.data.PrefsRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -39,7 +40,7 @@ class AutomationTileService : TileService() {
     private fun render(enabled: Boolean) {
         val tile = qsTile ?: return
         tile.state = if (enabled) Tile.STATE_ACTIVE else Tile.STATE_INACTIVE
-        tile.label = "BT Hotspot Auto"
+        tile.label = getString(R.string.tile_label)
         tile.updateTile()
     }
 }
