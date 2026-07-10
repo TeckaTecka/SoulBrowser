@@ -67,8 +67,8 @@ class BluetoothMonitorService : Service() {
             Log.d(TAG, "BT event: $action  device=${device.address}")
 
             scope.launch {
-                val selected = prefs.selectedDevice.first() ?: return@launch
-                if (selected.address != device.address) return@launch
+                val watched = prefs.selectedDevices.first()
+                if (watched.none { it.address == device.address }) return@launch
 
                 if (!prefs.serviceEnabled.first()) {
                     Log.i(TAG, "automation paused — ignoring $action")
@@ -216,8 +216,8 @@ class BluetoothMonitorService : Service() {
                         adapter.closeProfileProxy(p, proxy)
                         if (triggered) return
                         scope.launch {
-                            val target = prefs.selectedDevice.first() ?: return@launch
-                            if (target.address in addresses && !triggered) {
+                            val targets = prefs.selectedDevices.first().map { it.address }.toSet()
+                            if (targets.any { it in addresses } && !triggered) {
                                 triggered = true
                                 Log.i(TAG, "Device already connected (profile=$p) — enabling hotspot")
                                 EventLog.log(applicationContext, "Auto už připojené při startu → zapínám hotspot")

@@ -40,14 +40,15 @@ object CatchUp {
 
         val prefs = PrefsRepository(context)
         if (!prefs.serviceEnabled.first()) return                       // automation paused
-        val target = prefs.selectedDevice.first() ?: return
+        val targets = prefs.selectedDevices.first().map { it.address }
+        if (targets.isEmpty()) return
         if (prefs.skipWhenOnWifiInternet.first() && onWifiInternet(context)) return
         // Only act when the hotspot is *definitely* off. If it's on or the state is
         // unknown/transitioning, do nothing — this avoids re-announcing an already-on
         // hotspot and avoids blindly toggling when we can't read the state.
         if (HotspotState.isOn(context) != false) return
 
-        if (!isDeviceConnected(context, target.address)) return
+        if (!isAnyConnected(context, targets)) return
 
         Log.i(TAG, "Catch-up: car connected but hotspot off — enabling")
         EventLog.log(context, "Záchrana na pozadí: auto připojené, hotspot vypnutý → zapínám")
@@ -68,8 +69,9 @@ object CatchUp {
     }
 
     @SuppressLint("MissingPermission")
-    private suspend fun isDeviceConnected(context: Context, address: String): Boolean {
+    private suspend fun isAnyConnected(context: Context, addresses: List<String>): Boolean {
         val adapter = context.getSystemService(BluetoothManager::class.java)?.adapter ?: return false
+        val wanted = addresses.map { it.uppercase() }.toSet()
         return withTimeoutOrNull(4_000) {
             suspendCancellableCoroutine { cont ->
                 val profiles = intArrayOf(BluetoothProfile.A2DP, BluetoothProfile.HEADSET)
@@ -85,7 +87,7 @@ object CatchUp {
                         adapter.getProfileProxy(context, object : BluetoothProfile.ServiceListener {
                             override fun onServiceConnected(profile: Int, proxy: BluetoothProfile) {
                                 try {
-                                    if (proxy.connectedDevices.any { it.address.equals(address, ignoreCase = true) }) {
+                                    if (proxy.connectedDevices.any { it.address.uppercase() in wanted }) {
                                         found.set(true)
                                     }
                                 } catch (_: Exception) {

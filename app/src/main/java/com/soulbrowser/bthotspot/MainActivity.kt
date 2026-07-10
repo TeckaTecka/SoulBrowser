@@ -104,7 +104,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainScreen(viewModel: MainViewModel) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val selectedDevice by viewModel.selectedDevice.collectAsStateWithLifecycle()
+    val selectedDevices by viewModel.selectedDevices.collectAsStateWithLifecycle()
     val autoDisable by viewModel.autoDisableOnDisconnect.collectAsStateWithLifecycle()
     val watchdogWarn by viewModel.watchdogWarningEnabled.collectAsStateWithLifecycle()
     val eventNotif by viewModel.eventNotificationsEnabled.collectAsStateWithLifecycle()
@@ -197,10 +197,10 @@ fun MainScreen(viewModel: MainViewModel) {
                 )
             }
 
-            // Selected device card
+            // Selected devices card
             item {
                 SelectedDeviceCard(
-                    device = selectedDevice,
+                    devices = selectedDevices,
                     onClick = { showDevicePicker = true }
                 )
             }
@@ -290,11 +290,8 @@ fun MainScreen(viewModel: MainViewModel) {
     if (showDevicePicker) {
         DevicePickerDialog(
             devices = uiState.pairedDevices,
-            selectedAddress = selectedDevice?.address,
-            onSelect = { device ->
-                viewModel.selectDevice(device)
-                showDevicePicker = false
-            },
+            selectedAddresses = selectedDevices.map { it.address }.toSet(),
+            onToggle = { device -> viewModel.toggleDevice(device) },
             onDismiss = { showDevicePicker = false }
         )
     }
@@ -416,13 +413,13 @@ fun StatusCard(
 }
 
 @Composable
-fun SelectedDeviceCard(device: DeviceInfo?, onClick: () -> Unit) {
+fun SelectedDeviceCard(devices: List<DeviceInfo>, onClick: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick),
         colors = CardDefaults.cardColors(
-            containerColor = if (device != null)
+            containerColor = if (devices.isNotEmpty())
                 MaterialTheme.colorScheme.primaryContainer
             else MaterialTheme.colorScheme.surfaceVariant
         )
@@ -438,9 +435,11 @@ fun SelectedDeviceCard(device: DeviceInfo?, onClick: () -> Unit) {
                     stringResource(R.string.selected_device),
                     style = MaterialTheme.typography.labelMedium
                 )
-                if (device != null) {
-                    Text(device.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                    Text(device.address, style = MaterialTheme.typography.bodySmall)
+                if (devices.isNotEmpty()) {
+                    devices.forEach { d ->
+                        Text(d.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        Text(d.address, style = MaterialTheme.typography.bodySmall)
+                    }
                 } else {
                     Text(
                         stringResource(R.string.tap_to_select),
@@ -706,8 +705,8 @@ fun HowItWorksCard() {
 @Composable
 fun DevicePickerDialog(
     devices: List<DeviceInfo>,
-    selectedAddress: String?,
-    onSelect: (DeviceInfo?) -> Unit,
+    selectedAddresses: Set<String>,
+    onToggle: (DeviceInfo) -> Unit,
     onDismiss: () -> Unit,
 ) {
     AlertDialog(
@@ -719,25 +718,21 @@ fun DevicePickerDialog(
             } else {
                 LazyColumn {
                     items(devices) { device ->
+                        val checked = device.address in selectedAddresses
                         ListItem(
                             headlineContent = { Text(device.name) },
                             supportingContent = { Text(device.address) },
-                            trailingContent = {
-                                if (device.address == selectedAddress) {
-                                    Icon(Icons.Default.Check, null, tint = MaterialTheme.colorScheme.primary)
-                                }
+                            leadingContent = {
+                                Checkbox(checked = checked, onCheckedChange = { onToggle(device) })
                             },
-                            modifier = Modifier.clickable { onSelect(device) }
+                            modifier = Modifier.clickable { onToggle(device) }
                         )
                     }
                 }
             }
         },
         confirmButton = {
-            TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
-        },
-        dismissButton = if (selectedAddress != null) {
-            { TextButton(onClick = { onSelect(null) }) { Text(stringResource(R.string.clear_selection)) } }
-        } else null
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.close)) }
+        }
     )
 }

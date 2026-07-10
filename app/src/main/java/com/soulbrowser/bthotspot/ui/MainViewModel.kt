@@ -42,8 +42,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val btAdapter: BluetoothAdapter? =
         (application.getSystemService(Context.BLUETOOTH_SERVICE) as? BluetoothManager)?.adapter
 
-    val selectedDevice: StateFlow<DeviceInfo?> = prefs.selectedDevice
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
+    val selectedDevices: StateFlow<List<DeviceInfo>> = prefs.selectedDevices
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
     val autoDisableOnDisconnect: StateFlow<Boolean> = prefs.autoDisableOnDisconnect
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), true)
@@ -96,9 +96,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun selectDevice(device: DeviceInfo?) {
+    fun toggleDevice(device: DeviceInfo) {
         viewModelScope.launch {
-            prefs.saveSelectedDevice(device)
+            prefs.toggleDevice(device)
         }
     }
 

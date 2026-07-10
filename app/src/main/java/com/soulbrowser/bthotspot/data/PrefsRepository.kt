@@ -7,17 +7,24 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "bthotspot_prefs")
 
+// Separator between address and name inside a stored device entry (a control char
+// that never appears in a MAC address or a Bluetooth device name).
+private const val SEP = ""
+
 class PrefsRepository(private val context: Context) {
 
     companion object {
+        // Legacy single-device keys (kept for one-time migration into the set).
         private val KEY_DEVICE_ADDRESS = stringPreferencesKey("selected_device_address")
         private val KEY_DEVICE_NAME = stringPreferencesKey("selected_device_name")
+        private val KEY_DEVICES = stringSetPreferencesKey("selected_devices")
         private val KEY_SERVICE_ENABLED = booleanPreferencesKey("service_enabled")
         private val KEY_AUTO_DISABLE = booleanPreferencesKey("auto_disable_on_disconnect")
         private val KEY_WATCHDOG_WARN = booleanPreferencesKey("watchdog_warning_enabled")
@@ -28,12 +35,25 @@ class PrefsRepository(private val context: Context) {
         private val KEY_SKIP_ON_WIFI = booleanPreferencesKey("skip_when_on_wifi_internet")
 
         const val DISCONNECT_DELAY_MAX = 600
+
+        private fun encode(d: DeviceInfo) = d.address + SEP + d.name
+        private fun decode(s: String): DeviceInfo {
+            val i = s.indexOf(SEP)
+            return if (i < 0) DeviceInfo(s, s)
+            else DeviceInfo(s.substring(0, i), s.substring(i + 1))
+        }
+
+        /** Current set, migrating a legacy single selection if the set isn't set yet. */
+        private fun readSet(prefs: Preferences): Set<String> {
+            prefs[KEY_DEVICES]?.let { return it }
+            val addr = prefs[KEY_DEVICE_ADDRESS] ?: return emptySet()
+            return setOf(addr + SEP + (prefs[KEY_DEVICE_NAME] ?: addr))
+        }
     }
 
-    val selectedDevice: Flow<DeviceInfo?> = context.dataStore.data.map { prefs ->
-        val address = prefs[KEY_DEVICE_ADDRESS] ?: return@map null
-        val name = prefs[KEY_DEVICE_NAME] ?: address
-        DeviceInfo(address = address, name = name)
+    /** All watched devices (sorted by name). */
+    val selectedDevices: Flow<List<DeviceInfo>> = context.dataStore.data.map { prefs ->
+        readSet(prefs).map { decode(it) }.sortedBy { it.name.lowercase() }
     }
 
     val serviceEnabled: Flow<Boolean> = context.dataStore.data.map { prefs ->
@@ -72,40 +92,41 @@ class PrefsRepository(private val context: Context) {
         prefs[KEY_SKIP_ON_WIFI] ?: false
     }
 
-    suspend fun saveSelectedDevice(device: DeviceInfo?) {
+    /** Add the device if not watched, remove it if already watched. */
+    suspend fun toggleDevice(device: DeviceInfo) {
         context.dataStore.edit { prefs ->
-            if (device == null) {
-                prefs.remove(KEY_DEVICE_ADDRESS)
-                prefs.remove(KEY_DEVICE_NAME)
-            } else {
-                prefs[KEY_DEVICE_ADDRESS] = device.address
-                prefs[KEY_DEVICE_NAME] = device.name
-            }
+            val cur = readSet(prefs).toMutableSet()
+            val existing = cur.firstOrNull { it.substringBefore(SEP) == device.address }
+            if (existing != null) cur.remove(existing) else cur.add(encode(device))
+            prefs[KEY_DEVICES] = cur
+            // Legacy keys are now folded into the set.
+            prefs.remove(KEY_DEVICE_ADDRESS)
+            prefs.remove(KEY_DEVICE_NAME)
+        }
+    }
+
+    suspend fun clearDevices() {
+        context.dataStore.edit { prefs ->
+            prefs[KEY_DEVICES] = emptySet()
+            prefs.remove(KEY_DEVICE_ADDRESS)
+            prefs.remove(KEY_DEVICE_NAME)
         }
     }
 
     suspend fun setServiceEnabled(enabled: Boolean) {
-        context.dataStore.edit { prefs ->
-            prefs[KEY_SERVICE_ENABLED] = enabled
-        }
+        context.dataStore.edit { prefs -> prefs[KEY_SERVICE_ENABLED] = enabled }
     }
 
     suspend fun setAutoDisableOnDisconnect(enabled: Boolean) {
-        context.dataStore.edit { prefs ->
-            prefs[KEY_AUTO_DISABLE] = enabled
-        }
+        context.dataStore.edit { prefs -> prefs[KEY_AUTO_DISABLE] = enabled }
     }
 
     suspend fun setWatchdogWarningEnabled(enabled: Boolean) {
-        context.dataStore.edit { prefs ->
-            prefs[KEY_WATCHDOG_WARN] = enabled
-        }
+        context.dataStore.edit { prefs -> prefs[KEY_WATCHDOG_WARN] = enabled }
     }
 
     suspend fun setEventNotificationsEnabled(enabled: Boolean) {
-        context.dataStore.edit { prefs ->
-            prefs[KEY_EVENT_NOTIF] = enabled
-        }
+        context.dataStore.edit { prefs -> prefs[KEY_EVENT_NOTIF] = enabled }
     }
 
     suspend fun setEnableSoundUri(uri: String?) {
@@ -127,8 +148,6 @@ class PrefsRepository(private val context: Context) {
     }
 
     suspend fun setSkipWhenOnWifiInternet(enabled: Boolean) {
-        context.dataStore.edit { prefs ->
-            prefs[KEY_SKIP_ON_WIFI] = enabled
-        }
+        context.dataStore.edit { prefs -> prefs[KEY_SKIP_ON_WIFI] = enabled }
     }
 }
