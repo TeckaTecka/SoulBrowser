@@ -36,6 +36,18 @@
     <string name="auto_disable_title">Vypnout hotspot po odpojení</string>
     <string name="auto_disable_desc">Po odpojení sledovaného Bluetooth zařízení automaticky vypne WiFi hotspot</string>
 
+    <!-- Disconnect grace period -->
+    <string name="delay_title">Prodleva vypnutí po odpojení</string>
+    <string name="delay_desc">Kolik sekund počkat, než se po odpojení auta vypne hotspot (0–600). Chrání před krátkými výpadky Bluetooth (tunel, restart auta). 0 = vypnout hned.</string>
+    <string name="delay_field_label">Sekundy (0–600)</string>
+
+    <!-- Event log -->
+    <string name="log_title">Log událostí</string>
+    <string name="log_desc">Historie zapnutí/vypnutí za poslední 3 měsíce.</string>
+    <string name="log_show">Zobrazit log</string>
+    <string name="log_empty">Zatím žádné události.</string>
+    <string name="log_clear">Vymazat</string>
+
     <!-- Notifications & sounds -->
     <string name="notifications_section">Oznámení a zvuky</string>
     <string name="watchdog_warn_setting_title">Upozornění na výpadek hlídání</string>

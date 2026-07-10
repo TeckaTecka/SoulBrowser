@@ -5,6 +5,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
@@ -23,6 +24,9 @@ class PrefsRepository(private val context: Context) {
         private val KEY_EVENT_NOTIF = booleanPreferencesKey("event_notifications_enabled")
         private val KEY_SOUND_ENABLE_URI = stringPreferencesKey("sound_on_enable_uri")
         private val KEY_SOUND_DISABLE_URI = stringPreferencesKey("sound_on_disable_uri")
+        private val KEY_DISCONNECT_DELAY = intPreferencesKey("disconnect_delay_seconds")
+
+        const val DISCONNECT_DELAY_MAX = 600
     }
 
     val selectedDevice: Flow<DeviceInfo?> = context.dataStore.data.map { prefs ->
@@ -55,6 +59,11 @@ class PrefsRepository(private val context: Context) {
     /** URI of the sound to play when the hotspot is turned off, or null for none. */
     val disableSoundUri: Flow<String?> = context.dataStore.data.map { prefs ->
         prefs[KEY_SOUND_DISABLE_URI]
+    }
+
+    /** Grace period (seconds, 0..600) before disabling the hotspot after disconnect. */
+    val disconnectDelaySeconds: Flow<Int> = context.dataStore.data.map { prefs ->
+        (prefs[KEY_DISCONNECT_DELAY] ?: 0).coerceIn(0, DISCONNECT_DELAY_MAX)
     }
 
     suspend fun saveSelectedDevice(device: DeviceInfo?) {
@@ -102,6 +111,12 @@ class PrefsRepository(private val context: Context) {
     suspend fun setDisableSoundUri(uri: String?) {
         context.dataStore.edit { prefs ->
             if (uri == null) prefs.remove(KEY_SOUND_DISABLE_URI) else prefs[KEY_SOUND_DISABLE_URI] = uri
+        }
+    }
+
+    suspend fun setDisconnectDelaySeconds(seconds: Int) {
+        context.dataStore.edit { prefs ->
+            prefs[KEY_DISCONNECT_DELAY] = seconds.coerceIn(0, DISCONNECT_DELAY_MAX)
         }
     }
 }

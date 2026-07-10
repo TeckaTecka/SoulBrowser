@@ -8,6 +8,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
+import com.soulbrowser.bthotspot.data.EventLog
 import com.soulbrowser.bthotspot.data.PrefsRepository
 import com.soulbrowser.bthotspot.hotspot.HotspotController
 import com.soulbrowser.bthotspot.hotspot.HotspotState
@@ -46,6 +47,7 @@ object CatchUp {
         if (!isDeviceConnected(context, target.address)) return
 
         Log.i(TAG, "Catch-up: car connected but hotspot off — enabling")
+        EventLog.log(context, "Záchrana na pozadí: auto připojené, hotspot vypnutý → zapínám")
         HotspotController.setState(context, true) { ok ->
             if (ok) eventScope.launch { HotspotEvents.onEnabled(context) }
         }

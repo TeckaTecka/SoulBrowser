@@ -11,9 +11,11 @@ import android.provider.Settings
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.soulbrowser.bthotspot.data.DeviceInfo
+import com.soulbrowser.bthotspot.data.EventLog
 import com.soulbrowser.bthotspot.data.PrefsRepository
 import com.soulbrowser.bthotspot.service.BluetoothMonitorService
 import com.soulbrowser.bthotspot.service.HotspotAccessibilityService
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -21,6 +23,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 data class UiState(
     val pairedDevices: List<DeviceInfo> = emptyList(),
@@ -53,6 +59,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     val disableSoundUri: StateFlow<String?> = prefs.disableSoundUri
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
+
+    val disconnectDelaySeconds: StateFlow<Int> = prefs.disconnectDelaySeconds
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), 0)
 
     private val _uiState = MutableStateFlow(UiState())
     val uiState: StateFlow<UiState> = _uiState.asStateFlow()
@@ -107,6 +116,27 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun setDisableSoundUri(uri: String?) {
         viewModelScope.launch { prefs.setDisableSoundUri(uri) }
+    }
+
+    fun setDisconnectDelaySeconds(seconds: Int) {
+        viewModelScope.launch { prefs.setDisconnectDelaySeconds(seconds) }
+    }
+
+    /** Loads the event log (newest first) as formatted strings on a background thread. */
+    fun loadLog(onLoaded: (List<String>) -> Unit) {
+        viewModelScope.launch {
+            val fmt = SimpleDateFormat("d.M. HH:mm:ss", Locale.getDefault())
+            val lines = withContext(Dispatchers.IO) {
+                EventLog.read(getApplication())
+                    .sortedByDescending { it.time }
+                    .map { "${fmt.format(Date(it.time))}  ${it.message}" }
+            }
+            onLoaded(lines)
+        }
+    }
+
+    fun clearLog() {
+        viewModelScope.launch { withContext(Dispatchers.IO) { EventLog.clear(getApplication()) } }
     }
 
     fun startService(context: Context) {

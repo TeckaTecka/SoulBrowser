@@ -23,8 +23,10 @@ import com.soulbrowser.bthotspot.MainActivity
 import com.soulbrowser.bthotspot.R
 import com.soulbrowser.bthotspot.data.PrefsRepository
 import com.soulbrowser.bthotspot.hotspot.HotspotController
+import com.soulbrowser.bthotspot.data.EventLog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
@@ -48,6 +50,7 @@ class BluetoothMonitorService : Service() {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private lateinit var prefs: PrefsRepository
     private var heartbeatStarted = false
+    private var pendingDisable: Job? = null
 
     private val btReceiver = object : BroadcastReceiver() {
         @SuppressLint("MissingPermission")
@@ -69,19 +72,23 @@ class BluetoothMonitorService : Service() {
 
                 when (action) {
                     BluetoothDevice.ACTION_ACL_CONNECTED -> {
+                        // A reconnect cancels any pending delayed disable.
+                        if (pendingDisable?.isActive == true) {
+                            pendingDisable?.cancel()
+                            EventLog.log(applicationContext, "Auto se vrátilo — vypnutí zrušeno")
+                        }
                         Log.i(TAG, "Matched device connected — enabling hotspot")
+                        EventLog.log(applicationContext, "Auto připojeno → zapínám hotspot")
                         HotspotController.setState(applicationContext, true) { ok ->
                             if (ok) scope.launch { HotspotEvents.onEnabled(applicationContext) }
                         }
                     }
                     BluetoothDevice.ACTION_ACL_DISCONNECTED -> {
                         if (prefs.autoDisableOnDisconnect.first()) {
-                            Log.i(TAG, "Matched device disconnected — disabling hotspot")
-                            HotspotController.setState(applicationContext, false) { ok ->
-                                if (ok) scope.launch { HotspotEvents.onDisabled(applicationContext) }
-                            }
+                            scheduleDisable()
                         } else {
                             Log.i(TAG, "Matched device disconnected — auto-disable off, leaving hotspot on")
+                            EventLog.log(applicationContext, "Auto odpojeno — auto-vypnutí je vypnuté, hotspot ponechán")
                         }
                     }
                 }
@@ -116,6 +123,31 @@ class BluetoothMonitorService : Service() {
             Log.e(TAG, "onStartCommand error: ${e.javaClass.simpleName}: ${e.message}")
         }
         return START_STICKY
+    }
+
+    /** Disable the hotspot, honouring the configurable grace period (0..600 s). */
+    private suspend fun scheduleDisable() {
+        pendingDisable?.cancel()
+        val delaySec = prefs.disconnectDelaySeconds.first()
+        if (delaySec <= 0) {
+            Log.i(TAG, "disconnected — disabling now")
+            EventLog.log(applicationContext, "Auto odpojeno → vypínám hotspot")
+            disableHotspot()
+            return
+        }
+        EventLog.log(applicationContext, "Auto odpojeno → vypnutí naplánováno za ${delaySec}s")
+        pendingDisable = scope.launch {
+            delay(delaySec * 1000L)
+            Log.i(TAG, "disconnect grace elapsed — disabling")
+            EventLog.log(applicationContext, "Prodleva ${delaySec}s uplynula → vypínám hotspot")
+            disableHotspot()
+        }
+    }
+
+    private fun disableHotspot() {
+        HotspotController.setState(applicationContext, false) { ok ->
+            if (ok) scope.launch { HotspotEvents.onDisabled(applicationContext) }
+        }
     }
 
     /** Every 60s while alive: post/clear the "accessibility disabled" warning. */
@@ -166,6 +198,7 @@ class BluetoothMonitorService : Service() {
                             if (target.address in addresses && !triggered) {
                                 triggered = true
                                 Log.i(TAG, "Device already connected (profile=$p) — enabling hotspot")
+                                EventLog.log(applicationContext, "Auto už připojené při startu → zapínám hotspot")
                                 HotspotController.setState(applicationContext, true) { ok ->
                                     if (ok) scope.launch { HotspotEvents.onEnabled(applicationContext) }
                                 }

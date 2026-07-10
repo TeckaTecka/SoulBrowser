@@ -19,6 +19,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bluetooth
 import androidx.compose.material.icons.filled.Check
@@ -33,6 +34,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
@@ -108,8 +110,10 @@ fun MainScreen(viewModel: MainViewModel) {
     val eventNotif by viewModel.eventNotificationsEnabled.collectAsStateWithLifecycle()
     val enableSoundUri by viewModel.enableSoundUri.collectAsStateWithLifecycle()
     val disableSoundUri by viewModel.disableSoundUri.collectAsStateWithLifecycle()
+    val disconnectDelay by viewModel.disconnectDelaySeconds.collectAsStateWithLifecycle()
     val context = LocalContext.current
     var showDevicePicker by remember { mutableStateOf(false) }
+    var logLines by remember { mutableStateOf<List<String>?>(null) }
 
     Scaffold(
         topBar = {
@@ -197,6 +201,19 @@ fun MainScreen(viewModel: MainViewModel) {
                 )
             }
 
+            // Disconnect grace period
+            item {
+                DisconnectDelayCard(
+                    delay = disconnectDelay,
+                    onChange = { viewModel.setDisconnectDelaySeconds(it) }
+                )
+            }
+
+            // Event log
+            item {
+                LogCard(onShow = { viewModel.loadLog { logLines = it } })
+            }
+
             // Notifications & sounds
             item {
                 NotificationsSoundsCard(
@@ -258,6 +275,87 @@ fun MainScreen(viewModel: MainViewModel) {
             },
             onDismiss = { showDevicePicker = false }
         )
+    }
+
+    logLines?.let { lines ->
+        AlertDialog(
+            onDismissRequest = { logLines = null },
+            title = { Text(stringResource(R.string.log_title)) },
+            text = {
+                if (lines.isEmpty()) {
+                    Text(stringResource(R.string.log_empty))
+                } else {
+                    LazyColumn(modifier = Modifier.heightIn(max = 400.dp)) {
+                        items(lines) { line ->
+                            Text(
+                                line,
+                                style = MaterialTheme.typography.bodySmall,
+                                modifier = Modifier.padding(vertical = 2.dp)
+                            )
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { logLines = null }) { Text(stringResource(R.string.close)) }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    viewModel.clearLog()
+                    logLines = emptyList()
+                }) { Text(stringResource(R.string.log_clear)) }
+            }
+        )
+    }
+}
+
+@Composable
+fun DisconnectDelayCard(delay: Int, onChange: (Int) -> Unit) {
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(
+                stringResource(R.string.delay_title),
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.SemiBold
+            )
+            Text(
+                stringResource(R.string.delay_desc),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            var text by remember(delay) { mutableStateOf(if (delay == 0) "" else delay.toString()) }
+            OutlinedTextField(
+                value = text,
+                onValueChange = { input ->
+                    val digits = input.filter { it.isDigit() }.take(3)
+                    text = digits
+                    onChange((digits.toIntOrNull() ?: 0).coerceIn(0, 600))
+                },
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                label = { Text(stringResource(R.string.delay_field_label)) },
+                modifier = Modifier.width(180.dp)
+            )
+        }
+    }
+}
+
+@Composable
+fun LogCard(onShow: () -> Unit) {
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(
+                stringResource(R.string.log_title),
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.SemiBold
+            )
+            Text(
+                stringResource(R.string.log_desc),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Button(onClick = onShow) { Text(stringResource(R.string.log_show)) }
+        }
     }
 }
 
