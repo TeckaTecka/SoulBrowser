@@ -8,19 +8,24 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
-import android.view.View
+import android.text.Editable
+import android.text.InputType
+import android.text.TextWatcher
 import android.widget.Button
+import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.Switch
 import android.widget.TextView
 import android.widget.Toast
 
-private const val REQ_PICK_SOUND = 1
+private const val REQ_PICK_CONNECT = 1
+private const val REQ_PICK_DISCONNECT = 2
 
 class MainActivity : Activity() {
 
-    private lateinit var soundLabel: TextView
+    private lateinit var connectSoundLabel: TextView
+    private lateinit var disconnectSoundLabel: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,26 +39,46 @@ class MainActivity : Activity() {
 
         root.addView(title("Hotspot Připojeno"))
         root.addView(body(
-            "Tato aplikace hlídá připojení k WiFi hotspotu (z telefonu). " +
-                "Jakmile se auto připojí, přehraje zvuk a zobrazí oznámení — poznáš to i přes Waze."
+            "Hlídá připojení k WiFi hotspotu (z telefonu). Po připojení přehraje zvuk a zobrazí " +
+                "oznámení — poznáš to i přes Waze."
         ))
 
-        root.addView(switchRow("Oznámení při připojení", KEY_NOTIFY_ENABLED, true))
-        root.addView(switchRow("Zvuk při připojení", KEY_SOUND_ENABLED, true))
-        root.addView(switchRow("Vibrace při připojení", KEY_VIBRATE_ENABLED, false))
+        // --- Připojení ---
+        root.addView(section("Při připojení"))
+        root.addView(switchRow("Oznámení", KEY_NOTIFY_ENABLED, true))
+        root.addView(switchRow("Zvuk", KEY_SOUND_ENABLED, true))
+        root.addView(switchRow("Vibrace", KEY_VIBRATE_ENABLED, false))
+        connectSoundLabel = body("")
+        root.addView(connectSoundLabel)
+        root.addView(button("Vybrat zvuk připojení") {
+            pickSound(REQ_PICK_CONNECT, KEY_SOUND_URI, "Zvuk připojení")
+        })
+        root.addView(button("Přehrát zvuk (test)") { playSound(KEY_SOUND_URI) })
 
-        soundLabel = body("Zvuk: výchozí")
-        root.addView(soundLabel)
+        // --- Opakování ---
+        root.addView(section("Opakování zvuku"))
+        root.addView(switchRow("Opakovat zvuk, dokud nepotvrdím", KEY_REPEAT_ENABLED, false))
+        root.addView(numberRow("Interval opakování (s), 3–120", KEY_REPEAT_INTERVAL, 10, 3, 120))
 
-        root.addView(button("Vybrat zvuk připojení") { pickSound() })
-        root.addView(button("Přehrát zvuk (test)") { playCurrentSound() })
+        // --- Odpojení ---
+        root.addView(section("Při odpojení"))
+        root.addView(switchRow("Oznámení + zvuk i při odpojení", KEY_NOTIFY_DISCONNECT, false))
+        disconnectSoundLabel = body("")
+        root.addView(disconnectSoundLabel)
+        root.addView(button("Vybrat zvuk odpojení") {
+            pickSound(REQ_PICK_DISCONNECT, KEY_SOUND_DISCONNECT_URI, "Zvuk odpojení")
+        })
+        root.addView(button("Přehrát zvuk odpojení (test)") { playSound(KEY_SOUND_DISCONNECT_URI) })
+
+        // --- Ostatní ---
+        root.addView(section("Ostatní"))
         root.addView(button("Vypnout optimalizaci baterie") { requestIgnoreBattery() })
         root.addView(body(
             "Tip: v nastavení aplikace povol Automatické spouštění, ať se hlídání nastartuje po zapnutí auta."
         ))
 
         setContentView(ScrollView(this).apply { addView(root) })
-        updateSoundLabel()
+        updateLabels()
     }
 
     private fun startMonitor() {
@@ -64,35 +89,39 @@ class MainActivity : Activity() {
         } catch (_: Exception) {}
     }
 
-    private fun pickSound() {
-        val current = prefs().getString(KEY_SOUND_URI, null)
+    private fun pickSound(requestCode: Int, key: String, title: String) {
+        val current = prefs().getString(key, null)
         val intent = Intent(RingtoneManager.ACTION_RINGTONE_PICKER).apply {
             putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_ALL)
-            putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, "Zvuk připojení")
+            putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, title)
             putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, true)
             putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, false)
             if (!current.isNullOrEmpty()) {
                 putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, Uri.parse(current))
             }
         }
-        startActivityForResult(intent, REQ_PICK_SOUND)
+        startActivityForResult(intent, requestCode)
     }
 
     @Deprecated("Deprecated in Java")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == REQ_PICK_SOUND && resultCode == RESULT_OK) {
-            val uri: Uri? = data?.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI)
-            prefs().edit().apply {
-                if (uri == null) remove(KEY_SOUND_URI) else putString(KEY_SOUND_URI, uri.toString())
-            }.apply()
-            updateSoundLabel()
+        if (resultCode != RESULT_OK) return
+        val key = when (requestCode) {
+            REQ_PICK_CONNECT -> KEY_SOUND_URI
+            REQ_PICK_DISCONNECT -> KEY_SOUND_DISCONNECT_URI
+            else -> return
         }
+        val uri: Uri? = data?.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI)
+        prefs().edit().apply {
+            if (uri == null) remove(key) else putString(key, uri.toString())
+        }.apply()
+        updateLabels()
     }
 
-    private fun playCurrentSound() {
+    private fun playSound(key: String) {
         try {
-            val stored = prefs().getString(KEY_SOUND_URI, null)
+            val stored = prefs().getString(key, null)
             val uri = if (!stored.isNullOrEmpty()) Uri.parse(stored)
             else RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
             RingtoneManager.getRingtone(this, uri)?.play()
@@ -101,14 +130,18 @@ class MainActivity : Activity() {
         }
     }
 
-    private fun updateSoundLabel() {
-        val stored = prefs().getString(KEY_SOUND_URI, null)
-        val name = try {
+    private fun updateLabels() {
+        connectSoundLabel.text = "Zvuk připojení: ${soundName(KEY_SOUND_URI)}"
+        disconnectSoundLabel.text = "Zvuk odpojení: ${soundName(KEY_SOUND_DISCONNECT_URI)}"
+    }
+
+    private fun soundName(key: String): String {
+        val stored = prefs().getString(key, null)
+        return try {
             val uri = if (!stored.isNullOrEmpty()) Uri.parse(stored)
             else RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
-            RingtoneManager.getRingtone(this, uri)?.getTitle(this)
-        } catch (_: Exception) { null }
-        soundLabel.text = "Zvuk: ${name ?: "výchozí"}"
+            RingtoneManager.getRingtone(this, uri)?.getTitle(this) ?: "výchozí"
+        } catch (_: Exception) { "výchozí" }
     }
 
     private fun requestIgnoreBattery() {
@@ -126,6 +159,12 @@ class MainActivity : Activity() {
         this.text = text
         textSize = 22f
         setPadding(0, 0, 0, 24)
+    }
+
+    private fun section(text: String) = TextView(this).apply {
+        this.text = text
+        textSize = 16f
+        setPadding(0, 24, 0, 4)
     }
 
     private fun body(text: String) = TextView(this).apply {
@@ -146,6 +185,28 @@ class MainActivity : Activity() {
             LinearLayout.LayoutParams.MATCH_PARENT,
             LinearLayout.LayoutParams.WRAP_CONTENT
         )
+    }
+
+    private fun numberRow(label: String, key: String, default: Int, min: Int, max: Int): LinearLayout {
+        val row = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(0, 12, 0, 4)
+        }
+        row.addView(body(label))
+        val edit = EditText(this).apply {
+            inputType = InputType.TYPE_CLASS_NUMBER
+            setText(prefs().getInt(key, default).toString())
+            addTextChangedListener(object : TextWatcher {
+                override fun beforeTextChanged(s: CharSequence?, a: Int, b: Int, c: Int) {}
+                override fun onTextChanged(s: CharSequence?, a: Int, b: Int, c: Int) {}
+                override fun afterTextChanged(s: Editable?) {
+                    val v = (s?.toString()?.toIntOrNull() ?: default).coerceIn(min, max)
+                    prefs().edit().putInt(key, v).apply()
+                }
+            })
+        }
+        row.addView(edit)
+        return row
     }
 
     private fun button(text: String, onClick: () -> Unit) = Button(this).apply {
