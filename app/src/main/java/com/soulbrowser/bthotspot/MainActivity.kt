@@ -19,6 +19,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bluetooth
@@ -32,8 +33,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -343,6 +346,7 @@ fun DisconnectDelayCard(delay: Int, onChange: (Int) -> Unit) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             var text by remember(delay) { mutableStateOf(if (delay == 0) "" else delay.toString()) }
+            val focusManager = LocalFocusManager.current
             OutlinedTextField(
                 value = text,
                 onValueChange = { input ->
@@ -351,9 +355,14 @@ fun DisconnectDelayCard(delay: Int, onChange: (Int) -> Unit) {
                     onChange((digits.toIntOrNull() ?: 0).coerceIn(0, 600))
                 },
                 singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number,
+                    imeAction = ImeAction.Done
+                ),
+                keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
                 label = { Text(stringResource(R.string.delay_field_label)) },
-                modifier = Modifier.width(180.dp)
+                supportingText = { Text(stringResource(R.string.delay_saved_hint)) },
+                modifier = Modifier.width(220.dp)
             )
         }
     }

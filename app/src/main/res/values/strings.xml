@@ -48,6 +48,7 @@
     <string name="delay_title">Prodleva vypnutí po odpojení</string>
     <string name="delay_desc">Kolik sekund počkat, než se po odpojení auta vypne hotspot (0–600). Chrání před krátkými výpadky Bluetooth (tunel, restart auta). 0 = vypnout hned.</string>
     <string name="delay_field_label">Sekundy (0–600)</string>
+    <string name="delay_saved_hint">Ukládá se automaticky</string>
 
     <!-- Event log -->
     <string name="log_title">Log událostí</string>
