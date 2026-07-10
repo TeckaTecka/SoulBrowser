@@ -63,6 +63,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val disconnectDelaySeconds: StateFlow<Int> = prefs.disconnectDelaySeconds
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), 0)
 
+    val automationEnabled: StateFlow<Boolean> = prefs.serviceEnabled
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), true)
+
+    val skipWhenOnWifiInternet: StateFlow<Boolean> = prefs.skipWhenOnWifiInternet
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
+
     private val _uiState = MutableStateFlow(UiState())
     val uiState: StateFlow<UiState> = _uiState.asStateFlow()
 
@@ -120,6 +126,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun setDisconnectDelaySeconds(seconds: Int) {
         viewModelScope.launch { prefs.setDisconnectDelaySeconds(seconds) }
+    }
+
+    fun setAutomationEnabled(enabled: Boolean) {
+        viewModelScope.launch { prefs.setServiceEnabled(enabled) }
+    }
+
+    fun setSkipWhenOnWifiInternet(enabled: Boolean) {
+        viewModelScope.launch { prefs.setSkipWhenOnWifiInternet(enabled) }
     }
 
     /** Loads the event log (newest first) as formatted strings on a background thread. */

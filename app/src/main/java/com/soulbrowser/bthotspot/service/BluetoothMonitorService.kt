@@ -70,12 +70,22 @@ class BluetoothMonitorService : Service() {
                 val selected = prefs.selectedDevice.first() ?: return@launch
                 if (selected.address != device.address) return@launch
 
+                if (!prefs.serviceEnabled.first()) {
+                    Log.i(TAG, "automation paused — ignoring $action")
+                    return@launch
+                }
+
                 when (action) {
                     BluetoothDevice.ACTION_ACL_CONNECTED -> {
                         // A reconnect cancels any pending delayed disable.
                         if (pendingDisable?.isActive == true) {
                             pendingDisable?.cancel()
                             EventLog.log(applicationContext, "Auto se vrátilo — vypnutí zrušeno")
+                        }
+                        if (prefs.skipWhenOnWifiInternet.first() && onWifiInternet()) {
+                            Log.i(TAG, "on WiFi with internet — skipping enable")
+                            EventLog.log(applicationContext, "Auto připojeno, ale telefon je na WiFi s internetem → hotspot nezapínám")
+                            return@launch
                         }
                         Log.i(TAG, "Matched device connected — enabling hotspot")
                         EventLog.log(applicationContext, "Auto připojeno → zapínám hotspot")
@@ -147,6 +157,18 @@ class BluetoothMonitorService : Service() {
     private fun disableHotspot() {
         HotspotController.setState(applicationContext, false) { ok ->
             if (ok) scope.launch { HotspotEvents.onDisabled(applicationContext) }
+        }
+    }
+
+    /** True if the phone currently routes through a WiFi network that has validated internet. */
+    private fun onWifiInternet(): Boolean {
+        return try {
+            val cm = getSystemService(android.net.ConnectivityManager::class.java)
+            val caps = cm.getNetworkCapabilities(cm.activeNetwork) ?: return false
+            caps.hasTransport(android.net.NetworkCapabilities.TRANSPORT_WIFI) &&
+                caps.hasCapability(android.net.NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+        } catch (e: Exception) {
+            false
         }
     }
 

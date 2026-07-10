@@ -36,6 +36,14 @@
     <string name="auto_disable_title">Vypnout hotspot po odpojení</string>
     <string name="auto_disable_desc">Po odpojení sledovaného Bluetooth zařízení automaticky vypne WiFi hotspot</string>
 
+    <!-- Master automation switch -->
+    <string name="automation_title">Automatika zapnutá</string>
+    <string name="automation_desc">Když vypnete, aplikace nebude reagovat na připojení/odpojení auta. Lze přepínat i dlaždicí v Rychlém nastavení.</string>
+
+    <!-- Skip when on WiFi -->
+    <string name="skip_wifi_title">Nezapínat na jiné WiFi</string>
+    <string name="skip_wifi_desc">Když je telefon připojený k WiFi s internetem (např. doma), hotspot se po připojení auta nezapne.</string>
+
     <!-- Disconnect grace period -->
     <string name="delay_title">Prodleva vypnutí po odpojení</string>
     <string name="delay_desc">Kolik sekund počkat, než se po odpojení auta vypne hotspot (0–600). Chrání před krátkými výpadky Bluetooth (tunel, restart auta). 0 = vypnout hned.</string>

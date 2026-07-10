@@ -111,6 +111,8 @@ fun MainScreen(viewModel: MainViewModel) {
     val enableSoundUri by viewModel.enableSoundUri.collectAsStateWithLifecycle()
     val disableSoundUri by viewModel.disableSoundUri.collectAsStateWithLifecycle()
     val disconnectDelay by viewModel.disconnectDelaySeconds.collectAsStateWithLifecycle()
+    val automationEnabled by viewModel.automationEnabled.collectAsStateWithLifecycle()
+    val skipOnWifi by viewModel.skipWhenOnWifiInternet.collectAsStateWithLifecycle()
     val context = LocalContext.current
     var showDevicePicker by remember { mutableStateOf(false) }
     var logLines by remember { mutableStateOf<List<String>?>(null) }
@@ -133,6 +135,16 @@ fun MainScreen(viewModel: MainViewModel) {
             verticalArrangement = Arrangement.spacedBy(12.dp),
             contentPadding = PaddingValues(vertical = 16.dp)
         ) {
+            // Master automation switch (also available as a Quick Settings tile)
+            item {
+                SimpleSwitchCard(
+                    title = stringResource(R.string.automation_title),
+                    desc = stringResource(R.string.automation_desc),
+                    checked = automationEnabled,
+                    onCheckedChange = { viewModel.setAutomationEnabled(it) }
+                )
+            }
+
             // Write settings — primary hotspot method
             item {
                 StatusCard(
@@ -206,6 +218,16 @@ fun MainScreen(viewModel: MainViewModel) {
                 DisconnectDelayCard(
                     delay = disconnectDelay,
                     onChange = { viewModel.setDisconnectDelaySeconds(it) }
+                )
+            }
+
+            // Skip when already on WiFi with internet
+            item {
+                SimpleSwitchCard(
+                    title = stringResource(R.string.skip_wifi_title),
+                    desc = stringResource(R.string.skip_wifi_desc),
+                    checked = skipOnWifi,
+                    onCheckedChange = { viewModel.setSkipWhenOnWifiInternet(it) }
                 )
             }
 
@@ -543,6 +565,31 @@ fun SoundRow(title: String, currentUri: String?, onPicked: (String?) -> Unit) {
             }
             launcher.launch(intent)
         }) { Text(stringResource(R.string.sound_pick)) }
+    }
+}
+
+@Composable
+fun SimpleSwitchCard(title: String, desc: String, checked: Boolean, onCheckedChange: (Boolean) -> Unit) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onCheckedChange(!checked) }
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(title, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                Text(
+                    desc,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            Switch(checked = checked, onCheckedChange = onCheckedChange)
+        }
     }
 }
 

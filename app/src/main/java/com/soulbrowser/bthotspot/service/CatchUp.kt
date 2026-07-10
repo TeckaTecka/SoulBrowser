@@ -38,7 +38,10 @@ object CatchUp {
             context.checkSelfPermission(Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED
         ) return
 
-        val target = PrefsRepository(context).selectedDevice.first() ?: return
+        val prefs = PrefsRepository(context)
+        if (!prefs.serviceEnabled.first()) return                       // automation paused
+        val target = prefs.selectedDevice.first() ?: return
+        if (prefs.skipWhenOnWifiInternet.first() && onWifiInternet(context)) return
         // Only act when the hotspot is *definitely* off. If it's on or the state is
         // unknown/transitioning, do nothing — this avoids re-announcing an already-on
         // hotspot and avoids blindly toggling when we can't read the state.
@@ -50,6 +53,17 @@ object CatchUp {
         EventLog.log(context, "Záchrana na pozadí: auto připojené, hotspot vypnutý → zapínám")
         HotspotController.setState(context, true) { ok ->
             if (ok) eventScope.launch { HotspotEvents.onEnabled(context) }
+        }
+    }
+
+    private fun onWifiInternet(context: Context): Boolean {
+        return try {
+            val cm = context.getSystemService(android.net.ConnectivityManager::class.java)
+            val caps = cm.getNetworkCapabilities(cm.activeNetwork) ?: return false
+            caps.hasTransport(android.net.NetworkCapabilities.TRANSPORT_WIFI) &&
+                caps.hasCapability(android.net.NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+        } catch (e: Exception) {
+            false
         }
     }
 

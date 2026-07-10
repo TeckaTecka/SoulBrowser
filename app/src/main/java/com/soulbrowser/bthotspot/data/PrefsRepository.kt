@@ -25,6 +25,7 @@ class PrefsRepository(private val context: Context) {
         private val KEY_SOUND_ENABLE_URI = stringPreferencesKey("sound_on_enable_uri")
         private val KEY_SOUND_DISABLE_URI = stringPreferencesKey("sound_on_disable_uri")
         private val KEY_DISCONNECT_DELAY = intPreferencesKey("disconnect_delay_seconds")
+        private val KEY_SKIP_ON_WIFI = booleanPreferencesKey("skip_when_on_wifi_internet")
 
         const val DISCONNECT_DELAY_MAX = 600
     }
@@ -64,6 +65,11 @@ class PrefsRepository(private val context: Context) {
     /** Grace period (seconds, 0..600) before disabling the hotspot after disconnect. */
     val disconnectDelaySeconds: Flow<Int> = context.dataStore.data.map { prefs ->
         (prefs[KEY_DISCONNECT_DELAY] ?: 0).coerceIn(0, DISCONNECT_DELAY_MAX)
+    }
+
+    /** When true, don't enable the hotspot if the phone is already on a WiFi network with internet. */
+    val skipWhenOnWifiInternet: Flow<Boolean> = context.dataStore.data.map { prefs ->
+        prefs[KEY_SKIP_ON_WIFI] ?: false
     }
 
     suspend fun saveSelectedDevice(device: DeviceInfo?) {
@@ -117,6 +123,12 @@ class PrefsRepository(private val context: Context) {
     suspend fun setDisconnectDelaySeconds(seconds: Int) {
         context.dataStore.edit { prefs ->
             prefs[KEY_DISCONNECT_DELAY] = seconds.coerceIn(0, DISCONNECT_DELAY_MAX)
+        }
+    }
+
+    suspend fun setSkipWhenOnWifiInternet(enabled: Boolean) {
+        context.dataStore.edit { prefs ->
+            prefs[KEY_SKIP_ON_WIFI] = enabled
         }
     }
 }
