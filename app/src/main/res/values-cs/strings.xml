@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">BT Hotspot Auto</string>
+
+    <!-- Accessibility service -->
+    <string name="accessibility_service_label">BT Hotspot Auto</string>
+    <string name="accessibility_service_description">
+        Umožňuje aplikaci automaticky zapnout nebo vypnout WiFi hotspot kliknutím na dlaždici
+        v Rychlém nastavení při připojení/odpojení vybraného Bluetooth zařízení.
+        Služba se aktivuje pouze při změně stavu Bluetooth.
+    </string>
+
+    <!-- Status -->
+    <string name="status_active">Aktivní</string>
+    <string name="status_stopped">Zastaveno</string>
+    <string name="accessibility_not_enabled">Není povolena — klepněte pro nastavení</string>
+    <string name="open_accessibility_settings">Povolit</string>
+    <string name="bluetooth_status">Bluetooth</string>
+    <string name="bt_on">Zapnuto</string>
+    <string name="bt_off">Vypnuto</string>
+    <string name="open_bt_settings">Zapnout</string>
+
+    <!-- Write settings (primary hotspot method) -->
+    <string name="write_settings_title">Změna nastavení systému</string>
+    <string name="write_settings_granted">Povoleno — hotspot se přepíná přímo</string>
+    <string name="write_settings_missing">Není povoleno — klepněte pro povolení</string>
+    <string name="write_settings_grant">Povolit</string>
+
+    <!-- Watchdog -->
+    <string name="watchdog_warn_title">⚠️ Hlídání hotspotu je vypnuté</string>
+    <string name="watchdog_warn_text">Služba přístupnosti byla vypnuta — hotspot se v autě nebude zapínat sám. Klepněte pro opětovné zapnutí.</string>
+    <string name="watchdog_channel_name">Upozornění na výpadek</string>
+    <string name="watchdog_channel_desc">Upozorní, když se hlídací služba vypne</string>
+
+    <!-- Auto-disable setting -->
+    <string name="auto_disable_title">Vypnout hotspot po odpojení</string>
+    <string name="auto_disable_desc">Po odpojení sledovaného Bluetooth zařízení automaticky vypne WiFi hotspot</string>
+
+    <!-- Master automation switch -->
+    <string name="tile_label">Auto-hotspot (pauza)</string>
+    <string name="automation_title">Automatika zapnutá</string>
+    <string name="automation_desc">Když vypnete, aplikace nebude reagovat na připojení/odpojení auta. Lze přepínat i dlaždicí v Rychlém nastavení.</string>
+
+    <!-- Skip when on WiFi -->
+    <string name="skip_wifi_title">Nezapínat na jiné WiFi</string>
+    <string name="skip_wifi_desc">Když je telefon připojený k WiFi s internetem (např. doma), hotspot se po připojení auta nezapne.</string>
+
+    <!-- Disconnect grace period -->
+    <string name="delay_title">Prodleva vypnutí po odpojení</string>
+    <string name="delay_desc">Kolik sekund počkat, než se po odpojení auta vypne hotspot (0–600). Chrání před krátkými výpadky Bluetooth (tunel, restart auta). 0 = vypnout hned.</string>
+    <string name="delay_field_label">Sekundy (0–600)</string>
+    <string name="delay_saved_hint">Ukládá se automaticky</string>
+
+    <!-- Event log -->
+    <string name="log_title">Log událostí</string>
+    <string name="log_desc">Historie zapnutí/vypnutí za poslední 3 měsíce.</string>
+    <string name="log_show">Zobrazit log</string>
+    <string name="log_empty">Zatím žádné události.</string>
+    <string name="log_clear">Vymazat</string>
+
+    <!-- Notifications &amp; sounds -->
+    <string name="notifications_section">Oznámení a zvuky</string>
+    <string name="watchdog_warn_setting_title">Upozornění na výpadek hlídání</string>
+    <string name="watchdog_warn_setting_desc">Upozorní, když se služba přístupnosti vypne</string>
+    <string name="event_notif_title">Oznámení zapnutí/vypnutí</string>
+    <string name="event_notif_desc">Zobrazí oznámení při zapnutí a vypnutí hotspotu (přenese se i na hodinky, např. Garmin)</string>
+    <string name="sound_enable_title">Zvuk při zapnutí</string>
+    <string name="sound_disable_title">Zvuk při vypnutí</string>
+    <string name="sound_none">Žádný</string>
+    <string name="sound_pick">Vybrat</string>
+    <string name="sound_clear">Zrušit</string>
+
+    <!-- Event titles / channel -->
+    <string name="event_enabled_title">Hotspot zapnut</string>
+    <string name="event_disabled_title">Hotspot vypnut</string>
+    <string name="event_channel_name">Zapnutí / vypnutí hotspotu</string>
+    <string name="event_channel_desc">Oznámení při změně stavu hotspotu (lze zrcadlit na hodinky)</string>
+
+    <!-- Diagnostic test -->
+    <string name="test_hotspot_title">Test zapnutí hotspotu</string>
+    <string name="test_hotspot_desc">Zkusí hotspot zapnout a zase vypnout (skončí vypnutý) a ukáže výsledek</string>
+    <string name="test_hotspot_button">Spustit test</string>
+    <string name="test_cycle_button">Test 3× zap/vyp</string>
+    <string name="test_running">Probíhá test…</string>
+    <string name="test_result_title">Výsledek testu</string>
+    <string name="close">Zavřít</string>
+
+    <!-- Device selection -->
+    <string name="selected_device">Sledované BT zařízení (handsfree)</string>
+    <string name="tap_to_select">Klepněte pro výběr párovaného zařízení…</string>
+    <string name="paired_devices">Párovaná Bluetooth zařízení</string>
+    <string name="no_paired_devices">Žádná párovaná zařízení nenalezena.\nNejprve spárujte handsfree v nastavení Bluetooth.</string>
+    <string name="cancel">Zrušit</string>
+    <string name="clear_selection">Odebrat výběr</string>
+
+    <!-- Language -->
+    <string name="language_title">Jazyk aplikace</string>
+    <string name="language_desc">Jazyk rozhraní. „Systém“ použije jazyk zařízení; pokud není podporován, použije se angličtina.</string>
+    <string name="language_system">Systém</string>
+
+    <!-- Notification -->
+    <string name="service_notification_title">BT Hotspot Auto</string>
+    <string name="service_notification_text">Monitoruje připojení Bluetooth</string>
+    <string name="enable_hotspot_action">Zapnout Hotspot</string>
+    <string name="channel_name">Stav služby</string>
+    <string name="channel_description">Oznámení o stavu BT Hotspot Auto</string>
+
+    <!-- Info -->
+    <string name="version_label">Verze %1$s</string>
+    <string name="how_it_works_title">Jak to funguje</string>
+    <string name="how_it_works_body">
+        Po připojení telefonu k vybranému Bluetooth zařízení (handsfree v autě) se automaticky
+        zapne WiFi hotspot; po odpojení se vypne.\n\n
+        Hotspot se přepíná jednou ze tří metod — zkoušeny v tomto pořadí, použije se první,
+        která na daném telefonu funguje:\n
+        1. Tethering API — tichá systémová metoda (bez rootu), vyžaduje oprávnění „Změna
+        nastavení systému". Někteří výrobci ji ale na svých telefonech blokují.\n
+        2. Root shell — jen na rootovaných telefonech.\n
+        3. Služba přístupnosti — krátce otevře Rychlé nastavení a klepne na dlaždici hotspotu.
+        Funguje bez rootu i tam, kde je metoda 1 blokovaná.\n\n
+        Když jedna metoda selže, aplikace automaticky použije další v pořadí, takže se
+        o přepnutí nemusíš starat.
+    </string>
+</resources>

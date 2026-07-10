@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">BT Hotspot Auto</string>
+
+    <!-- Accessibility service -->
+    <string name="accessibility_service_label">BT Hotspot Auto</string>
+    <string name="accessibility_service_description">
+        Lets the app automatically turn the WiFi hotspot on or off by tapping the tile in
+        Quick Settings when the selected Bluetooth device connects/disconnects.
+        The service only becomes active when the Bluetooth state changes.
+    </string>
+
+    <!-- Status -->
+    <string name="status_active">Active</string>
+    <string name="status_stopped">Stopped</string>
+    <string name="accessibility_not_enabled">Not enabled — tap to set up</string>
+    <string name="open_accessibility_settings">Enable</string>
+    <string name="bluetooth_status">Bluetooth</string>
+    <string name="bt_on">On</string>
+    <string name="bt_off">Off</string>
+    <string name="open_bt_settings">Turn on</string>
+
+    <!-- Write settings (primary hotspot method) -->
+    <string name="write_settings_title">Modify system settings</string>
+    <string name="write_settings_granted">Granted — hotspot toggles directly</string>
+    <string name="write_settings_missing">Not granted — tap to allow</string>
+    <string name="write_settings_grant">Allow</string>
+
+    <!-- Watchdog -->
+    <string name="watchdog_warn_title">⚠️ Hotspot watchdog is off</string>
+    <string name="watchdog_warn_text">The accessibility service was turned off — the hotspot won\'t turn on by itself in the car. Tap to turn it back on.</string>
+    <string name="watchdog_channel_name">Outage warning</string>
+    <string name="watchdog_channel_desc">Warns when the watchdog service is turned off</string>
+
+    <!-- Auto-disable setting -->
+    <string name="auto_disable_title">Turn hotspot off after disconnect</string>
+    <string name="auto_disable_desc">Automatically turns the WiFi hotspot off after the watched Bluetooth device disconnects</string>
+
+    <!-- Master automation switch -->
+    <string name="tile_label">Auto-hotspot (pause)</string>
+    <string name="automation_title">Automation on</string>
+    <string name="automation_desc">When off, the app won\'t react to the car connecting/disconnecting. You can also toggle it from the Quick Settings tile.</string>
+
+    <!-- Skip when on WiFi -->
+    <string name="skip_wifi_title">Don\'t turn on when on other WiFi</string>
+    <string name="skip_wifi_desc">When the phone is connected to WiFi with internet (e.g. at home), the hotspot won\'t turn on after the car connects.</string>
+
+    <!-- Disconnect grace period -->
+    <string name="delay_title">Delay before turning off after disconnect</string>
+    <string name="delay_desc">How many seconds to wait before turning the hotspot off after the car disconnects (0–600). Protects against brief Bluetooth dropouts (tunnel, car restart). 0 = turn off immediately.</string>
+    <string name="delay_field_label">Seconds (0–600)</string>
+    <string name="delay_saved_hint">Saved automatically</string>
+
+    <!-- Event log -->
+    <string name="log_title">Event log</string>
+    <string name="log_desc">History of on/off events over the last 3 months.</string>
+    <string name="log_show">Show log</string>
+    <string name="log_empty">No events yet.</string>
+    <string name="log_clear">Clear</string>
+
+    <!-- Notifications &amp; sounds -->
+    <string name="notifications_section">Notifications &amp; sounds</string>
+    <string name="watchdog_warn_setting_title">Watchdog outage warning</string>
+    <string name="watchdog_warn_setting_desc">Warns when the accessibility service is turned off</string>
+    <string name="event_notif_title">On/off notification</string>
+    <string name="event_notif_desc">Shows a notification when the hotspot turns on and off (also mirrors to a watch, e.g. Garmin)</string>
+    <string name="sound_enable_title">Sound on turn-on</string>
+    <string name="sound_disable_title">Sound on turn-off</string>
+    <string name="sound_none">None</string>
+    <string name="sound_pick">Pick</string>
+    <string name="sound_clear">Clear</string>
+
+    <!-- Event titles / channel -->
+    <string name="event_enabled_title">Hotspot on</string>
+    <string name="event_disabled_title">Hotspot off</string>
+    <string name="event_channel_name">Hotspot on / off</string>
+    <string name="event_channel_desc">Notification when the hotspot state changes (can mirror to a watch)</string>
+
+    <!-- Diagnostic test -->
+    <string name="test_hotspot_title">Test hotspot toggle</string>
+    <string name="test_hotspot_desc">Tries to turn the hotspot on and back off (ends off) and shows the result</string>
+    <string name="test_hotspot_button">Run test</string>
+    <string name="test_cycle_button">Test 3× on/off</string>
+    <string name="test_running">Test running…</string>
+    <string name="test_result_title">Test result</string>
+    <string name="close">Close</string>
+
+    <!-- Device selection -->
+    <string name="selected_device">Watched BT device (handsfree)</string>
+    <string name="tap_to_select">Tap to pick a paired device…</string>
+    <string name="paired_devices">Paired Bluetooth devices</string>
+    <string name="no_paired_devices">No paired devices found.\nPair your handsfree in Bluetooth settings first.</string>
+    <string name="cancel">Cancel</string>
+    <string name="clear_selection">Clear selection</string>
+
+    <!-- Language -->
+    <string name="language_title">App language</string>
+    <string name="language_desc">Interface language. \"System\" follows the device language; if that isn\'t supported, English is used.</string>
+    <string name="language_system">System</string>
+
+    <!-- Notification -->
+    <string name="service_notification_title">BT Hotspot Auto</string>
+    <string name="service_notification_text">Monitoring Bluetooth connection</string>
+    <string name="enable_hotspot_action">Turn on hotspot</string>
+    <string name="channel_name">Service status</string>
+    <string name="channel_description">BT Hotspot Auto service status notification</string>
+
+    <!-- Info -->
+    <string name="version_label">Version %1$s</string>
+    <string name="how_it_works_title">How it works</string>
+    <string name="how_it_works_body">
+        When the phone connects to the selected Bluetooth device (the car handsfree), the WiFi
+        hotspot turns on automatically; when it disconnects, it turns off.\n\n
+        The hotspot is toggled using one of three methods — tried in this order, using the first
+        one that works on your phone:\n
+        1. Tethering API — the silent system method (no root), requires the \"Modify system
+        settings\" permission. Some manufacturers block it on their phones, though.\n
+        2. Root shell — only on rooted phones.\n
+        3. Accessibility service — briefly opens Quick Settings and taps the hotspot tile.
+        Works without root even where method 1 is blocked.\n\n
+        When one method fails, the app automatically uses the next one in order, so you don\'t
+        have to worry about the switching.
+    </string>
+</resources>

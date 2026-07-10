@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">BT Hotspot Auto</string>
+
+    <!-- Accessibility service -->
+    <string name="accessibility_service_label">BT Hotspot Auto</string>
+    <string name="accessibility_service_description">
+        Позволяет приложению автоматически включать или выключать точку доступа WiFi нажатием
+        на плитку в быстрых настройках при подключении/отключении выбранного устройства Bluetooth.
+        Служба активируется только при изменении состояния Bluetooth.
+    </string>
+
+    <!-- Status -->
+    <string name="status_active">Активно</string>
+    <string name="status_stopped">Остановлено</string>
+    <string name="accessibility_not_enabled">Не включено — нажмите для настройки</string>
+    <string name="open_accessibility_settings">Включить</string>
+    <string name="bluetooth_status">Bluetooth</string>
+    <string name="bt_on">Включён</string>
+    <string name="bt_off">Выключен</string>
+    <string name="open_bt_settings">Включить</string>
+
+    <!-- Write settings (primary hotspot method) -->
+    <string name="write_settings_title">Изменение системных настроек</string>
+    <string name="write_settings_granted">Разрешено — точка доступа переключается напрямую</string>
+    <string name="write_settings_missing">Не разрешено — нажмите, чтобы разрешить</string>
+    <string name="write_settings_grant">Разрешить</string>
+
+    <!-- Watchdog -->
+    <string name="watchdog_warn_title">⚠️ Контроль точки доступа выключен</string>
+    <string name="watchdog_warn_text">Служба специальных возможностей выключена — точка доступа не будет включаться сама в машине. Нажмите, чтобы включить снова.</string>
+    <string name="watchdog_channel_name">Предупреждение о сбое</string>
+    <string name="watchdog_channel_desc">Предупреждает, когда служба контроля выключается</string>
+
+    <!-- Auto-disable setting -->
+    <string name="auto_disable_title">Выключать точку доступа после отключения</string>
+    <string name="auto_disable_desc">Автоматически выключает точку доступа WiFi после отключения отслеживаемого устройства Bluetooth</string>
+
+    <!-- Master automation switch -->
+    <string name="tile_label">Авто-точка (пауза)</string>
+    <string name="automation_title">Автоматика включена</string>
+    <string name="automation_desc">Когда выключено, приложение не реагирует на подключение/отключение машины. Можно переключать плиткой в быстрых настройках.</string>
+
+    <!-- Skip when on WiFi -->
+    <string name="skip_wifi_title">Не включать при другом WiFi</string>
+    <string name="skip_wifi_desc">Когда телефон подключён к WiFi с интернетом (например, дома), точка доступа не включится после подключения машины.</string>
+
+    <!-- Disconnect grace period -->
+    <string name="delay_title">Задержка выключения после отключения</string>
+    <string name="delay_desc">Сколько секунд ждать, прежде чем выключить точку доступа после отключения машины (0–600). Защищает от коротких пропаданий Bluetooth (туннель, перезапуск машины). 0 = выключить сразу.</string>
+    <string name="delay_field_label">Секунды (0–600)</string>
+    <string name="delay_saved_hint">Сохраняется автоматически</string>
+
+    <!-- Event log -->
+    <string name="log_title">Журнал событий</string>
+    <string name="log_desc">История включений/выключений за последние 3 месяца.</string>
+    <string name="log_show">Показать журнал</string>
+    <string name="log_empty">Пока нет событий.</string>
+    <string name="log_clear">Очистить</string>
+
+    <!-- Notifications &amp; sounds -->
+    <string name="notifications_section">Уведомления и звуки</string>
+    <string name="watchdog_warn_setting_title">Предупреждение о сбое контроля</string>
+    <string name="watchdog_warn_setting_desc">Предупреждает, когда служба специальных возможностей выключается</string>
+    <string name="event_notif_title">Уведомление о включении/выключении</string>
+    <string name="event_notif_desc">Показывает уведомление при включении и выключении точки доступа (также на часы, например Garmin)</string>
+    <string name="sound_enable_title">Звук при включении</string>
+    <string name="sound_disable_title">Звук при выключении</string>
+    <string name="sound_none">Нет</string>
+    <string name="sound_pick">Выбрать</string>
+    <string name="sound_clear">Убрать</string>
+
+    <!-- Event titles / channel -->
+    <string name="event_enabled_title">Точка доступа включена</string>
+    <string name="event_disabled_title">Точка доступа выключена</string>
+    <string name="event_channel_name">Включение / выключение точки доступа</string>
+    <string name="event_channel_desc">Уведомление при изменении состояния точки доступа (можно дублировать на часы)</string>
+
+    <!-- Diagnostic test -->
+    <string name="test_hotspot_title">Тест переключения точки доступа</string>
+    <string name="test_hotspot_desc">Пробует включить и снова выключить точку доступа (закончит выключенной) и покажет результат</string>
+    <string name="test_hotspot_button">Запустить тест</string>
+    <string name="test_cycle_button">Тест 3× вкл/выкл</string>
+    <string name="test_running">Идёт тест…</string>
+    <string name="test_result_title">Результат теста</string>
+    <string name="close">Закрыть</string>
+
+    <!-- Device selection -->
+    <string name="selected_device">Отслеживаемое BT-устройство (гарнитура)</string>
+    <string name="tap_to_select">Нажмите, чтобы выбрать сопряжённое устройство…</string>
+    <string name="paired_devices">Сопряжённые устройства Bluetooth</string>
+    <string name="no_paired_devices">Сопряжённые устройства не найдены.\nСначала выполните сопряжение гарнитуры в настройках Bluetooth.</string>
+    <string name="cancel">Отмена</string>
+    <string name="clear_selection">Убрать выбор</string>
+
+    <!-- Language -->
+    <string name="language_title">Язык приложения</string>
+    <string name="language_desc">Язык интерфейса. «Система» использует язык устройства; если он не поддерживается, используется английский.</string>
+    <string name="language_system">Система</string>
+
+    <!-- Notification -->
+    <string name="service_notification_title">BT Hotspot Auto</string>
+    <string name="service_notification_text">Отслеживает подключение Bluetooth</string>
+    <string name="enable_hotspot_action">Включить точку доступа</string>
+    <string name="channel_name">Состояние службы</string>
+    <string name="channel_description">Уведомление о состоянии BT Hotspot Auto</string>
+
+    <!-- Info -->
+    <string name="version_label">Версия %1$s</string>
+    <string name="how_it_works_title">Как это работает</string>
+    <string name="how_it_works_body">
+        Когда телефон подключается к выбранному устройству Bluetooth (гарнитуре в машине),
+        точка доступа WiFi включается автоматически; при отключении — выключается.\n\n
+        Точка доступа переключается одним из трёх способов — они пробуются в таком порядке,
+        используется первый, работающий на вашем телефоне:\n
+        1. Tethering API — тихий системный способ (без root), требует разрешения «Изменение
+        системных настроек». Некоторые производители блокируют его на своих телефонах.\n
+        2. Root shell — только на телефонах с root.\n
+        3. Служба специальных возможностей — ненадолго открывает быстрые настройки и нажимает
+        плитку точки доступа. Работает без root даже там, где способ 1 заблокирован.\n\n
+        Когда один способ не срабатывает, приложение автоматически использует следующий, так
+        что о переключении можно не беспокоиться.
+    </string>
+</resources>
