@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /admin.php
+Disallow: /config.php
+
+Sitemap: https://www.krezbo.cz/sitemap.xml

@@ -1,0 +1,18 @@
+# KREZBO – základní nastavení
+DirectoryIndex index.php index.html
+AddDefaultCharset UTF-8
+
+# Ochrana citlivých souborů
+<FilesMatch "^(config\.php)$">
+    Require all denied
+</FilesMatch>
+
+# Cache statického obsahu
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType image/jpeg "access plus 1 month"
+    ExpiresByType image/png  "access plus 1 month"
+    ExpiresByType image/x-icon "access plus 1 year"
+    ExpiresByType text/css   "access plus 1 week"
+    ExpiresByType application/javascript "access plus 1 week"
+</IfModule>
