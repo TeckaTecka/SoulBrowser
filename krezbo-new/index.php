@@ -65,7 +65,9 @@ function e(string $s): string {
     return htmlspecialchars($s, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 }
 
-/* Zastoupení firem – logo v /data/logos/, název a odkaz. */
+/* Zastoupení firem – logo v /data/logos/ (nebo prázdné = zobrazí se název), název a odkaz.
+   Až budete mít logo nové firmy, nahrajte ho do /data/logos/ a doplňte název souboru
+   na první pozici řádku – místo textu se pak zobrazí obrázek. */
 $partners = [
     ['sigma.png',       'Sigmagroup',        'https://www.sigmagroup.cz/'],
     ['grundfos.png',    'Grundfos',          'https://www.grundfos.com/'],
@@ -76,13 +78,18 @@ $partners = [
     ['aquatrading.png', 'Aquatrading',       'https://www.aquatradingpumps.cz/'],
     ['aqua-cup.png',    'Aquacup',           'https://www.aquacup.cz/'],
     ['flygt.png',       'Flygt',             'https://www.flygt.com/'],
-    // Zde později přibudou 3 nové firmy:
-    // ['nazev.png', 'Název firmy', 'https://www.odkaz.cz/'],
+    ['',                'Pedrollo',          'https://www.pedrollocz.cz'],
+    ['pumpa.png',       'Pumpa a.s.',        'https://www.pumpa.eu/cs/'],
+    ['',                'Mave',              'http://www.mave-nymburk.cz'],
+    ['',                'K+H čerpadla',      'https://www.k-h.cz'],
+    ['',                'LK pumpservice',    'https://www.lk-group.eu'],
+    ['',                'Termolux',          'https://www.termolux.cz'],
 ];
 
-$mapQuery = 'Partyzánské nám. 5, 702 00 Ostrava';
-$mapEmbed = 'https://maps.google.com/maps?q=' . rawurlencode($mapQuery) . '&t=&z=17&hl=cs&ie=UTF8&iwloc=&output=embed';
-$mapLink  = 'https://www.google.com/maps/place/' . rawurlencode($mapQuery);
+$mapQuery  = 'Partyzánské nám. 5, 702 00 Ostrava';
+$mapEmbed  = 'https://maps.google.com/maps?q=' . rawurlencode($mapQuery) . '&t=&z=17&hl=cs&ie=UTF8&iwloc=&output=embed';
+// Street View – výchozí pozice provozovny (odkaz z Google map)
+$streetView = 'https://maps.app.goo.gl/qrbChQAjdSHbSK6A6';
 ?>
 <!DOCTYPE html>
 <html lang="cs">
@@ -194,7 +201,11 @@ $mapLink  = 'https://www.google.com/maps/place/' . rawurlencode($mapQuery);
             <?php foreach ($partners as [$logo, $name, $url]): ?>
             <li>
                 <a href="<?= e($url) ?>" title="<?= e($name) ?>" target="_blank" rel="nofollow noopener">
-                    <img src="data/logos/<?= e($logo) ?>" alt="<?= e($name) ?>" loading="lazy">
+                    <?php if ($logo !== '' && is_file(__DIR__ . '/data/logos/' . $logo)): ?>
+                        <img src="data/logos/<?= e($logo) ?>" alt="<?= e($name) ?>" loading="lazy">
+                    <?php else: ?>
+                        <span class="partner-name"><?= e($name) ?></span>
+                    <?php endif; ?>
                 </a>
             </li>
             <?php endforeach; ?>
@@ -302,7 +313,7 @@ $mapLink  = 'https://www.google.com/maps/place/' . rawurlencode($mapQuery);
                 </ul>
                 <h3>Zdeněk Zbořil</h3>
                 <ul class="contact-list">
-                    <li><span>Email:</span> <a href="mailto:z.zboril@krezbo.cz">z.zboril@krezbo.cz</a></li>
+                    <li><span>Email:</span> <a href="mailto:krezbo@krezbo.cz">krezbo@krezbo.cz</a></li>
                 </ul>
                 <h3>Prodejní doba</h3>
                 <table class="hours">
@@ -321,8 +332,8 @@ $mapLink  = 'https://www.google.com/maps/place/' . rawurlencode($mapQuery);
                         referrerpolicy="no-referrer-when-downgrade" allowfullscreen
                         title="Mapa – KREZBO, Partyzánské nám. 5, Ostrava"></iframe>
                 </div>
-                <a class="btn btn-outline" href="<?= e($mapLink) ?>" target="_blank" rel="noopener">
-                    Otevřít v Google mapách (mapa i Street View)
+                <a class="btn btn-outline" href="<?= e($streetView) ?>" target="_blank" rel="noopener">
+                    Zobrazit Street View naší provozovny
                 </a>
             </div>
         </div>

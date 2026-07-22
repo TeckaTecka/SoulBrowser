@@ -138,6 +138,13 @@ h1,h2,h3,h4{font-family:var(--head);line-height:1.2;margin:0 0 .5em;color:var(--
 }
 .partner-grid li:hover{box-shadow:var(--shadow);transform:translateY(-3px);border-color:#cfe0f0;}
 .partner-grid img{max-height:52px;max-width:100%;width:auto;object-fit:contain;}
+.partner-name{
+    font-family:var(--head);font-weight:600;font-size:1.02rem;color:var(--navy);
+    text-align:center;line-height:1.25;
+}
+.partner-grid a{display:flex;align-items:center;justify-content:center;width:100%;height:100%;text-decoration:none;}
+.partner-grid a:hover{text-decoration:none;}
+.partner-grid a:hover .partner-name{color:var(--blue);}
 
 /* ---------- Poptávka ---------- */
 .poptavka{background:var(--bg);}
