@@ -1,0 +1,20 @@
+<nav class="sitemap">
+	<ul>
+	  <li><a href="<?= $this->url(array(),'admin_index_index');?>">Úvod</a> &#62; </li>
+	  <li><a href="<?= $this->url(array(),'admin_index_products');?>">Zboží</a>  &#62; </li>
+	  <li><a href="<?= $this->url(array(),'admin_products_vat-index');?>">Přehled DPH</a>  &gt; </li>
+	  <li>Upravit DPH</li>
+	</ul>
+</nav>
+<div class="clearfix"></div>
+<nav id="form-tab-menu">
+	<ul>
+	  <li id="vat" class="first active last">Upravit DPH</li>
+	  <li class="line" style="width: 639px;"></li>
+	</ul>
+</nav>
+<div id="form-tab-box">
+	<div id="tab1">
+		<?= $this->formVat;?>
+	</div>
+</div>

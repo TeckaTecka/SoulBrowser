@@ -1,0 +1,63 @@
+<nav class="sitemap">
+	<ul>
+	  <li><a href="<?= $this->url(array(),'admin_index_index');?>">Úvod</a> &#62; </li>
+	  <li><a href="<?= $this->url(array(),'admin_index_products');?>">Zboží</a>  &#62; </li>
+	  <li>Přehled DPH</li>
+	</ul>
+</nav>
+<div class="clearfix"></div>
+<nav id="form-tab-menu">
+	<ul>
+	  <li id="product" class="first active last">Přehled DPH</li>
+	  <li class="line" style="width: 637px;"></li>
+	</ul>
+</nav>
+<div id="form-tab-box">
+	<div id="tab1">
+		<a href="<?= $this->url(array(),'admin_products_vat-add');?>"><span class="add-item"></span>Přidat DPH</a>
+		<div class="clearfix"></div>
+		<table>
+			<thead>
+				<tr>
+					<th>Přehled DPH</th>
+					<th>&nbsp;</th>
+					<th>&nbsp;</th>
+				</tr>
+			</thead>
+			<tfoot>
+				<tr>
+					<th>&nbsp;</th>
+					<th>&nbsp;</th>
+					<th>&nbsp;</th>
+				</tr>
+			</tfoot>
+			<tbody>
+				<?php if ($this->vats){?>
+					<?php for ($i = 0; $i < count($this->vats); $i++) {?>
+						<tr>
+							<td><?= $this->vats[$i]['title']?></td>
+							<td style="width: 20px;">
+								<span class="detail">
+									<a href="<?= $this->url(array('id'=>$this->vats[$i]['id']),'admin_products_vat-edit');?>"
+									   title="Upravit"></a>
+								</span>
+							</td>
+							<td style="width: 20px;">
+								<span class="delete">
+									<a href="<?= $this->url(array('id'=>$this->vats[$i]['id']),'admin_products_vat-del');?>"
+									   title="Smazat"></a>
+								</span>
+							</td>
+						</tr>
+					<?php }?>
+				<?php }else{?>
+					<tr>
+						<td>Zatím nebylo přidáno žádné DPH</td>
+						<td>&nbsp;</td>
+						<td>&nbsp;</td>
+					</tr>
+				<?php }?>
+			</tbody>
+		</table>
+	</div>
+</div>

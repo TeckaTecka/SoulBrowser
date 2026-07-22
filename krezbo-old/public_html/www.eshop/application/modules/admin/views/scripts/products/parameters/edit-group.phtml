@@ -1,0 +1,64 @@
+<nav class="sitemap">
+	<ul>
+	  <li><a href="<?= $this->url(array(),'admin_index_index');?>">Úvod</a> &gt; </li>
+	  <li><a href="<?= $this->url(array(),'admin_index_products');?>">Zboží</a>  &gt; </li>
+	  <li><a href="<?= $this->url(array(),'admin_products_parameters-index');?>">Přehled parametrů</a>  &gt; </li>
+	  <li>Editovat skupinu</li>
+	</ul>
+</nav>
+<div class="clearfix"></div>
+<nav id="form-tab-menu">
+	<ul>
+	  <li id="parameter" class="first active">Editovat skupinu parametrů</li>
+	  <li id="parameter-edit" class="last">Editovat parametry v skupině parametrů</li>
+	  <li class="line" style="width: 306px;"></li>
+	</ul>
+</nav>
+<div id="form-tab-box">
+	<div id="tab1">
+		<?= $this->formGroup;?>
+	</div>
+	<div id="tab2">
+		<?= $this->formGroupParameter;?>
+		<table id="table">
+			<thead>
+				<tr>
+					<th>Přehled parametrů ve skupině</th>
+					<th>&nbsp;</th>
+				</tr>
+			</thead>
+			<tfoot>
+				<tr>
+					<th>&nbsp;</th>
+					<th>&nbsp;</th>
+				</tr>
+			</tfoot>
+			<tbody>
+				<?php if ($this->parameters){?>
+					<?php foreach ($this->parameters as $param) {?>
+						<tr>
+							<td><?= $param['title']?></td>
+							<td style="width: 20px;">
+								<span class="delete">
+									<a href="<?= $this->url(
+									   	array(
+											'id'		=>	$this->group_id,
+									   		'tab'		=>	2,
+									   		'pg2p_id'	=>	$param['pg2p_id']
+									   	),
+									   	'admin_products_parameters_edit-group-del-param');?>"
+									   title="Smazat"></a>
+								</span>
+							</td>
+						</tr>
+					<?php }?>
+				<?php }else{?>
+					<tr>
+						<td>Zatím nebyly přidány žádné parametry</td>
+						<td>&nbsp;</td>
+					</tr>
+				<?php }?>
+			</tbody>
+		</table>
+	</div>
+</div>

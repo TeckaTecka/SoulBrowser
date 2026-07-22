@@ -1,0 +1,97 @@
+<div class="block">
+
+	<h1 class="consumption">Kontrola objednávky před odesláním</h1>
+
+	Objednávka je připravena k odeslání. Zkontrolujte prosím položky zboží, počty kusů, ceny, fakturační a dodací údaje, zda jsou správně zadány. Nesouhlasí-li, klikněte na tlačítko zpět a údaje prosím opravte.
+	Pro odeslání objednávky klikněte prosím na tlačítko Odeslat objednávku. Po odeslání se objednávka stává závaznou a případné změny je nutné neprodleně nahlásit telefonicky nebo e-mailem uvedeným v kontaktech u internetového obchodu.
+	<br /><br />
+	<h2>Přehled objednávky před odesláním</h2>
+	<h3>Objednací informace</h3>
+	<table class="order-info">
+		<ttbody>
+			<tr>
+				<td style="width: 200px;">Objednávka ze dne</td>
+				<td><?= date('d.m.Y h:m');?></td>
+			</tr>
+			<tr>
+				<td>Způsob odběru zboží</td>
+				<td><?= $this->consumption['consumption'];?></td>
+			</tr>
+			<tr>
+				<td>Způsob platby</td>
+				<td><?= $this->payment['payment'];?></td>
+			</tr>
+			<tr>
+				<td>Fakturační údaje</td>
+				<td><?= $this->billingInformation;?></td>
+			</tr>
+			<tr>
+				<td>Dodací údaje</td>
+				<td><?= $this->deliveryInformation;?></td>
+			</tr>
+		</tbody>
+	</table>
+	
+	<h3>Objednané zboží</h3>
+	<table id="cart-table">
+		<!--<caption>Košík</caption>-->
+		<thead>
+			<tr>
+				<th>Kód</th>
+				<th>Zboží</th>
+				<th>Cena za kus</th>
+				<th>Množství</th>
+				<th>Celkem s DPH</th>
+			</tr>
+		</thead>
+		<tfoot>
+			<tr>
+				<th>&nbsp;</th>
+				<th>&nbsp;</th>
+				<th>&nbsp;</th>
+				<th>&nbsp;</th>
+				<th>&nbsp;</th>
+			</tr>
+		</tfoot>
+		<tbody>
+			<?php $totalPrice = 0;?>
+			<?php foreach ($this->products as $item) {?>
+				<tr>
+					<td><?= $item['code'];?></td>
+					<td><?= $item['title'];?></td>
+					<td style="text-align: right;"><?= number_format($item['price'], 0, '.', ' ');?> <?= $this->cart['currency'];?></td>
+					<td style="text-align: center;"><?= $item['count'];?></td>
+					<td style="text-align: right;"><?= number_format($item['price'] * $item['count'], 0, '.', ' ');?> <?= $this->cart['currency'];?></td>
+				</tr>
+				<?php $totalPrice += $item['price'] * $item['count'];?>
+			<?php }?>
+			<?php if ($this->consumption['price']){//dopravne?>
+				<tr>
+					<td colspan="4"  style="text-align: right;">Dopravné</td>
+					<td style="text-align: right;"><?= number_format($this->consumption['price'], 0, '.', ' ').' '.$this->cart['currency'];?></td>
+				</tr>
+				<?php $totalPrice += $this->consumption['price'];?>
+			<?php }?>
+			<?php if ($this->payment['price']){//doberecne?>
+				<tr>
+					<td colspan="4"  style="text-align: right;">Doběrečné</td>
+					<td style="text-align: right;"><?= number_format($this->payment['price'], 0, '.', ' ').' '.$this->cart['currency'];?></td>
+				</tr>
+				<?php $totalPrice += $this->payment['price'];?>
+			<?php }?>
+			<tr style="font-weight: bold;">
+				<td colspan="4"  style="text-align: right;">Celkem</td>
+				<td style="text-align: right;"><?= number_format($totalPrice, 0, '.', ' ');?> <?= $this->cart['currency'];?></td>
+			</tr>
+		</tbody>
+	</table>
+	
+	<a class="button" href="<?= $this->url(
+		array(),
+		'cart_index_consumption-payment');?>">Zpět</a>
+	<a class="button" href="<?= $this->url(
+		array(),
+		'cart_index_orders-sent');?>">Odeslat</a>
+		
+
+</div>

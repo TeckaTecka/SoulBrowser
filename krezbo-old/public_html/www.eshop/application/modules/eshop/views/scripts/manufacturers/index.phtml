@@ -1,0 +1,45 @@
+<div class="block">
+	<nav>
+		<ul>
+			<li><a class="home" href="<?= $this->url(array(),'eshop_index_index');?>">Domů</a>&nbsp;&gt;&nbsp;</li>
+			<li>Výrobci</li>
+		</ul>
+	</nav>
+</div>
+<div class="block">
+
+	<h1>Výrobci</h1>
+	
+	<?php if ($this->manufacturers){?>
+		<?= $this->paginationControl($this->paginator, 'Sliding', 'paginator.phtml'); ?>
+		<?php foreach ($this->manufacturers as $item) {?>
+			<div class="product-category-thumb">
+				<div class="img">
+					<a href="<?= $this->url(
+						array(
+							'manufactury' => $item['title_url']),
+						'eshop_manufacturers_manufactury');?>">
+						<img src="/<?= ($item['image'])?$item['image']:'img/layout/article/not-available.png';?>" /></a>
+				</div>
+				<div class="left">
+					<div class="title"><?= $item['title'];?></div>
+					<div class="short_desc"><?= $item['description'];?></div>
+				</div>
+				<div class="right">
+					
+				</div>
+				<div class="detail">
+					<a class="button" href="<?= $this->url(
+						array(
+							'manufactury' => $item['title_url']),
+						'eshop_manufacturers_manufactury');?>">Zboží</a>
+				</div>
+			</div>
+		<?php }?>
+		<div class="floatfix"></div>
+		<?= $this->paginationControl($this->paginator, 'Sliding', 'paginator.phtml'); ?>
+	<?php }else{?>
+		Tato kategorie neobsahuje žádné zboží
+	<?php }?>
+
+</div>

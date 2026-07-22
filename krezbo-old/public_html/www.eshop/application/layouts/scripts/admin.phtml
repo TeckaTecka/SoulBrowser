@@ -1,0 +1,110 @@
+<?= $this->doctype() . "\n";?>
+<html lang="cs" dir="ltr">
+<head>
+<?= $this->headMeta() . "\n";?>
+<?= $this->headTitle() . "\n";?>
+<?= $this->headLink() . "\n";?>
+<?= $this->headStyle();?>
+<?= $this->jQuery();?>
+<?= $this->headScript() . "\n";?>
+</head>
+<body>
+	<header>
+		<nav class="menu">
+			<ul>
+				<li>
+					<a class="orders" href="<?= $this->url(array(),'admin_index_orders');?>" title="Objednávky"></a>
+					<ul>
+						<li><a href="<?= $this->url(array(),'admin_orders_orders-index');?>">Přehled objednávek</a></li>
+					</ul>
+				</li>
+				<li>
+					<a class="products" href="<?= $this->url(array(),'admin_index_products');?>" title="Zboží"></a>
+					<ul>
+						<li><a href="<?= $this->url(array(),'admin_products_products-index');?>">Přehled zboží</a></li>
+						<li><a href="<?= $this->url(array(),'admin_products_parameters-index');?>">Přehled parametrů</a></li>
+						<li><a href="<?= $this->url(array(),'admin_products_availability-index');?>">Přehled dostupnosti</a></li>
+						<li><a href="<?= $this->url(array(),'admin_products_vat-index');?>">Přehled DPH</a></li>
+						<li><a href="<?= $this->url(array(),'admin_watermark_index');?>">Nastavení vodoznaku</a></li>
+					</ul>
+				</li>
+				<li>
+					<a class="sitemap" href="<?= $this->url(array(),'admin_index_sitemap');?>" title="Mapa webu"></a>
+					<ul>
+						<li><a href="<?= $this->url(array(),'admin_sitemap_pages_home-page');?>">Titulní stránka</a></li>
+						<li><a href="<?= $this->url(array(),'admin_sitemap_pages_index');?>">Články</a></li>
+						<li><a href="<?= $this->url(array(),'admin_sitemap_categories-index');?>">Kategorie zboží</a></li>
+						<li><a href="<?= $this->url(array(),'admin_sitemap_manufacturers-index');?>">Výrobci</a></li>
+					</ul>
+				</li>
+				<li>
+					<a class="elements" href="<?= $this->url(array(),'admin_index_elements');?>" title="Prvky stránek"></a>
+					<ul>
+						<?php try {
+							echo '<li><a href="'.$this->url(array(),'quick-contact_admin_index').'">Rychlý kontakt</a></li>';
+						} catch (Exception $e) {
+						}?>
+						<?php try {
+							echo '<li><a href="'.$this->url(array(),'newsletter_admin_index').'">Novinky emailem</a></li>';
+						} catch (Exception $e) {
+						}?>
+					</ul>
+				</li>
+				<li>
+					<a class="marketing" href="<?= $this->url(array(),'admin_index_marketing');?>" title="Marketing"></a>
+					<ul>
+						<li><a href="<?= $this->url(array(),'admin_marketing_users');?>">Uživatelé</a></li>
+						<li><a href="<?= $this->url(array(),'admin_marketing_export');?>">Export</a></li>
+					</ul>
+				</li>
+				<li>
+					<a class="statistics" href="<?= $this->url(array(),'admin_index_statistics');?>" title="Statistiky"></a>
+				</li>
+				<li>
+					<a class="settings" href="<?= $this->url(array(),'admin_index_options');?>" title="Nastavení"></a>
+					<ul>
+						<li><a href="<?= $this->url(array(),'admin_options_countries-index');?>">Přehled zemi</a></li>
+						<li><a href="<?= $this->url(array(),'admin_options_payments-index');?>">Způsob plateb</a></li>
+						<li><a href="<?= $this->url(array(),'admin_options_consumptions-index');?>">Způsob odběru</a></li>
+						<li><a href="<?= $this->url(array(),'admin_options_options-eshop');?>">Nast. eshopu</a></li>
+						<li><a href="<?= $this->url(array(),'admin_options_options-about');?>">O produktu</a></li>
+					</ul>
+				</li>
+			</ul>
+		</nav>
+	</header>
+	<div class="container">
+		<article>
+	      	<?= $this->layout()->content;?>
+		</article>
+		<aside style="padding-top: 15px;">
+			<nav id="form-tab-menu">
+				<ul>
+				  <li id="product" class="first active last"><h3 class="folder">Rychlé menu</h3></li>
+				  <li class="line" style="width: 35px;"></li>
+				</ul>
+			</nav>
+			<div id="form-tab-box">
+				<div id="tab1">
+			        <nav>
+						<ul>
+							<li><a href="<?= $this->url(array(),'eshop_index_index');?>">eShop</a></li>
+							<li><a href="<?= $this->url(array(),'admin_orders_orders-index');?>">Přehled objednávek</a></li>
+							<li><a href="<?= $this->url(array(),'admin_sitemap_categories-add');?>">Přidat kategorii</a></li>
+							<li><a href="<?= $this->url(array(),'admin_products_products-add');?>">Přidat zboží</a></li>
+						</ul>
+					</nav>
+				</div>
+			</div>
+		</aside>
+	</div>
+	
+	<footer>
+		<div class="container">
+			<a class="rogr-logo" href="http://www.rogr.cz" title="Vytvořil www.rogr.cz"></a>
+		</div>
+	</footer>	
+	<section class="scripts"><!-- Scripty -->
+	</section>
+</body>
+</html>

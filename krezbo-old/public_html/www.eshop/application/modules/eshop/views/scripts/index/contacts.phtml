@@ -1,0 +1,35 @@
+<div class="block">
+	<nav>
+		<ul>
+			<li><a class="home" href="<?= $this->url(array(),'eshop_index_index');?>">Domů</a>&nbsp;&gt;&nbsp;</li>
+			<li>Kontakt</li>
+		</ul>
+	</nav>
+</div>
+<div class="block">
+
+	<h1>Kontakty: <?= $this->eshop['title'];?></h1>
+	
+	<ul class="address">
+		
+		<li>Adresa: <span><?= $this->eshop['street'].' '.$this->eshop['street_nr'];?></span></li>
+		<li><span><?= $this->eshop['city'];?></span></li>
+		<li><span><?= $this->eshop['zip'];?></span></li>
+		<li><span><?= $this->eshop['country'];?></span></li>
+		<li>&nbsp;</li>
+		<li>Web: <span><a href="http://<?= $this->eshop['url'];?>"><?= $this->eshop['url'];?></a></span></li>
+		<li>Email: <span><?= $this->eshop['email'];?></span></li>
+		<li>&nbsp;</li>
+		<li>Telefon: <span><?= $this->eshop['phone'];?></span></li>
+		<li>Mobil: <span><?= $this->eshop['mobile'];?></span></li>
+		<li>Fax: <span><?= $this->eshop['fax'];?></span></li>
+		<li>&nbsp;</li>
+		<li>IČ: <span><?= $this->eshop['ic'];?></span></li>
+		<li>DIČ: <span><?= $this->eshop['dic'];?></span></li>
+		<li>&nbsp;</li>
+		<li>Banka: <span><?= $this->bank['title'];?></span></li>
+		<li>Číslo účtu: <span><?= $this->bank['account'];?></span></li>
+		<li>IBAN: <span><?= $this->bank['iban'];?></span></li>
+		<li>BIC: <span><?= $this->bank['bic'];?></span></li>
+	</ul>
+</div>

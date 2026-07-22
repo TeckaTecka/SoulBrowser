@@ -1,0 +1,20 @@
+<nav class="sitemap">
+	<ul>
+	  <li><a href="<?= $this->url(array(),'admin_index_index');?>">Úvod</a> &#62; </li>
+	  <li><a href="<?= $this->url(array(),'admin_index_sitemap');?>">Mapa stránek</a>  &#62; </li>
+	  <li><a href="<?= $this->url(array(),'admin_sitemap_manufacturers-index');?>">Výrobci</a>  &#62; </li>
+	  <li>Upravit výrobce</li>
+	</ul>
+</nav>
+<div class="clearfix"></div>
+<nav id="form-tab-menu">
+	<ul>
+	  <li id="manufactorers" class="first active last">Upravit výrobce</li>
+	  <li class="line" style="width: 600px;"></li>
+	</ul>
+</nav>
+<div id="form-tab-box">
+	<div id="tab1">
+		<?= $this->formManufacturers;?>
+	</div>
+</div>

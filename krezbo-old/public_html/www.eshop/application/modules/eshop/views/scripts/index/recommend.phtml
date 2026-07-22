@@ -1,0 +1,77 @@
+<div class="block">
+	<nav>
+		<ul>
+			<li><a href="<?= $this->url(array(),'eshop_index_index');?>">Domů</a>&nbsp;&gt;&nbsp;</li>
+			<li>Doporučujeme</li>
+		</ul>
+	</nav>
+</div>
+<div class="block">
+
+		<section class="recommend">
+			<?php if ($this->recommendProducts){?>
+				<h1>Doporučujeme</h1>
+				<?= $this->paginationControl($this->paginator, 'Sliding', 'paginator.phtml'); ?>
+				<?php $i = 1;?>
+				<?php foreach ($this->recommendProducts as $item) {?>
+					<div class="product-category-thumb<?= (($i % 3) == 0)?' last':''?>">
+						<div class="img">
+							<a href="<?= $this->url(
+								array(
+									'page'		=>	$this->page,
+									'product'	=>	$item['title_url']
+								),
+								'eshop_index_recommend-product'
+							);?>">
+								<img src="/<?= ($item['picture']['170x170'])?$item['picture']['170x170']:'img/layout/article/not-available.png';?>" />
+							</a>
+						</div>
+						<div class="left">
+							<div class="title"><?= $item['title'];?></div>
+							<div class="short_desc"><?= $item['short_desc'];?></div>
+						</div>
+						<div class="right">
+							<div class="price"><?= $item['price'];?></div>
+							<?php if ($item['price_orig']){?>
+								<div class="price_orig"><?= $item['price_orig'];?></div>
+							<?php }?>
+							<div class="availability"><?= $item['availability'];?></div>
+							<?php if ($item['manufacturers_id'] != 1){?>
+								<div class="manufacturers">
+									<a href="<?= $this->url(
+										array(
+											'manufactury' => $item['manufacturers_url']),
+										'eshop_manufacturers_manufactury');?>"><?= $item['manufacturers'];?></a>
+								</div>
+							<?php }?>
+						</div>
+						
+						<?php if ($item['availability'] != 'Dočasně nedostupné') {?>
+							<div class="cart">
+								<a class="button" href="<?= $this->url(
+									array(
+										'page'			=>	$this->page,
+										'idProduct'		=>	$item['id'],
+										'back'			=>	1
+									),
+									'cart_index_add-recommend'
+								);?>" rel="nofollow">Do košíku</a>
+							</div>
+						<?php }?>
+						<div class="detail">
+							<a class="button" href="<?= $this->url(
+								array(
+									'page'		=>	$this->page,
+									'product'	=>	$item['title_url']
+								),
+								'eshop_index_recommend-product'
+							);?>">Detail</a>
+						</div>
+					</div>
+					<?php $i++;?>
+				<?php }?>
+				<?= $this->paginationControl($this->paginator, 'Sliding', 'paginator.phtml'); ?>
+			<?php }?>
+		</section>
+		
+</div>

@@ -1,0 +1,21 @@
+@charset "utf-8";
+/* PAGINATOR *************************************************************************************/
+.paginationControl{
+	clear: both;
+	margin: 5px 0px;
+	text-align: center;
+}
+.paginationControl span.disabled{
+	color: #6a6a6a;
+}
+.paginationControl span.current{
+	color: #F26A00;
+}
+.paginationControl a{
+ 	color: #6a6a6a;
+ 	text-decoration: none;
+}
+.paginationControl a:hover{
+	color: #F26A00;
+}
+/*************************************************************************************************/

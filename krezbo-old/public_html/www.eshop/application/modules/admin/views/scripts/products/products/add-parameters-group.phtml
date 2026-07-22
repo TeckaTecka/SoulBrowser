@@ -1,0 +1,88 @@
+<nav class="sitemap">
+	<ul>
+	  <li><a href="<?= $this->url(array(),'admin_index_index');?>">Úvod</a> &#62; </li>
+	  <li><a href="<?= $this->url(array(),'admin_index_products');?>">Zboží</a> &#62; </li>
+	  <li><a href="<?= $this->url(array(),'admin_products_products-index');?>">Přehled zboží</a> &#62; </li>
+	  <li><a href="<?= $this->url(array('id'	=>	$this->product_id, 'back'	=>	42),'admin_products_products-edit');?>">Upravit zboží</a> &#62; </li>
+	  <li>Přidat skupinu parametrů</li>
+	</ul>
+</nav>
+<div class="clearfix"></div>
+<nav id="form-tab-menu">
+	<ul>
+	  <li id="product" class="first disable">Upravit zboží</li>
+	  <li id="categories" class="disable">Kategorie</li>
+	  <li id="pictures" class="disable">Obrázky</li>
+	  <li id="parameters" class="active">Paramerty</li>
+	  <li id="settings" class=" disable last">Nastavení</li>
+	  <li class="line" style="width: 371px;"></li>
+	</ul>
+</nav>
+<div id="form-tab-box">
+	<div id="tab1">
+		
+	</div>
+	<div id="tab2">
+		
+	</div>
+	<div id="tab3">
+		
+	</div>
+	<div id="tab4">
+		<nav id="form-tab-menu">
+			<ul>
+			  <li id="parameter" class="first disable">Přidat parametr</li>
+			  <li id="parameters-group" class="last active">Přidat skupinu parametrů</li>
+			  <li class="line" style="width: 420px;"></li>
+			</ul>
+		</nav>
+		<div id="form-tab-box">
+			<div id="tab4-1">
+				
+			</div>
+			<div id="tab4-2">
+				<?= $this->formParametersGroup;?>
+			</div>
+		</div>
+		<table>
+			<thead>
+				<tr>
+					<th>Parametry</th>
+					<th>Hodnota</th>
+					<th class="width-40">&nbsp;</th>
+				</tr>
+			</thead>
+			<tfoot>
+				<tr>
+					<th>&nbsp;</th>
+					<th>&nbsp;</th>
+					<th>&nbsp;</th>
+				</tr>
+			</tfoot>
+			<tbody>
+				<?php if ($this->parameters){?>
+					<?php for ($i = 0; $i < count($this->parameters); $i++) {?>
+						<tr>
+							<td><?= $this->parameters[$i]['title']?></td>
+							<td><?= $this->parameters[$i]['value'];?></td>
+							<td><span><a class="delete" href="<?= $this->url(array(
+									'id'		=>	$this->product_id,
+									'back'		=>	2,
+									'param_id'	=> $this->parameters[$i]['id']
+								),'admin_products_products_parameter-del');?>" title="Smazat"></a></span></td>
+						</tr>
+					<?php }?>
+				<?php }else{?>
+					<tr>
+						<td>Zatím nebyl přidán žádný parametr</td>
+						<td>&nbsp;</td>
+						<td>&nbsp;</td>
+					</tr>
+				<?php }?>
+			</tbody>
+		</table>
+	</div>
+	<div id="tab5">
+		
+	</div>
+</div>

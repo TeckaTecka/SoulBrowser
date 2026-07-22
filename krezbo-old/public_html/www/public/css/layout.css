@@ -1,0 +1,273 @@
+@charset "utf-8";
+html {
+	background: #2C2F2F;
+}
+/* BODY ******************************************************************************************/
+body {
+	font-family: "Lucida Grande",Arial,sans-serif;
+	font-size: 12px;
+	line-height: 20px;
+	letter-spacing: 0.1px;
+	word-spacing: 1px;
+	background: url("/img/layout/bg.png") repeat scroll 0 0 #455253;
+	margin: 0;
+	padding: 0;
+	min-width: 960px;
+	margin: auto;
+	color: #bbbbbb;
+}	
+/*************************************************************************************************/
+/* CONTAINER *************************************************************************************/
+.wrapper {
+	width: 960px;
+	margin: 30px auto;
+	overflow: hidden;
+	
+}
+/*************************************************************************************************/
+/* HEADER ****************************************************************************************/
+header {
+	background: url("/img/layout/bg.png") repeat scroll 0 0 transparent;
+	display: block;
+	position: relative;
+}
+header .company-logo a{
+	background: url("/img/layout/krezbo.png") no-repeat transparent;
+	display: block;
+	width: 305px;
+	height: 74px;
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	text-indent: -9999px;
+}
+header nav.company-menu {
+	position: absolute;
+	top: -16px;
+	right: 0px;
+}
+header nav.company-menu ul {
+	list-style: none;
+	display: inline;
+}
+header nav.company-menu ul li {
+	display: inline;
+	text-align: center;
+	padding: 3px;
+	margin: 0px;
+	background-color: #2C2F2F;
+	border-bottom: 1px solid #737d7d;
+}
+header nav.company-menu ul li a {
+	padding: 0px 30px;
+}
+/*************************************************************************************************/
+/* ARTICLE ***************************************************************************************/
+article{
+	margin-top: 100px;
+	display: block;
+	overflow: hidden;
+	position: relative;
+}
+article section.about-us {
+	text-align: center;
+	color:#444;
+	position: relative;
+}
+article section.about-us ul{list-style: none;}
+article section.about-us h1{font-weight: normal;}
+
+article section.about-us img.eshop {
+	position: absolute;
+	left: 10px;
+	top: 20px;
+	border: none;
+}
+article section.about-us div.about-us-box {
+	background: url("/img/layout/about-us-box.png") no-repeat scroll 0 0 transparent;
+	display: block;
+	width: 776px;
+	height: 377px;
+	margin: auto;
+}
+article section.about-us div.about-us-box .right-box {
+	padding-left: 380px;
+	padding-top: 10px;
+}
+article section.about-us div.about-us-box .right-box h2,
+article section.about-us div.about-us-box .right-box h3,
+article section.about-us div.about-us-box .right-box ul{margin: 0px; padding: 0px;}
+article section.about-us div.about-us-box .left-box {
+	padding-right: 250px;
+}
+article section.about-us div.box {
+	background: url("/img/layout/box.png") no-repeat scroll 0 0 transparent;
+	display: block;
+	width: 976px;
+	height: 218px;
+	margin: 20px auto;
+}
+article section.about-us div.box a.logo {
+	float: left;
+	margin: 0px 28px;
+}
+article section.about-us div.box a {
+	display: block;
+	height: 100px;
+	width: 100px;
+}
+article section.about-us div.box a.sigma {
+	background: url("/data/logos/sigma.png") no-repeat bottom left transparent;
+}
+article section.about-us div.box a.komextherm {
+	background: url("/data/logos/komextherm-praha.png") no-repeat bottom left transparent;
+}
+article section.about-us div.box a.metra {
+	background: url("/data/logos/metra.png") no-repeat bottom left transparent;
+}
+article section.about-us div.box a.grundfos {
+	background: url("/data/logos/grundfos.png") no-repeat bottom left transparent;
+}
+article section.about-us div.box a.espa {
+	background: url("/data/logos/espa.png") no-repeat bottom left transparent;
+	width: 140px;
+}
+article section.about-us div.box a.kopro {
+	background: url("/data/logos/kopro.png") no-repeat bottom left transparent;
+}
+article section.about-us div.box a.alfapumpy {
+	background: url("/data/logos/alfapumpy.png") no-repeat bottom left transparent;
+}
+article section.about-us div.box a.aquatrading {
+	background: url("/data/logos/aquatrading.png") no-repeat bottom left transparent;
+	width: 115px;
+}
+article section.about-us div.box a.aqua-cup {
+	background: url("/data/logos/aqua-cup.png") no-repeat bottom left transparent;
+	width: 115px;
+}
+article section.about-us div.box a.wilo {
+	background: url("/data/logos/wilo.png") no-repeat bottom left transparent;
+	width: 150px;
+}
+article section.about-us div.box a.flygt {
+	background: url("/data/logos/flygt.png") no-repeat bottom left transparent;
+	width: 210px;
+}
+article section.about-us div.box a:hover {
+	background-position: top left;
+}
+
+article section.about-us div.box h2{margin: 0px; position: relative; top: 5px;}
+
+article section.request {
+	display: block;
+	margin: auto;
+	position: relative;
+}
+article section.request form {
+	width: 420px;
+	margin: 0 auto;
+}
+article section.request img.contact {
+	position: absolute;
+	left: 20px;
+	top: 30px;
+}
+
+article section.gallery{width: 980px; display: block; margin: auto; text-align: center;}
+article section.gallery ul{list-style: none;}
+article section.gallery ul li{display: block; float: left; width: 160px; text-align: center; margin: 10px;}
+article section.gallery ul li a img {
+	border: 5px solid #ffffff;
+}
+
+article section.contact{
+	background: url("/img/layout/contacts-box.png") no-repeat scroll 0 0 transparent;
+	display: block;
+	width:645px;
+	height: 530px;
+	margin: 0px auto;
+	color:#444;
+	
+}
+article section.contact ul{padding: 0px; list-style: none;}
+article section.contact .address{display: block; position: relative;}
+article section.contact img.contact {
+	position: absolute;
+	left: 0px;
+	top: 0px;
+}
+article section.contact .address h2{margin: 0px; position: absolute; top: 10px; left: 270px;}
+article section.contact .address ul.address{
+	width: 120px;
+	position: absolute;
+	top: 40px;
+	left: 270px;
+}
+article section.contact .address ul.left {
+	width: 150px;
+	position: absolute;
+	top: 80px;
+	left: 110px;
+}
+article section.contact .address ul.right {
+	width: 150px;
+	position: absolute;
+	top: 80px;
+	right: 110px;
+	text-align: right;
+}
+article section.contact .address ul.phones {
+	width: 160px;
+	position: absolute;
+	top: 150px;
+	left: 250px;
+}
+article section.contact .address ul.person-left {
+	width: 150px;
+	position: absolute;
+	top: 190px;
+	left: 30px;
+}
+article section.contact .address ul.person-right{width: 150px; position: absolute; top: 190px; right: 20px;}
+article section.contact .address ul.opening-hours {
+	width: 270px;
+	position: absolute;
+	top: 325px;
+	left: 210px;
+}
+article section.contact .address ul.opening-hours li span{display: block; width: 60px;float: left;}
+article .sitemap ul {
+	width: 150px;
+	margin: 30px auto;
+}
+/*************************************************************************************************/
+/* FOOTER ****************************************************************************************/
+footer {
+	display: block;
+	text-align: center;
+	color: #444;
+	font-size: 10px;
+	background: #2C2F2F;
+}
+footer a.sitemap {
+	float: left;
+	color: #444;
+}
+footer a.logo {
+	background: url("/img/layout/logo-min.png") no-repeat 0 0 transparent;
+	width: 130px;
+	height: 37px;
+	float: right;
+	margin-top: 5px;
+}
+/*************************************************************************************************/
+/* OTHERS ****************************************************************************************/
+.clearfix{clear: both;}
+article pre{/* Zend_Debug */font-size: 1.2em; color: white;}
+a{color: #bbbbbb; text-decoration: none;}
+a:hover{color: #ffffff;}
+a:active,
+a:focus{outline: none;}
+form textarea{height: 200px;}

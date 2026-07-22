@@ -1,0 +1,40 @@
+<?php if ($this->pageCount): ?>
+	<div class="paginationControl">
+		<!-- Previous page link -->
+		<?php if (isset($this->previous)): ?>
+			<a href="<?= $this->url(array('page' => $this->previous)); ?>">&lt; Předchozí</a> |
+		<?php else: ?>
+			<span class="disabled">&lt; Předchozí</span> |
+		<?php endif; ?>
+
+		<!-- First page link -->
+		<?php if (isset($this->previous)): ?>
+			<a href="<?= $this->url(array('page' => $this->first)); ?>">První</a> |
+		<?php else: ?>
+			<span class="disabled">První</span> |
+		<?php endif; ?>
+
+		<!-- Numbered page links -->
+		<?php foreach ($this->pagesInRange as $page): ?>
+			<?php if ($page != $this->current): ?>
+				<a href="<?= $this->url(array('page' => $page)); ?>"><?= $page; ?></a> |
+			<?php else: ?>
+				<span class="current"><?= $page; ?></span> |
+			<?php endif; ?>
+		<?php endforeach; ?>
+		
+		<!-- Last page link -->
+		<?php if (isset($this->next)): ?>
+			<a href="<?= $this->url(array('page' => $this->last)); ?>">Poslední</a> |
+		<?php else: ?>
+			<span class="disabled">Poslední</span> |
+		<?php endif; ?>
+		
+		<!-- Next page link -->
+		<?php if (isset($this->next)): ?>
+			<a href="<?= $this->url(array('page' => $this->next)); ?>">Další &gt;</a>
+		<?php else: ?>
+			<span class="disabled">Další &gt;</span>
+		<?php endif; ?>
+	</div>
+<?php endif; ?>

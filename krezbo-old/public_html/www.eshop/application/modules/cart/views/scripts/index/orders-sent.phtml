@@ -1,0 +1,15 @@
+<div class="block">
+
+	<h1 class="address">Objednávka</h1>
+
+	<h2>Objednávka byla úspěšně odeslána</h2>
+	Děkujeme za Váš nákup.<br />
+	Na Vaší emailovou adresu bylo odesláno potvrzení o přijetí objednávky do systému, ve kterém jsou uvedeny veškeré podrobnosti.<br />
+	Pokud by Vám z jakýchkoliv důvodů email nedorazil, prosím kontaktujte nás.<br />
+	Číslo objednávky: <?= $this->orders_id;?><br />
+	Objednávka ve formátu <a class="button" href="<?= '/data/pdf/orders/'.$this->pdf;?>" target="_blank">PDF</a>.<br />
+	<a class="button" href="<?= $this->url(
+		array(),
+		'cart_index_index');?>">Košík</a>
+
+</div>

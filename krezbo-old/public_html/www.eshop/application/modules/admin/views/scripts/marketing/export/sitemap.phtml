@@ -1,0 +1,26 @@
+<nav class="sitemap">
+	<ul>
+	  <li><a href="<?= $this->url(array(),'admin_index_index');?>">Úvod</a> &#62; </li>
+	  <li><a href="<?= $this->url(array(),'admin_index_marketing');?>">Marketing</a> &#62; </li>
+	  <li>Export</li>
+	</ul>
+</nav>
+<div class="clearfix"></div>
+<nav id="form-tab-menu">
+	<ul>
+	  <li id="pages" class="first active last">Export</li>
+	  <li class="line" style="width: 671px;"></li>
+	</ul>
+</nav>
+<div id="form-tab-box">
+	<div id="tab1">
+		Exportuji zboží pro Sitemap.xml
+		<ul>
+		<?php foreach ($this->products as $product) {?>
+			<li><?= $product['title'];?></li>
+		<?php }?>
+		</ul>
+		Export dokončen.<br />
+		Celkem bylo vyexportováno <?= count($this->products);?> druhů zboží
+	</div>
+</div>

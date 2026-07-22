@@ -1,0 +1,29 @@
+<nav class="sitemap">
+	<ul>
+	  <li><a href="<?= $this->url(array(),'admin_index_index');?>">Úvod</a> &#62; </li>
+	  <li>Prvky stránek</li>
+	</ul>
+</nav>
+<div class="clearfix"></div>
+<nav id="form-tab-menu">
+	<ul>
+	  <li id="product" class="first active last">Prvky stránek</li>
+	  <li class="line" style="width: 628px;"></li>
+	</ul>
+</nav>
+<div id="form-tab-box">
+	<div id="tab1">
+		<nav>
+			<ul>
+				<?php try {
+					echo '<li><a href="'.$this->url(array(),'quick-contact_admin_index').'">Rychlý kontakt</a></li>';
+				} catch (Exception $e) {
+				}?>
+				<?php try {
+					echo '<li><a href="'.$this->url(array(),'newsletter_admin_index').'">Novinky emailem</a></li>';
+				} catch (Exception $e) {
+				}?>
+			</ul>
+		</nav>
+	</div>
+</div>

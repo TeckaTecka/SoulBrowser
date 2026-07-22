@@ -1,0 +1,66 @@
+<div class="block">
+	<nav>
+		<ul>
+			<li><a class="home" href="<?= $this->url(array(),'eshop_index_index');?>">Domů</a>&nbsp;&gt;&nbsp;</li>
+			<li>Vyhledat</li>
+		</ul>
+	</nav>
+</div>
+<div class="block">
+
+	<h1>Vyhledat</h1>
+	<?php if ($this->products){?>
+		<?php foreach ($this->products as $item) {?>
+			<div class="product-category-thumb">
+				<div class="img">
+					<a href="<?= $this->url(
+						array(
+							'category'	=>	$item['category']['title_url'],
+							'product'	=>	$item['title_url']
+						),
+						'eshop_index_product');?>">
+						<img src="/<?= ($item['picture']['170x170'])?$item['picture']['170x170']:'img/layout/article/not-available.png';?>" /></a>
+				</div>
+				<div class="left">
+					<div class="title"><?= $item['title'];?></div>
+					<div class="short_desc"><?= $item['short_desc'];?></div>
+				</div>
+				<div class="right">
+					<div class="price"><?= $item['price'];?></div>
+					<?php if ($item['price_orig']){?>
+						<div class="price_orig"><?= $item['price_orig'];?></div>
+					<?php }?>
+					<div class="availability"><?= $item['availability_title'];?></div>
+					<?php if ($item['manufacturers_id'] != 1){?>
+						<div class="manufacturers">
+							<a href="<?= $this->url(
+								array(
+									'manufactury' => $item['manufacturers_url']),
+								'eshop_manufacturers_manufactury');?>"><?= $item['manufacturers'];?></a>
+						</div>
+					<?php }?>
+					<div class="cart">
+						<a href="<?= $this->url(
+							array(
+								'idCategory'	=>	$item['category']['id'],
+								'idProduct'		=>	$item['id'],
+								'back'			=>	4
+							),
+							'cart_index_add');?>" rel="nofollow"></a>
+					</div>
+					<div class="detail">
+						<a href="<?= $this->url(
+							array(
+								'category'	=>	$item['category']['title_url'],
+								'product'	=>	$item['title_url']
+							),
+							'eshop_index_product');?>"></a>
+					</div>
+				</div>
+			</div>
+		<?php }?>
+	<?php }else{?>
+		Nebylo nalezeno žádné zboží
+	<?php }?>
+
+</div>

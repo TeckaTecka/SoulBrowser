@@ -1,0 +1,8 @@
+@charset "utf-8";
+
+article .block nav li{
+	display: inline;
+}
+footer nav ul li {
+	display: inline;
+}

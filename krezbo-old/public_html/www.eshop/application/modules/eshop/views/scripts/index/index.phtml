@@ -1,0 +1,149 @@
+<div id="slider-wrapper">
+   	<div id="slider" class="nivoSlider">
+		<a href=""><img src="/data/png/slider/slide-1.png" alt="" title="" /></a>
+		<a href=""><img src="/data/png/slider/slide-2.png" alt="" title="" /></a>
+		<a href=""><img src="/data/png/slider/slide-3.png" alt="" title="" /></a>
+	</div>
+</div>
+<?php if ($this->homePage){?>
+<div class="block">
+	<h1><?= $this->homePage['title'];?></h1>
+	<?= $this->homePage['page'];?>
+</div>
+<?php }?>
+<?php if ($this->recommendProducts){?>
+<div class="block">
+	<section class="recommend">
+		<h1>Doporučujeme</h1>
+		<?php $i = 1;?>
+		<?php foreach ($this->recommendProducts as $item) {?>
+			<div class="product-category-thumb<?= (($i % 3) == 0)?' last':''?>">
+				<div class="img">
+					<a href="<?= $this->url(
+						array(
+							'page'		=>	1,
+							'product'	=>	$item['title_url']
+						),
+						'eshop_index_recommend-product'
+					);?>">
+						<img src="/<?= ($item['picture']['170x170'])?$item['picture']['170x170']:'img/layout/article/not-available.png';?>" />
+					</a>
+				</div>
+				<div class="left">
+					<div class="title"><?= $item['title'];?></div>
+					<div class="short_desc"><?= $item['short_desc'];?></div>
+				</div>
+				<div class="right">
+					<div class="price"><?= $item['price'];?></div>
+					<?php if ($item['price_orig']){?>
+						<div class="price_orig"><?= $item['price_orig'];?></div>
+					<?php }?>
+					<div class="availability"><?= $item['availability'];?></div>
+					<?php if ($item['manufacturers_id'] != 1){?>
+						<div class="manufacturers">
+							<a href="<?= $this->url(
+								array(
+									'manufactury' => $item['manufacturers_url']),
+								'eshop_manufacturers_manufactury');?>"><?= $item['manufacturers'];?></a>
+						</div>
+					<?php }?>
+				</div>
+				
+				<?php if ($item['availability'] != 'Dočasně nedostupné') {?>
+					<div class="cart">
+						<a class="button" href="<?= $this->url(
+							array(
+								'idCategory'	=>	1,
+								'idProduct'		=>	$item['id'],
+								'back'			=>	3
+							),
+							'cart_index_add'
+						);?>" rel="nofollow">Do košíku</a>
+					</div>
+				<?php }?>
+				<div class="detail">
+					<a class="button" href="<?= $this->url(
+						array(
+							'page'		=>	1,
+							'product'	=>	$item['title_url']
+						),
+						'eshop_index_recommend-product'
+					);?>">Detail</a>
+				</div>
+			</div>
+			<?php $i++;?>
+		<?php }?>
+	</section>
+	<?php if($this->recommendMore){?>
+	<a class="button" href="<?= $this->url(array('page'	=>	1), 'eshop_index_recommend');?>">Více</a>
+	<?php }?>
+</div>
+<?php }?>
+<?php if ($this->newProducts){?>
+	<div class="block">
+		<section class="news">
+			<h1>Novinky</h1>
+			<?php $i = 1;?>
+			<?php foreach ($this->newProducts as $item) {?>
+				<div class="product-category-thumb<?= (($i % 3) == 0)?' last':''?>">
+					<div class="img">
+						<a href="<?= $this->url(
+							array(
+								'page'		=>	1,
+								'product'	=>	$item['title_url']
+							),
+							'eshop_index_news-product'
+						);?>">
+							<img src="/<?= ($item['picture']['170x170'])?$item['picture']['170x170']:'img/layout/article/not-available.png';?>" />
+						</a>
+					</div>
+					<div class="left">
+						<div class="title"><?= $item['title'];?></div>
+						<div class="short_desc"><?= $item['short_desc'];?></div>
+					</div>
+					<div class="right">
+						<div class="price"><?= $item['price'];?></div>
+						<?php if ($item['price_orig']){?>
+							<div class="price_orig"><?= $item['price_orig'];?></div>
+						<?php }?>
+						<div class="availability"><?= $item['availability'];?></div>
+						<?php if ($item['manufacturers_id'] != 1){?>
+							<div class="manufacturers">
+								<a href="<?= $this->url(
+									array(
+										'manufactury' => $item['manufacturers_url']),
+									'eshop_manufacturers_manufactury');?>"><?= $item['manufacturers'];?></a>
+							</div>
+						<?php }?>
+					</div>
+					
+					<?php if ($item['availability'] != 'Dočasně nedostupné') {?>
+						<div class="cart">
+							<a class="button" href="<?= $this->url(
+								array(
+									'idCategory'	=>	1,
+									'idProduct'		=>	$item['id'],
+									'back'			=>	3
+								),
+								'cart_index_add'
+							);?>" rel="nofollow">Do košíku</a>
+						</div>
+					<?php }?>
+					<div class="detail">
+						<a class="button" href="<?= $this->url(
+							array(
+								'page'		=>	1,
+								'product'	=>	$item['title_url']
+							),
+							'eshop_index_news-product'
+						);?>">Detail</a>
+					</div>
+				</div>
+				<?php $i++;?>
+			<?php }?>
+		</section>
+		<?php if($this->newMore){?>
+		<a class="button" href="<?= $this->url(array(), 'eshop_index_news');?>">Více</a>
+		<?php }?>
+	</div>
+<?php }?>

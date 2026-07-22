@@ -1,0 +1,6 @@
+
+<div>Zboží: <?= ($this->cart)?$this->cart['products']:'0';?></div>
+<div>Množství: <?= ($this->cart)?$this->cart['count']:'0';?></div>
+<div>Cena: <?= (($this->cart)?$this->cart['totalPrice']:'0').' '.$this->cart['currency'];?></div>
+<a class="button" href="<?= $this->url(array(),'cart_index_index');?>" rel="nofollow">Zobrazit košík</a>
+	

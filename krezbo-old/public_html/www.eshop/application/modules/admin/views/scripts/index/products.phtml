@@ -1,0 +1,26 @@
+<nav class="sitemap">
+	<ul>
+	  <li><a href="<?= $this->url(array(),'admin_index_index');?>">Úvod</a> &#62; </li>
+	  <li>Zboží</li>
+	</ul>
+</nav>
+<div class="clearfix"></div>
+<nav id="form-tab-menu">
+	<ul>
+	  <li id="product" class="first active last">Zboží</li>
+	  <li class="line" style="width: 677px;"></li>
+	</ul>
+</nav>
+<div id="form-tab-box">
+	<div id="tab1">
+		<nav>
+			<ul>
+				<li><a href="<?= $this->url(array(),'admin_products_products-index');?>">Přehled zboží</a></li>
+				<li><a href="<?= $this->url(array(),'admin_products_parameters-index');?>">Přehled parametrů</a></li>
+				<li><a href="<?= $this->url(array(),'admin_products_availability-index');?>">Přehled dostupnosti</a></li>
+				<li><a href="<?= $this->url(array(),'admin_products_vat-index');?>">Přehled DPH</a></li>
+				<li><a href="<?= $this->url(array(),'admin_watermark_index');?>">Nastavení vodoznaku</a></li>
+			</ul>
+		</nav>
+	</div>
+</div>

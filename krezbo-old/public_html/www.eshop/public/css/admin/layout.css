@@ -1,0 +1,111 @@
+@charset "utf-8";
+/* BODY ******************************************************************************************/
+body{
+	background-color: #333333;
+	font: 70%/1.4 Verdana, "Geneva CE", lucida, sans-serif;
+	margin: 0px;
+	padding: 0px;
+	min-width: 980px;
+	margin: auto;
+	color: #bbbbbb;
+	border-top: 30px solid #333333;
+}
+/*************************************************************************************************/
+/* HEADER ****************************************************************************************/
+header{clear: both !important; background: url(/img/admin/layout/header_menu/bg.png) repeat-x 0 0 transparent; height: 40px; display: block; margin: 0px; padding: 0px;}
+header nav{width:700px; height:40px; display: block; margin: 0px auto;}
+header nav ul{margin:0px; padding:0px;}
+header nav ul li{display:inline; float:left; list-style:none; width: 100px; height:38px; line-height:20px; position:relative; padding-top: 2px; z-index: 100;}
+header nav li a{width: 32px; height:37px; display: block; margin:0px auto;}
+header nav li a:hover{text-decoration: none;}
+header nav li ul{margin:0px; padding:0px; display:none; position:absolute; left:0px; top:40px;}
+header nav li:hover ul{display:block; width:150px;}
+header nav li li{background: url(/img/admin/layout/header_menu/sub-button.png) no-repeat top left; height: 23px; width: 145px; padding-left: 5px;}
+header nav li li a{height: 25px; width: 150px;}
+header nav li li:hover{background: url(/img/admin/layout/header_menu/sub-button.png) no-repeat bottom left;}
+header nav ul li a.orders{background: url(/img/admin/ico-big/ico-big-01.png) no-repeat 0px 0px transparent;}
+header nav ul li a.orders:hover{background-position: 0px -37px;}
+header nav ul li a.products{background: url(/img/admin/ico-big/ico-big-01.png) no-repeat -128px 0px transparent;}
+header nav ul li a.products:hover{background-position: -128px -37px;}
+header nav ul li a.sitemap{background: url(/img/admin/ico-big/ico-big-01.png) no-repeat -192px 0px transparent;}
+header nav ul li a.sitemap:hover{background-position: -192px -37px;}
+header nav ul li a.elements{background: url(/img/admin/ico-big/ico-big-01.png) no-repeat -32px 0px transparent;}
+header nav ul li a.elements:hover{background-position: -32px -37px;}
+header nav ul li a.marketing{background: url(/img/admin/ico-big/ico-big-01.png) no-repeat -96px 0px transparent;}
+header nav ul li a.marketing:hover{background-position: -96px -37px;}
+header nav ul li a.statistics{background: url(/img/admin/ico-big/ico-big-01.png) no-repeat -224px 0px transparent;}
+header nav ul li a.statistics:hover{background-position: -224px -37px;}
+header nav ul li a.settings{background: url(/img/admin/ico-big/ico-big-01.png) no-repeat -160px 0px transparent;}
+header nav ul li a.settings:hover{background-position: -160px -37px;}
+/*************************************************************************************************/
+/* CONTAINER *************************************************************************************/
+.container{width: 902px; margin: 0px auto; padding: 0px;}
+/*************************************************************************************************/
+/* ARTICLE ***************************************************************************************/
+article{width: 730px; margin: 0px; padding: 0px 5px; display: block; float: right;}
+nav.sitemap{float: right; font-size: 0.9em;}
+nav.sitemap ul{list-style: none; margin: 0px; padding: 0px;}
+nav.sitemap ul li{display: inline;}
+/*************************************************************************************************/
+/* ASIDE *****************************************************************************************/
+aside{width: 160px; display: block; margin: 0px; padding: 0px; float: left;}
+aside h1{font-size: 1.2em;}
+aside h3.folder{background: url(/img/admin/ico/folder.png) no-repeat left top; margin: 0px; padding-left: 20px; height: 17px; display: block;}
+aside #form-tab-box nav ul{list-style: none; margin: 0px; padding: 0px;}
+aside #form-tab-box nav ul li{margin: 0px -10px; padding: 0px; display: block;}
+/*************************************************************************************************/
+/* FOOTER ****************************************************************************************/
+footer{clear:both !important; display: block; margin: 0px; padding: 0px; height: 40px;}
+footer .rogr-logo {
+	background: url(/img/shared/rogr.png) no-repeat 0px 0px transparent;
+	width: 60px;
+	height: 28px;
+	display: block;
+	float: right;
+	margin: 20px;
+}
+/*************************************************************************************************/
+/* OTHERS ****************************************************************************************/
+.clearfix{clear: both;}
+article pre{/* Zend_Debug */
+	 font-size: 1.2em;
+	 color: white;
+}
+.tooltip {
+	display: none;
+	background-color: #666;
+	border: 1px solid white;
+	font-size: 1em;
+	padding: 1px 2px;
+	color: #fff;
+
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+	-moz-box-shadow: 5px 5px 5px #191919;
+    -webkit-box-shadow: 5px 5px 5px #191919;
+    box-shadow: 5px 5px 5px #191919;
+}
+.tooltip2 {
+	display:none;
+	background:transparent url(/img/tooltip/black_arrow.png);
+	font-size:12px;
+	height:70px;
+	width:160px;
+	padding:25px;
+	color:#fff;	
+}
+a{color: #bbbbbb; text-decoration: none; font-weight: bold;}
+a:hover{text-decoration: underline;}
+a:active,
+a:focus{outline: none;}
+a img{
+	border: none;
+}
+h1{margin: 5px 0px 0px 0px;}
+
+
+
+h1{font-size: 1.8em;}
+h2{font-size: 1.4em;}
+h3{font-size: 1em;}

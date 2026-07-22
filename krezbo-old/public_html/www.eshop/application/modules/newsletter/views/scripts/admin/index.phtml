@@ -1,0 +1,126 @@
+<nav class="sitemap">
+	<ul>
+	  <li><a href="<?= $this->url(array(),'admin_index_index');?>">Úvod</a> &#62; </li>
+	  <li><a href="<?= $this->url(array(),'admin_index_elements');?>">Prvky stránek</a> &#62; </li>
+	  <li>Novinky emailem</li>
+	</ul>
+</nav>
+<section class="newsletter">
+	<div class="clearfix"></div>
+	<nav id="form-tab-menu">
+		<ul>
+		  <li id="newsletters" class="first active">Novinky emailem</li>
+		  <li id="consumers" class="last">Odběratelé</li>
+		  <li class="line" style="width: 535px;"></li>
+		</ul>
+	</nav>
+	<div id="form-tab-box">
+		<div id="tab1">
+			<a href="<?= $this->url(array(),'newsletter_admin_add');?>"><span class="add-item"></span>Přidat novinku</a>
+			<div class="clearfix"></div>
+			<?= $this->paginationControl($this->paginator, 'Sliding', 'paginator.phtml'); ?>
+			<table>
+				<thead>
+					<tr>
+						<th>Novinka (Newsletter)</th>
+						<th class="width-140">Vytvořena</th>
+						<th class="width-80">Rozeslán</th>
+						<th>&nbsp;</th>
+						<th>&nbsp;</th>
+					</tr>
+				</thead>
+				<tfoot>
+					<tr>
+						<th>&nbsp;</th>
+						<th>&nbsp;</th>
+						<th>&nbsp;</th>
+						<th>&nbsp;</th>
+						<th>&nbsp;</th>
+					</tr>
+				</tfoot>
+				<tbody>
+					<?php if ($this->newsletters){?>
+						<?php for ($i = 0; $i < count($this->newsletters); $i++) {?>
+							<tr>
+								<td><?= $this->newsletters[$i]['title']?></td>
+								<?php $date = new DateTime($this->newsletters[$i]['date']);?>
+    							<?php $date = $date->format('d.m.Y H:i:s');?>
+								<td><?= $date?></td>
+								<td>
+									<span class="<?= ($this->newsletters[$i]['sent'])?'check':'uncheck';?>"
+										  title="<?= ($this->newsletters[$i]['sent'])?'Rozeslán':'Nerozeslán';?>">
+									</span>
+								</td>
+								<td style="width: 20px;">
+									<span class="detail">
+										<a href="<?= $this->url(array('id'=>$this->newsletters[$i]['id']),'newsletter_admin_edit');?>"
+										   title="Upravit"></a>
+									</span>
+								</td>
+								<td style="width: 20px;">
+									<span class="delete">
+										<a href="<?= $this->url(array('id'=>$this->newsletters[$i]['id']),'newsletter_admin_del');?>"
+										   title="Smazat"></a>
+									</span>
+								</td>
+							</tr>
+						<?php }?>
+					<?php }else{?>
+						<tr>
+							<td>Zatím nebyl vytvořen žádný newsletter</td>
+							<td>&nbsp;</td>
+							<td>&nbsp;</td>
+							<td>&nbsp;</td>
+							<td>&nbsp;</td>
+						</tr>
+					<?php }?>
+				</tbody>
+			</table>
+			<?= $this->paginationControl($this->paginator, 'Sliding', 'paginator.phtml'); ?>
+		</div>
+		<div id="tab2">
+			<?= $this->paginationControl($this->paginator2, 'Sliding', 'paginator.phtml'); ?>
+			<table>
+				<thead>
+					<tr>
+						<th>Odběratelé</th>
+						<th>Přihlášen</th>
+						<th>&nbsp;</th>
+					</tr>
+				</thead>
+				<tfoot>
+					<tr>
+						<th>&nbsp;</th>
+						<th>&nbsp;</th>
+						<th>&nbsp;</th>
+					</tr>
+				</tfoot>
+				<tbody>
+					<?php if ($this->emails){?>
+						<?php for ($i = 0; $i < count($this->emails); $i++) {?>
+							<tr>
+								<td><?= $this->emails[$i]['email']?></td>
+								<?php $date = new DateTime($this->emails[$i]['date']);?>
+    							<?php $date = $date->format('d.m.Y H:i:s');?>
+								<td><?= $date?></td>
+								<td style="width: 20px;">
+									<span class="delete">
+										<a href="<?= $this->url(array('id'=>$this->emails[$i]['id']),'newsletter_admin_del-consumer');?>"
+										   title="Smazat"></a>
+									</span>
+								</td>
+							</tr>
+						<?php }?>
+					<?php }else{?>
+						<tr>
+							<td>Zatím se nepřihlásil žádný odběratel</td>
+							<td>&nbsp;</td>
+							<td>&nbsp;</td>
+						</tr>
+					<?php }?>
+				</tbody>
+			</table>
+			<?= $this->paginationControl($this->paginator2, 'Sliding', 'paginator.phtml'); ?>
+		</div>
+	</div>
+</section>

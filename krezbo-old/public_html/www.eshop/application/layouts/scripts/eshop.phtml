@@ -1,0 +1,177 @@
+<?= $this->doctype() . "\n";?>
+<html lang="cs" dir="ltr">
+<head>
+<?= $this->headMeta() . "\n";?>
+<?= $this->headTitle() . "\n";?>
+<?= $this->headLink() . "\n";?>
+<?= $this->headStyle();?>
+<?= $this->jQuery();?>
+<?= $this->headScript() . "\n";?>
+</head>
+<body>
+	<div class="container">
+		<header>
+			<div class="top">
+				<div class="logo">
+					<a href="<?= $this->url(array(),'eshop_index_index');?>"><img src="/data/png/logo/logo.png" /></a>
+				</div>
+				<div class="search">
+					<?= $this->formSearch;?>
+				</div>
+			</div>
+			<div class="bottom">
+				<div class="left"></div>
+				<ul>
+					<li><a class="home" href="<?= $this->url(array(),'eshop_index_index');?>">Domů</a></li>
+					<li><a class="contact" href="<?= $this->url(array(),'eshop_index_contacts');?>">Kontakty</a></li>
+					<li><a class="sitemap" href="<?= $this->url(array(),'eshop_index_sitemap');?>">Mapa stránek</a></li>
+					<li class="last"><a class="bookmark" href="javascript:addBookmark('eShop Krezbo','http://www.eshop.krezbo.cz');">Přidat k oblíbeným</a></li>
+				</ul>
+				<div class="gray">
+					<ul>
+						<li><a class="account" href="<?= $this->url(array(),'auth_index_my-account');?>">Můj účet</a></li>
+						<li><a class="cart" href="<?= $this->url(array(),'cart_index_index');?>">Košík</a></li>
+					</ul>
+				</div>
+				<div class="right"></div>
+			</div>
+		</header>
+		<div class="containerLeft">
+			<aside>
+				<?php $auth = Zend_Auth::getInstance();?>
+				<?php if($auth->hasIdentity()){?>
+					<?php $user = $auth->getIdentity();?>
+					<aside class="gray">
+						<div class="boxTop">
+							<h1><a href="<?= $this->url(array(),'auth_index_my-account');?>">Můj účet</a></h1>
+							<ul>
+								<?php if ($user['type']=='Admin'){ //Admin?>
+									<li><a href="<?= $this->url(array(),'admin_index_index');?>">Admin</a></li>
+								<?php }?>
+								<li><a href="<?= $this->url(array(),'auth_address_index');?>">Mé adresy</a></li>
+								<li><a href="<?= $this->url(array(),'auth_profile_edit');?>">Upravit můj profil</a></li>
+								<li><a href="<?= $this->url(array(),'auth_index_password-change');?>">Změna hesla</a></li>
+								<li class="last"><a href="<?= $this->url(array(),'auth_index_logout');?>">Odhlásit</a></li>
+							</ul>
+						</div>
+						<div class="boxBottom"></div>
+					</aside>
+				<?php }?>
+				<div class="boxTop">
+					<h1>Kategorie</h1>
+					<?php if ($this->categories){?>
+					<ul>
+					<?php $i = 1;?>
+					<?php foreach ($this->categories as $category) {?>
+						<li<?= ($i == count($this->categories))?' class="last"':'';?>><a href="<?= $this->url(
+							array(
+								'category'	=>	$category['title_url'],
+								'page'		=>	1
+							),
+							'eshop_index_category');?>"><?= $category['title_menu'];?></a></li>
+						<?php $i++;?>
+					<?php }?>
+					</ul>
+					<?php }?>
+				</div>
+				<div class="boxBottom"></div>
+			</aside>
+			<aside>
+				<div class="boxTop">
+					<h1><a href="<?= $this->url(array(),'eshop_manufacturers_index');?>">Výrobci</a></h1>
+					<?php if ($this->manufacroters){?>
+					<ul>
+					<?php $i = 1;?>
+					<?php foreach ($this->manufacroters as $manufactory) {?>
+						<li<?= ($i == count($this->manufacroters))?' class="last"':'';?>><a href="<?= $this->url(
+							array(
+								'manufactury'	=>	$manufactory['title_url'],
+								'page'			=>	1
+							),
+							'eshop_manufacturers_manufactury');?>"><?= $manufactory['title_menu'];?></a></li>
+						<?php $i++;?>
+					<?php }?>
+					</ul>
+					<?php }?>
+				</div>
+				<div class="boxBottom"></div>
+			</aside>
+		</div>
+		<div class="containerMiddle">
+			<article>
+				<?= $this->layout()->content;?>
+				<div class="clearfix"></div>
+		    </article>
+		</div>
+		<div class="containerRight">
+			<aside class="gray">
+				<div class="boxTop">
+					<h1>Košík</h1>
+					<?php // MODUL CART ********************?>
+					<?= $this->render('cart.phtml');?>
+					<?php // *******************************?>
+				</div>
+				<div class="boxBottom"></div>
+			</aside>
+			<?php if ($this->pages){?>
+			<aside>
+				<div class="boxTop">
+					<h1>Informace</h1>
+					<ul>
+					<?php $i = 1;?>
+					<?php foreach ($this->pages as $page) {?>
+						<li<?= ($i == count($this->pages))?' class="last"':'';?>><a href="<?= $this->url(array('page'	=>	$page['title_url']),'eshop_index_pages');?>"><?= $page['title'];?></a></li>
+						<?php $i++;?>
+					<?php }?>
+					</ul>
+				</div>
+				<div class="boxBottom"></div>
+			</aside>
+			<?php }?>
+			<!--<aside>
+				<div class="boxTop">
+					
+				</div>
+				<div class="boxBottom"></div>
+			</aside>-->
+		</div>
+		
+		<div class="clearfix"></div>
+		
+	
+		<footer>
+			<div class="vat">Ceny jsou uvedeny včetne DPH</div>
+			<nav>
+				<ul>
+					<li><a href="<?= $this->url(array(), 'eshop_index_index');?>">Úvod</a></li>
+					<li><a href="<?= $this->url(array(), 'eshop_index_contacts');?>">Kontakty</a></li>
+					<li><a href="<?= $this->url(array(), 'eshop_index_sitemap');?>">Mapa stránek</a></li>
+					<li><a href="<?= $this->url(array(), 'eshop_index_recommend');?>">Doporučujeme</a></li>
+					<li><a href="<?= $this->url(array(), 'eshop_index_news');?>">Novinky</a></li>
+		        </ul>
+			</nav>
+			<a class="logo" href="http://www.bvdesign.cz" title="be Visible Design"></a>
+			<div class="copy">Krezbo&nbsp;&copy;&nbsp;2011&nbsp;&nbsp;Všechna práva vyhrazena</div>
+			<div class="clearfix"></div>
+		</footer>
+	</div>
+	
+	<section class="scripts"><!-- Scripty -->
+	<?php if (APPLICATION_ENV == 'production') {?>
+	<script type="text/javascript">
+		var _gaq = _gaq || [];
+		_gaq.push(['_setAccount', 'UA-5141258-12']);
+		_gaq.push(['_trackPageview']);
+		(function() {
+			var ga = document.createElement('script');
+			ga.type = 'text/javascript';
+			ga.async = true;
+			ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+			var s = document.getElementsByTagName('script')[0];
+			s.parentNode.insertBefore(ga, s);
+		})();
+	</script>
+	<?php }?>
+	</section>
+</body>
+</html>

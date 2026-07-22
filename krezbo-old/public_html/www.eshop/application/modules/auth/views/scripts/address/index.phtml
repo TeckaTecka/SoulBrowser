@@ -1,0 +1,62 @@
+<div class="block">
+
+	<h1 class="address">Adresy</h1>
+	<h3>Informace o adrese</h3>
+	Fakturační a dodací údaje nelze po jejich vložení dodatečně měnit. Je to z důvodu jejich provázanosti s informačním systémem, evidencí objednávek a přehledu doručení zboží.
+	Proto prosím před uložením údajů vždy zkontrolujte jejich správnost.
+	Můžete si vytvořit několik fakturačních i dodacích adres a ty při objednávání zboží střídat.	
+	<table id="address-table">
+		<!--<caption>Adresy</caption>-->
+		<thead>
+			<tr>
+				<th>Adresa</th>
+				<th>Kontaktní email</th>
+				<th>Kontaktní telefon</th>
+				<th>&nbsp;</th>
+			</tr>
+		</thead>
+		<!--<tfoot>
+			<tr>
+				<th>&nbsp;</th>
+				<th>&nbsp;</th>
+				<th>&nbsp;</th>
+				<th>&nbsp;</th>
+			</tr>
+		</tfoot>-->
+		<tbody>
+			<?php if ($this->addresses){?>
+				<?php foreach ($this->addresses as $address) {?>
+					<tr>
+						<td>
+							<?php if ($address['company_name']){?>
+								<?= $address['company_name'].', ';?>
+							<?php }else{?>
+								<?= ($address['person_title'])?$address['person_title'].' ':'';?>
+								<?= $address['person_name'].' ';?>
+								<?= $address['person_surname'].', ';?>
+							<?php }?>
+							<?= $address['street'].' '.$address['street_nr'].', '.$address['city'].', '.$address['zip'].', '.$address['country'];?>
+						</td>
+						<td><?= $address['contact_email'];?></td>
+						<td><?= $address['contact_phone'];?></td>
+						<td>
+							<a class="delete"
+								   href="<?= $this->url(array('id'=>$address['id']),'auth_address_del');?>"
+								   title="Smazat"></a>
+						</td>
+					</tr>
+				<?php }?>
+			<?php }else{?>
+				<tr>
+					<td>Zatím nebyly žádné adresy uloženy</td>
+					<td>&nbsp;</td>
+					<td>&nbsp;</td>
+					<td>&nbsp;</td>
+					<td>&nbsp;</td>
+				</tr>
+			<?php }?>
+		</tbody>
+	</table>
+	<a class="button" href="<?= $this->url(array(),'auth_address_add');?>">Přidat adresu</a>
+
+</div>

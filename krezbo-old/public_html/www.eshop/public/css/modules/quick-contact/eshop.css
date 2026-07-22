@@ -1,0 +1,22 @@
+@charset "utf-8";
+
+/* ASIDE RIGHT ***********************************************************************************/
+aside ul.aside-right{margin:0px; padding:0px;}
+aside ul.aside-right li{display: block;}
+aside .aside-right .top{background: url(/img/modules/quick-contact/right-top.png) no-repeat 0 0; width: 39px; height: 15px;}
+aside .aside-right .middle{background: url(/img/modules/quick-contact/right-middle.png) repeat-y 0 0; width: 39px;}
+aside .aside-right .bottom{background: url(/img/modules/quick-contact/right-bottom.png) no-repeat 0 0; width: 39px; height: 15px;}
+aside .aside-right-box{background-color: #1F1F1F; border-top: 1px solid #ffffff; border-bottom: 1px solid #ffffff;}
+/* ***********************************************************************************************/
+/* QUICK-CONTACT *********************************************************************************/
+aside#quick-contact{position: fixed; right: 0px; top: 160px;}
+aside#quick-contact #quick-contact-bar{height: 67px; float: left; cursor: pointer;}
+aside#quick-contact #quick-contact-bar .aside-right .middle{height: 37px; background: url(/img/modules/quick-contact/at.png) no-repeat 0 0;}
+aside#quick-contact #quick-contact-box{width: 200px; height: 65px; float: left; display: none; text-align: center;}
+aside#quick-contact #quick-contact-box h1,
+aside#quick-contact #quick-contact-box a{font-size: 1em; display: block; width: 200px;}
+aside#quick-contact #quick-contact-box h1{font-weight: normal;}
+/*************************************************************************************************/
+section.quick-contact h1.contact{background: url(/img/modules/quick-contact/ico-big/contact.png) no-repeat 0 0; padding-left: 40px; height: 37px;}
+section.quick-contact img.phone{width: 256px; height: 256px; margin: 0px auto; display: block;}
+section.quick-contact form textarea{height: 200px;}

@@ -1,0 +1,21 @@
+<nav class="sitemap">
+	<ul>
+	  <li><a href="<?= $this->url(array(),'admin_index_index');?>">Úvod</a> &#62; </li>
+	  <li><a href="<?= $this->url(array(),'admin_index_elements');?>">Prvky stránek</a> &#62; </li>
+	  <li><a href="<?= $this->url(array(),'newsletter_admin_index');?>">Novinky emailem</a> &#62; </li>
+	  <li>Smazat odběratele</li>
+	</ul>
+</nav>
+<div class="clearfix"></div>
+<nav id="form-tab-menu">
+	<ul>
+	  <li id="consumer" class="first active last">Smazat odběratele</li>
+	  <li class="line" style="width: 600px;"></li>
+	</ul>
+</nav>
+<div id="form-tab-box">
+	<div id="tab1">
+		<h2 class="text-center">Opravdu chcete smazat odběratele "<?= $this->email;?>"?</h2>
+		<?= $this->form;?>
+	</div>
+</div>

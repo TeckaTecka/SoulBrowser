@@ -1,0 +1,20 @@
+<nav class="sitemap">
+	<ul>
+	  <li><a href="<?= $this->url(array(),'admin_index_index');?>">Úvod</a> &gt; </li>
+	  <li><a href="<?= $this->url(array(),'admin_index_products');?>">Zboží</a>  &gt; </li>
+	  <li><a href="<?= $this->url(array(),'admin_products_availability-index');?>">Přehled dostupností</a> &gt; </li>
+	  <li>Přidat dostupnost</li>
+	</ul>
+</nav>
+<div class="clearfix"></div>
+<nav id="form-tab-menu">
+	<ul>
+	  <li id="availability" class="first active last">Přidat dostupnost</li>
+	  <li class="line" style="width: 609px;"></li>
+	</ul>
+</nav>
+<div id="form-tab-box">
+	<div id="tab1">
+		<?= $this->formAvailability;?>
+	</div>
+</div>

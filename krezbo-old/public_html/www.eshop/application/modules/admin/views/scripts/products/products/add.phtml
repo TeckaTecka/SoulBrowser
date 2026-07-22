@@ -1,0 +1,24 @@
+<nav class="sitemap">
+	<ul>
+	  <li><a href="<?= $this->url(array(),'admin_index_index');?>">Úvod</a> &gt; </li>
+	  <li><a href="<?= $this->url(array(),'admin_index_products');?>">Zboží</a>  &gt; </li>
+	  <li><a href="<?= $this->url(array(),'admin_products_products-index');?>">Přehled zboží</a>  &gt; </li>
+	  <li>Přidat zboží</li>
+	</ul>
+</nav>
+<div class="clearfix"></div>
+<nav id="form-tab-menu">
+	<ul>
+	  <li id="product" class="first active">Přidat zboží</li>
+	  <li id="categories" class="disable">Kategorie</li>
+	  <li id="pictures" class="disable">Obrázky</li>
+	  <li id="parameters" class="disable">Paramerty</li>
+	  <li id="settings" class="disable last">Nastavení</li>
+	  <li class="line" style="width: 379px;"></li>
+	</ul>
+</nav>
+<div id="form-tab-box">
+	<div id="tab1">
+		<?= $this->formProduct;?>
+	</div>
+</div>

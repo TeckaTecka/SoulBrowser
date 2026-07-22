@@ -1,0 +1,7 @@
+@charset "utf-8";
+
+div.address{width: 340px; float: left; margin-bottom: 20px;}
+div.address ul{list-style: none; margin: 0px; padding: 0px;}
+a.pdf{display: block; float: right; width: 70px; height: 90px; background: url(/img/admin/pdf.png) no-repeat 15px 15px;}
+
+#tab3-2{display: none;}

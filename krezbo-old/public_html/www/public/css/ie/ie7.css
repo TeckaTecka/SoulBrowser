@@ -1,0 +1,33 @@
+@charset "utf-8";
+
+article{
+	margin-top: 110px;
+}
+article section.about-us div.about-us-box .right-box {
+	text-align: center;
+}
+article section.about-us div.about-us-box .left-box {
+	text-align: center;
+}
+article section.about-us div.box {
+	text-align: center;
+}
+article section.contact .address ul.address{
+	left: 230px;
+}
+article section.contact .address ul.left {
+	left: 80px;
+}
+article section.contact .address ul.right {
+	right: 120px;
+}
+article section.contact .address ul.phones {
+	left: 215px;
+}
+article section.contact .address ul.person-left {
+	left: 0px;
+}
+article section.contact .address ul.opening-hours {
+	top: 335px;
+	left: 175px;
+}

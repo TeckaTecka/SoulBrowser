@@ -1,0 +1,21 @@
+<nav class="sitemap">
+	<ul>
+	  <li><a href="<?= $this->url(array(),'admin_index_index');?>">Úvod</a> &#62; </li>
+	  <li><a href="<?= $this->url(array(),'admin_index_sitemap');?>">Mapa stránek</a> &#62; </li>
+	  <li><a href="<?= $this->url(array(),'admin_sitemap_categories-index');?>">Kategorie zboží</a></li>
+	</ul>
+</nav>
+<div class="clearfix"></div>
+<nav id="form-tab-menu">
+	<ul>
+	  <li id="category" class="first active last">Kategorie</li>
+	  <li class="line" style="width: 653px;"></li>
+	</ul>
+</nav>
+<div id="form-tab-box">
+	<div id="tab1">
+		<h2 class="text-center">Kategorie byla úspěšně uložena.</h2>
+		<a href="<?= $this->url(array(),'admin_sitemap_categories-index');?>">Přehled kategorií</a>
+		<a class="add-item" href="<?= $this->url(array(),'admin_sitemap_categories-add');?>">Přidat kategorii</a>
+	</div>
+</div>

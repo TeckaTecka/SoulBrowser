@@ -1,0 +1,20 @@
+<nav class="sitemap">
+	<ul>
+	  <li><a href="<?= $this->url(array(),'admin_index_index');?>">Úvod</a> &#62; </li>
+	  <li><a href="<?= $this->url(array(),'admin_index_marketing');?>">Marketing</a> &#62; </li>
+	  <li><a href="<?= $this->url(array(),'admin_marketing_users');?>">Uživatelé</a> &#62; </li>
+	  <li>Upravit uživatelé</li>
+	</ul>
+</nav>
+<div class="clearfix"></div>
+<nav id="form-tab-menu">
+	<ul>
+	  <li id="users" class="first active last">Upravit uživatelé</li>
+	  <li class="line" style="width: 612px;"></li>
+	</ul>
+</nav>
+<div id="form-tab-box">
+	<div id="tab1">
+		<?= $this->form;?>
+	</div>
+</div>

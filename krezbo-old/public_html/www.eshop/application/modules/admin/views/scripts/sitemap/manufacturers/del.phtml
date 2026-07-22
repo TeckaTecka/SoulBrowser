@@ -1,0 +1,21 @@
+<nav class="sitemap">
+	<ul>
+	  <li><a href="<?= $this->url(array(),'admin_index_index');?>">Úvod</a> &#62; </li>
+	  <li><a href="<?= $this->url(array(),'admin_index_sitemap');?>">Mapa stránek</a> &#62; </li>
+	  <li><a href="<?= $this->url(array(),'admin_sitemap_manufacturers-index');?>">Výrobci</a> &#62; </li>
+	  <li>Smazat výrobce</li>
+	</ul>
+</nav>
+<div class="clearfix"></div>
+<nav id="form-tab-menu">
+	<ul>
+	  <li id="manufactorers" class="first active last">Smazat výrobce</li>
+	  <li class="line" style="width: 615px;"></li>
+	</ul>
+</nav>
+<div id="form-tab-box">
+	<div id="tab1">
+		<h2 class="text-center">Opravdu chcete smazat tohoto výrobce "<?= $this->manufactury;?>"?</h2>
+		<?= $this->form;?>
+	</div>
+</div>

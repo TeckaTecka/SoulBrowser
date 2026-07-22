@@ -1,0 +1,72 @@
+<nav class="sitemap">
+	<ul>
+	  <li><a href="<?= $this->url(array(),'admin_index_index');?>">Úvod</a> &#62; </li>
+	  <li>Nejnovější objednávky</li>
+	</ul>
+</nav>
+<div class="clearfix"></div>
+<nav id="form-tab-menu">
+	<ul>
+	  <li id="orders" class="first active last">Nejnovější objednávky</li>
+	  <li class="line" style="width: 577px;"></li>
+	</ul>
+</nav>
+<div id="form-tab-box">
+	<div id="tab1">
+		<table>
+			<thead>
+				<tr>
+					<th>Status</th>
+					<th>Objednávka</th>
+					<th>Datum</th>
+					<th>Cena s DPH</th>
+					<th>Platba</th>
+					<th>Odběr</th>
+					<th>&nbsp;</th>
+				</tr>
+			</thead>
+			<tfoot>
+				<tr>
+					<th>&nbsp;</th>
+					<th>&nbsp;</th>
+					<th>&nbsp;</th>
+					<th>&nbsp;</th>
+					<th>&nbsp;</th>
+					<th>&nbsp;</th>
+					<th>&nbsp;</th>
+				</tr>
+			</tfoot>
+			<tbody>
+				<?php if ($this->orders){?>
+					<?php for ($i = 0; $i < count($this->orders); $i++) {?>
+						<tr>
+							<td><?= $this->orders[$i]['status'];?></td>
+							<td><?= $this->orders[$i]['id'];?></td>
+							<?php $date = new DateTime($this->orders[$i]['date']);?>
+		    				<?php $date = $date->format('d.m.Y');?>
+							<td><?= $date;?></td>
+							<td class="text-center"><?= $this->orders[$i]['price'];?></td>
+							<td><?= $this->orders[$i]['payment'];?></td>
+							<td><?= $this->orders[$i]['consumption'];?></td>
+							<td class="width-20">
+								<span class="detail">
+									<a href="<?= $this->url(array('id'=>$this->orders[$i]['id']),'admin_orders_orders-edit');?>" title="Upravit"></a>
+								</span>
+							</td>
+						</tr>
+					<?php }?>
+				<?php }else{?>
+					<tr>
+						<td>Zatím nebyla přijata žádná nová objednávka</td>
+						<td>&nbsp;</td>
+						<td>&nbsp;</td>
+						<td>&nbsp;</td>
+						<td>&nbsp;</td>
+						<td>&nbsp;</td>
+						<td>&nbsp;</td>
+					</tr>
+				<?php }?>
+			</tbody>
+		</table>
+	</div>
+</div>

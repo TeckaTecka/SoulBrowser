@@ -1,0 +1,24 @@
+<nav class="sitemap">
+	<ul>
+	  <li><a href="<?= $this->url(array(),'admin_index_index');?>">Úvod</a> &gt; </li>
+	  <li><a href="<?= $this->url(array(),'admin_index_products');?>">Zboží</a>  &gt; </li>
+	  <li><a href="<?= $this->url(array(),'admin_products_parameters-index');?>">Přehled parametrů</a>  &gt; </li>
+	  <li>Přidat skupinu</li>
+	</ul>
+</nav>
+<div class="clearfix"></div>
+<nav id="form-tab-menu">
+	<ul>
+	  <li id="parameter" class="first active">Přidat skupinu parametrů</li>
+	  <li id="parameter-add" class="last disable">Přidat parametry do skupiny parametrů</li>
+	  <li class="line" style="width: 325px;"></li>
+	</ul>
+</nav>
+<div id="form-tab-box">
+	<div id="tab1">
+		<?= $this->formGroup;?>
+	</div>
+	<div id="tab2">
+		
+	</div>
+</div>

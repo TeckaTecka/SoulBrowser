@@ -1,0 +1,69 @@
+<nav class="sitemap">
+	<ul>
+	  <li><a href="<?= $this->url(array(),'admin_index_index');?>">Úvod</a> &#62; </li>
+	  <li><a href="<?= $this->url(array(),'admin_index_marketing');?>">Marketing</a> &#62; </li>
+	  <li>Uživatelé</li>
+	</ul>
+</nav>
+<div class="clearfix"></div>
+<nav id="form-tab-menu">
+	<ul>
+	  <li id="pages" class="first active last">Uživatelé</li>
+	  <li class="line" style="width: 656px;"></li>
+	</ul>
+</nav>
+<div id="form-tab-box">
+	<div id="tab1">
+		<a href="<?= $this->url(array(),'admin_marketing_user-add');?>"><span class="add-item"></span>Přidat uživatele</a>
+		<?= $this->paginationControl($this->paginator, 'Sliding', 'paginator.phtml'); ?>
+		<table>
+			<thead>
+				<tr>
+					<th>Uživatel</th>
+					<th>Email</th>
+					<th>Typ</th>
+					<th>&nbsp;</th>
+					<th>&nbsp;</th>
+				</tr>
+			</thead>
+			<tfoot>
+				<tr>
+					<th>&nbsp;</th>
+					<th>&nbsp;</th>
+					<th>&nbsp;</th>
+					<th>&nbsp;</th>
+					<th>&nbsp;</th>
+				</tr>
+			</tfoot>
+			<tbody>
+				<?php if ($this->users){?>
+					<?php for ($i = 0; $i < count($this->users); $i++) {?>
+						<tr>
+							<td><?= $this->users[$i]['username']?></td>
+							<td><?= $this->users[$i]['email']?></td>
+							<td><?= $this->users[$i]['type']?></td>
+							
+							<td style="width: 20px;">
+								<span class="detail">
+									<a href="<?= $this->url(array('id'	=>	$this->users[$i]['id']),'admin_marketing_user-edit');?>"
+									   title="Upravit"></a>
+								</span>
+							</td>
+							<td style="width: 20px;">
+								<?php if ($this->users[$i]['username'] != $this->user['username']){?>
+									<span class="delete">
+										<a href="<?= $this->url(array('id'=>$this->users[$i]['id']),'admin_marketing_user-del');?>"
+										   title="Smazat"></a>
+									</span>
+								<?php }else{?>
+									<span class="delete-gray"></span>
+								<?php }?>
+							</td>
+						</tr>
+					<?php }?>
+				<?php }?>
+			</tbody>
+		</table>
+		<?= $this->paginationControl($this->paginator, 'Sliding', 'paginator.phtml'); ?>
+	</div>
+</div>

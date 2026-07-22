@@ -1,0 +1,76 @@
+<div class="block">
+	<nav>
+		<ul>
+			<li><a class="home" href="<?= $this->url(array(),'eshop_index_index');?>">Domů</a>&nbsp;&gt;&nbsp;</li>
+			<li><a class="manufacturers" href="<?= $this->url(array(),'eshop_manufacturers_index');?>">Výrobci</a>&nbsp;&gt;&nbsp;</li>
+			<li><?= $this->manufactury['title'];?></li>
+		</ul>
+	</nav>
+</div>
+<div class="block">
+
+	<h1><?= $this->manufactury['title'];?></h1>
+	<?php if($this->manufactury['description']){?>
+		<div class="description"><?= $this->manufactury['description'];?></div>
+	<?php }?>
+	<?php if ($this->products){?>
+		<?= $this->paginationControl($this->paginator, 'Sliding', 'paginator.phtml'); ?>
+		<?php foreach ($this->products as $item) {?>
+			<div class="product-category-thumb">
+				<div class="img">
+					<a href="<?= $this->url(
+						array(
+							'manufactury' => $this->manufactury['title_url'],
+							'product' => $item['title_url']),
+						'eshop_manufacturers_product');?>">
+						<img src="/<?= ($item['picture']['170x170'])?$item['picture']['170x170']:'img/layout/article/not-available.png';?>" /></a>
+				</div>
+				<div class="left">
+					<div class="title"><?= $item['title'];?></div>
+					<div class="short_desc"><?= $item['short_desc'];?></div>
+				</div>
+				<div class="right">
+					<div class="price"><?= $item['price'];?></div>
+					<?php if ($item['price_orig']){?>
+						<div class="price_orig"><?= $item['price_orig'];?></div>
+					<?php }?>
+					<div class="availability"><?= $item['availability'];?></div>
+					<?php if ($item['manufacturers_id'] != 1){?>
+						<div class="manufacturers">
+							<a href="<?= $this->url(
+								array(
+									'manufactury' => $item['manufacturers_url']),
+								'eshop_manufacturers_manufactury');?>"><?= $item['manufacturers'];?></a>
+						</div>
+					<?php }?>
+					
+				</div>
+				<?php if ($item['availability'] != 'Dočasně nedostupné') {?>
+					<div class="cart">
+						<a class="button" href="<?= $this->url(
+							array(
+								'page'			=>	$this->page,
+								'idManufactury'	=>	$this->manufactury['id'],
+								'idProduct'		=>	$item['id'],
+								'back'			=>	1
+							),
+							'cart_index_add-manufactury');?>" rel="nofollow">Do košíku</a>
+					</div>
+				<?php }?>
+				<div class="detail">
+					<a class="button" href="<?= $this->url(
+						array(
+							'manufactury'	=>	$this->manufactury['title_url'],
+							'product'	=>	$item['title_url']
+						),
+						'eshop_manufacturers_product');?>">Detail</a>
+				</div>
+			</div>
+		<?php }?>
+		<div class="floatfix"></div>
+		<?= $this->paginationControl($this->paginator, 'Sliding', 'paginator.phtml'); ?>
+	<?php }else{?>
+		K tomuto výrobci zatím nebylo přiřazeno žádné zboží
+	<?php }?>
+
+</div>

@@ -1,0 +1,42 @@
+@charset "utf-8";
+
+.button, .button:visited {
+	margin-top: 5px;
+	background: #222 url(/img/shared/button/overlay.png) repeat-x;
+	display: inline-block;
+	padding: 3px 10px 4px;
+	color: #fff;
+	text-decoration: none;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+	-moz-box-shadow: 0 1px 3px rgba(0,0,0,0.6);
+	-webkit-box-shadow: 0 1px 3px rgba(0,0,0,0.6);
+	box-shadow: 0 1px 3px rgba(0,0,0,0.6);
+	-moz-text-shadow: 0 -1px 1px rgba(0,0,0,0.25);
+	-webkit-text-shadow: 0 -1px 1px rgba(0,0,0,0.25);
+	text-shadow: 0 -1px 1px rgba(0,0,0,0.25);
+	border: none;
+	border-bottom: 1px solid rgba(0,0,0,0.25);
+	position: relative;
+	cursor: pointer;
+	outline: none;
+	
+	font-size: 11px;
+	font-weight: bold;
+	text-shadow: 0 -1px 1px rgba(0,0,0,0.25);
+	background-color: #d45500;
+	
+}
+.button:active {
+	top: 1px;
+	outline: none;
+}
+.button:focus {
+	outline: none;
+}
+.button:hover {
+	background-color: #bb5a19;
+	outline: none;
+	text-decoration: none;
+}

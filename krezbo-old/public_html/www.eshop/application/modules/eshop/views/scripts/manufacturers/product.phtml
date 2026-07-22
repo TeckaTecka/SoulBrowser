@@ -1,0 +1,127 @@
+<div class="block">
+	<nav>
+		<ul>
+			<li><a href="<?= $this->url(array(),'eshop_index_index');?>">Domů</a>&nbsp;&gt;&nbsp;</li>
+			<li><a class="manufacturers" href="<?= $this->url(array(),'eshop_manufacturers_index');?>">Výrobci</a>&nbsp;&gt;&nbsp;</li>
+			<li><a class="manufactury" href="<?= $this->url(array('manufactury'=>$this->manufactury['title_url']),'eshop_manufacturers_manufactury');?>"><?= $this->manufactury['title'];?></a>&nbsp;&gt;&nbsp;</li>
+			<li><?= $this->product['title_menu'];?></li>
+		</ul>
+	</nav>
+</div>
+<div class="block">
+
+	<h1><?= $this->product['title_menu'];?></h1>
+	<?php if ($this->product){?>
+		<div class="product">
+			<div class="img gallery">
+				<ul class="gallery">
+					<?php if ($this->product['pictures']){?>
+						<?php $first = true;?>
+						<?php foreach ($this->product['pictures'] as $pic) {?>
+							<li<?= ($first)?'':' style="display:none;"'?>>
+								<a href="/<?= $pic['800x500'];?>" rel="prettyPhoto[gallery1]">
+									<img src="/<?= $pic['170x170'];?>" width="170" height="170" alt="<?= $this->product['title_menu'];?>" />
+									<?= ($first)?'<div class="detail"></div>':'';?>
+								</a>
+							</li>
+							<?php $first = false; ?>
+						<?php }?>
+					<?php }else{?>
+						<li><a href=""><img src="/img/layout/article/not-available.png" width="170" height="170" alt="" /></a></li>
+					<?php }?>
+				</ul>
+				
+			</div>
+			<div class="info-container">
+				<div class="info-left">
+					<div class="line">Kód:</div>
+					<div class="line">Název:</div>
+					<?php if ($this->product['price_orig']<>NULL){?>
+						<div class="line">Původní cena:</div>
+					<?php }?>
+					<div class="line"><strong>Cena bez DPH:</strong></div>
+					<div class="line">DPH:</div>
+					<div class="line"><strong>Cena s DPH:</strong></div>
+					<div class="line">Dostupnost:</div>
+					<?php if ($this->product['manufacturers_id'] != 1){?><div class="line">Výrobce:</div><?php }?>
+				</div>
+				<div class="info-right">
+					<div class="line"><?= $this->product['code'];?></div>
+					<div class="line"><?= $this->product['title_menu'];?></div>
+					<?php if ($this->product['price_orig']<>NULL){?>
+						<div class="line"><span><?= $this->product['price_orig'];?></span></div>
+					<?php }?>
+					<div class="line"><strong><?= $this->product['price_vat'];?></strong></div>
+					<div class="line"><?= $this->product['vat'];?></div>
+					<div class="line"><strong><?= $this->product['price'];?></strong></div>
+					<div class="line"><?= $this->product['availability_title'];?></div>
+					<?php if ($this->product['manufacturers_id'] != 1){?>
+						<div class="line">
+							<a href="<?= $this->url(
+								array(
+									'manufactury' => $this->product['manufacturers_url']
+								),
+								'eshop_manufacturers_manufactury');?>"><?= $this->product['manufacturers'];?></a>
+						</div>
+					<?php }?>
+				</div>
+			</div>
+			<?php if ($this->product['availability_title'] != 'Dočasně nedostupné') {?>
+				<div class="cart">
+					<a class="button" href="<?= $this->url(
+						array(
+							'page'			=>	$this->page,
+							'idManufactury'	=>	$this->manufactury['id'],
+							'idProduct'		=>	$this->product['id'],
+							'back'			=>	2
+						),
+						'cart_index_add-manufactury');?>" rel="nofollow">Do košíku</a>
+				</div>
+			<?php }?>
+		</div>
+	<?php }else{?>
+		Toto zboží nebylo nalezeno
+	<?php }?>
+	
+</div>
+<?php if($this->product['description']){?>
+	<div class="block">
+	
+		<h1>Popis</h1>
+		<div class="description">
+			<?= $this->product['description'];?>
+		</div>
+				
+	</div>
+<?php }?>
+<?php if($this->parameters){?>
+	<div class="block">
+	
+		<h1>Parametry</h1>
+		<table>
+			<thead>
+				<tr>
+					<th>Parametr</th>
+					<th>Hodnota</th>
+				</tr>
+			</thead>
+			<!--<tfoot>
+				<tr>
+					<th>&nbsp;</th>
+					<th>&nbsp;</th>
+				</tr>
+			</tfoot>-->
+			<tbody>
+				<?php if ($this->parameters){?>
+					<?php foreach ($this->parameters as $param) {?>
+						<tr>
+							<td class="right"><?= $param['title']?></td>
+							<td><?= $param['value']?></td>
+						</tr>
+					<?php }?>
+				<?php }?>
+			</tbody>
+		</table>
+		
+	</div>
+<?php }?>

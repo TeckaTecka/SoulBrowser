@@ -1,0 +1,122 @@
+<nav class="sitemap">
+	<ul>
+	  <li><a href="<?= $this->url(array(),'admin_index_index');?>">Úvod</a> &#62; </li>
+	  <li><a href="<?= $this->url(array(),'admin_index_products');?>">Zboží</a>  &#62; </li>
+	  <li>Přehled parametrů</li>
+	</ul>
+</nav>
+<div class="clearfix"></div>
+<nav id="form-tab-menu">
+	<ul>
+	  <li id="parameters" class="first active">Přehled parametrů</li>
+	  <li id="parameters_groups" class="last">Přehled skupin parametrů</li>
+	  <li class="line" style="width: 442px;"></li>
+	</ul>
+</nav>
+<div id="form-tab-box">
+	<div id="tab1">
+		<a href="<?= $this->url(array(),'admin_products_parameters-add');?>"><span class="add-item"></span>Přidat parametr</a>
+		<?= $this->paginationControl($this->paginator, 'Sliding', 'paginator.phtml'); ?>
+		<table id="table1">
+			<thead>
+				<tr>
+					<th>Přehled parametrů</th>
+					<th>&nbsp;</th>
+					<th>&nbsp;</th>
+				</tr>
+			</thead>
+			<tfoot>
+				<tr>
+					<th>&nbsp;</th>
+					<th>&nbsp;</th>
+					<th>&nbsp;</th>
+				</tr>
+			</tfoot>
+			<tbody>
+				<?php if ($this->parameters){?>
+					<?php for ($i = 0; $i < count($this->parameters); $i++) {?>
+						<tr>
+							<td><?= $this->parameters[$i]['title']?></td>
+							<td style="width: 20px;">
+								<span class="detail">
+									<a href="<?= $this->url(array('id'=>$this->parameters[$i]['id']),'admin_products_parameters-edit');?>"
+									   title="Upravit"></a>
+								</span>
+							</td>
+							<td style="width: 20px;">
+								<span class="delete">
+									<a href="<?= $this->url(array('id'=>$this->parameters[$i]['id']),'admin_products_parameters-del');?>"
+									   title="Smazat"></a>
+								</span>
+							</td>
+						</tr>
+					<?php }?>
+				<?php }else{?>
+					<tr>
+						<td>Zatím nebyl přidán žádný parametr zboží</td>
+						<td>&nbsp;</td>
+						<td>&nbsp;</td>
+					</tr>
+				<?php }?>
+			</tbody>
+		</table>
+		<?= $this->paginationControl($this->paginator, 'Sliding', 'paginator.phtml'); ?>
+	</div>
+	<div id="tab2">
+		<a href="<?= $this->url(array(),'admin_products_parameters_add-group');?>"><span class="add-item"></span>Přidat skupinu</a>
+		<div class="clearfix"></div>
+		<table id="table2">
+			<thead>
+				<tr>
+					<th>Přehled skupin parametrů</th>
+					<th>&nbsp;</th>
+					<th>&nbsp;</th>
+				</tr>
+			</thead>
+			<tfoot>
+				<tr>
+					<th>&nbsp;</th>
+					<th>&nbsp;</th>
+					<th>&nbsp;</th>
+				</tr>
+			</tfoot>
+			<tbody>
+				<?php if ($this->parametersGroups){?>
+					<?php foreach ($this->parametersGroups as $group) {?>
+						<tr>
+							<td><?= $group['title']?></td>
+							<td style="width: 20px;">
+								<span class="detail">
+									<a href="<?= $this->url(
+									   	array(
+									   		'id'	=>	$group['id'],
+									   		'tab'	=>	1
+									   	),
+									   	'admin_products_parameters_edit-group');?>"
+									   title="Upravit"></a>
+								</span>
+							</td>
+							<td style="width: 20px;">
+								<span class="delete">
+									<a href="<?= $this->url(
+									   	array(
+									   		'id'	=>	$group['id'],
+									   		'tab'	=>	2
+									   	),
+									   	'admin_products_parameters_del-group');?>"
+									   title="Smazat"></a>
+								</span>
+							</td>
+						</tr>
+					<?php }?>
+				<?php }else{?>
+					<tr>
+						<td>Zatím nebyla přidána žádná skupina parametrů</td>
+						<td>&nbsp;</td>
+						<td>&nbsp;</td>
+					</tr>
+				<?php }?>
+			</tbody>
+		</table>
+	</div>
+</div>

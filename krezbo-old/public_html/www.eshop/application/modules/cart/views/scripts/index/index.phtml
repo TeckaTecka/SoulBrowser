@@ -1,0 +1,93 @@
+<div class="block">
+
+	<h1 class="cart">Košík</h1>
+	<table id="cart-table">
+		<!--<caption>Košík</caption>-->
+		<thead>
+			<tr>
+				<th>Kód</th>
+				<th>Zboží</th>
+				<th>Cena za kus</th>
+				<th colspan="3">Množství</th>
+				<th>Celkem</th>
+				<th>&nbsp;</th>
+			</tr>
+		</thead>
+		<tfoot>
+			<tr>
+				<th>&nbsp;</th>
+				<th>&nbsp;</th>
+				<th>&nbsp;</th>
+				<th colspan="3">&nbsp;</th>
+				<th>&nbsp;</th>
+				<th>&nbsp;</th>
+			</tr>
+		</tfoot>
+		<tbody>
+			<?php if ($this->products){?>
+				<?php $totalPrice = 0;?>
+				<?php foreach ($this->products as $item) {?>
+					<tr>
+						<td><?= $item['code'];?></td>
+						<td><?= $item['title'];?></td>
+						<td style="text-align: right;"><?= number_format($item['price'], 0, '.', ' ');?> <?= $this->cart['currency'];?></td>
+						<td style="text-align: center;"><?= $item['count'];?></td>
+						<td style="width: 32px;">
+							<a class="plus"
+								href="<?= $this->url(
+									array(
+										'idCategory'	=>	NULL,
+								   		'idProduct'		=>	$item['id'],
+								   		'back'			=>	2),
+										'cart_index_add');?>" title="Přidat"></a>
+						</td>
+						<td style="width: 32px;">
+							<?php if ($item['count']>1){?>
+								<a class="minus"
+									href="<?= $this->url(
+										array(
+											'idProduct'	=>	$item['id'],
+									   		'back'		=>	2),
+											'cart_index_remove');?>" title="Odebrat"></a>
+							<?php }?>
+						</td>
+						<td style="text-align: right;"><?= number_format($item['price'] * $item['count'], 0, '.', ' ');?> <?= $this->cart['currency'];?></td>
+						<td style="width: 32px;">
+							<a class="delete"
+								href="<?= $this->url(
+									array(
+										'idProduct'	=>	$item['id'],
+									   	'back'		=>	2),
+										'cart_index_del');?>" title="Smazat"></a>
+						</td>
+					</tr>
+					<?php $totalPrice += $item['price'] * $item['count'];?>
+				<?php }?>
+				<tr style="font-weight: bold;">
+					<td colspan="6"  style="text-align: right;">Celkem</td>
+					<td style="text-align: right;"><?= number_format($totalPrice, 0, '.', ' ');?> <?= $this->cart['currency'];?></td>
+					<td>&nbsp;</td>
+				</tr>
+			<?php }else{?>
+				<tr>
+					<td>Zatím nebylo vloženo žádné zboží do košíku</td>
+					<td>&nbsp;</td>
+					<td>&nbsp;</td>
+					<td colspan="3">&nbsp;</td>
+					<td>&nbsp;</td>
+					<td>&nbsp;</td>
+				</tr>
+			<?php }?>
+		</tbody>
+	</table>
+	<?php if($this->products){?>
+		<a class="button" href="<?= $this->url(
+			array('back'	=>	2),
+			'cart_index_empty');?>">Vyprázdnit</a>
+		<a class="button" href="<?= $this->url(
+			array(),
+			'cart_index_addresses');?>">Pokračovat</a>
+			
+	<?php }?>
+
+</div>

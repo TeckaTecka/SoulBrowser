@@ -1,0 +1,22 @@
+<div class="block">
+	<nav>
+		<ul>
+			<li><a class="home" href="<?= $this->url(array(),'eshop_index_index');?>">Domů</a>&nbsp;&gt;&nbsp;</li>
+			<li>Můj účet</li>
+		</ul>
+	</nav>
+</div>
+<div class="block">
+
+	<h1>Můj účet</h1>
+	<ul class="my-account">
+		<li><span>Uživatelské jméno:</span><?= $this->user['username'];?></li>
+		<li><span>Email:</span><?= $this->user['email'];?></li>
+		<li><span>Jméno:</span><?= $this->user['name'];?></li>
+		<li><span>Příjmení</span><?= $this->user['surname'];?></li>
+		<?php $date = new DateTime($this->user['date_of_birth']);?>
+    	<li><span>Datum narození:</span><?= $date->format('d.m.Y');?></li>
+		<li><span>Typ účtu:</span><?= $this->user['type'];?></li>
+	</ul>
+	
+</div>

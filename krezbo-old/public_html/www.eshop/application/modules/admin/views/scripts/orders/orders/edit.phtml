@@ -1,0 +1,290 @@
+<nav class="sitemap">
+	<ul>
+	  <li><a href="<?= $this->url(array(),'admin_index_index');?>">Úvod</a> &#62; </li>
+	  <li><a href="<?= $this->url(array(),'admin_index_orders');?>">Objednávky</a>  &#62; </li>
+	  <li><a href="<?= $this->url(array(),'admin_orders_orders-index');?>">Přehled objednávek</a>  &#62; </li>
+	  <li>Editovat objednávku</li>
+	</ul>
+</nav>
+<div class="clearfix"></div>
+<nav id="form-tab-menu">
+	<ul>
+	  <li id="summary" class="first active">Přehled objednávky</li>
+	  <li id="general">Obecné</li>
+	  <li id="addresses">Adresy</li>
+	  <li id="products">Produkty</li>
+	  <li id="status" class="last">Změny statusu</li>
+	  <li class="line" style="width: 331px;"></li>
+	</ul>
+</nav>
+<div id="form-tab-box">
+	<div id="tab1">
+		<a href="/data/pdf/orders/<?= $this->order['id'];?>.pdf" class="pdf" target="_blank">Objednávka</a>
+		<div id="order-info">
+			<ul>
+				<li><b>Status:</b> <?= $this->order['status'];?></li>
+				<li><b>Číslo objednávky:</b> <?= $this->order['id'];?></li>
+				<?php $date = new DateTime($this->order['date']);?>
+    			<?php $date = $date->format('d.m.Y H:i:s');?>
+				<li><b>Datum:</b> <?= $date;?></li>
+				<li><b>Způsob úhrady:</b> <?= $this->order['payment'];?></li>
+				<li><b>Způsob odběru:</b> <?= $this->order['consumption'];?></li>
+			</ul>
+		</div>
+		<div class="addresses">
+			<div class="address">
+				<ul>
+					<li><b>Fakturační adresa:</b></li>
+					<?php if ($this->billingAddress['company_name']){?>
+						<li><?= $this->billingAddress['company_name'];?></li>
+					<?php }else{?>
+						<li><?= $this->billingAddress['person_title'].' '.$this->billingAddress['person_name'].' '.$this->billingAddress['person_surname'];?></li>
+					<?php }?>
+					<li><?= $this->billingAddress['street'].' '.$this->billingAddress['street_nr'];?></li>
+					<li><?= $this->billingAddress['zip'].', '.$this->billingAddress['city'];?></li>
+					<li><?= $this->billingAddress['country'];?></li>
+					<li>&nbsp;</li>
+					<li>Kontaktní osoba: <?= $this->billingAddress['contact_person'];?></li>
+					<li>Kontaktní telefon: <?= $this->billingAddress['contact_phone'];?></li>
+					<li>Kontaktní email: <?= $this->billingAddress['contact_email'];?></li>
+				</ul>
+			</div>
+			<div class="address">
+				<ul>
+					<li><b>Dodací adresa:</b></li>
+					<?php if ($this->deliveryAddress['company_name']){?>
+						<li><?= $this->deliveryAddress['company_name'];?></li>
+					<?php }else{?>
+						<li><?= $this->deliveryAddress['person_title'].' '.$this->deliveryAddress['person_name'].' '.$this->deliveryAddress['person_surname'];?></li>
+					<?php }?>
+					<li><?= $this->deliveryAddress['street'].' '.$this->deliveryAddress['street_nr'];?></li>
+					<li><?= $this->deliveryAddress['zip'].', '.$this->deliveryAddress['city'];?></li>
+					<li><?= $this->deliveryAddress['country'];?></li>
+					<li>&nbsp;</li>
+					<li>Kontaktní osoba: <?= $this->deliveryAddress['contact_person'];?></li>
+					<li>Kontaktní telefon: <?= $this->deliveryAddress['contact_phone'];?></li>
+					<li>Kontaktní email: <?= $this->deliveryAddress['contact_email'];?></li>
+				</ul>
+			</div>
+		</div>
+		<br />
+		<table>
+			<caption><b>Zboží</b></caption>
+			<thead>
+				<tr>
+					<th>Kód</th>
+					<th>Zboží</th>
+					<th>Cena za kus</th>
+					<th>Množství</th>
+					<th>Celkem</th>
+				</tr>
+			</thead>
+			<tfoot>
+				<tr>
+					<th>&nbsp;</th>
+					<th>&nbsp;</th>
+					<th>&nbsp;</th>
+					<th>&nbsp;</th>
+					<th>&nbsp;</th>
+				</tr>
+			</tfoot>
+			<tbody>
+				<?php if ($this->products){?>
+					<?php $totalPrice = 0;?>
+					<?php foreach ($this->products as $item) {?>
+						<tr>
+							<td><?= $item['code'];?></td>
+							<td><?= $item['title'];?></td>
+							<td style="text-align: right;"><?= number_format($item['price'], 0, '.', ' ').' '.$this->currency;?></td>
+							<td class="text-center"><?= $item['count'];?></td>
+							
+							
+							<td style="text-align: right;"><?= number_format($item['price'] * $item['count'], 0, '.', ' ').' '.$this->currency;?></td>
+							
+						</tr>
+						<?php $totalPrice += $item['price'] * $item['count'];?>
+					<?php }?>
+					<?php if ($this->order['cons_price']){?>
+						<tr>
+							<td colspan="4"  style="text-align: right;">Dopravné</td>
+							<td style="text-align: right;"><?= number_format($this->order['cons_price'], 0, '.', ' ').' '.$this->currency;?></td>
+						</tr>
+						<?php $totalPrice += $this->order['cons_price'];?>
+					<?php }?>
+					<?php if ($this->order['pay_price']){?>
+						<tr>
+							<td colspan="4"  style="text-align: right;">Doběrečné</td>
+							<td style="text-align: right;"><?= number_format($this->order['pay_price'], 0, '.', ' ').' '.$this->currency;?></td>
+						</tr>
+						<?php $totalPrice += $this->order['pay_price'];?>
+					<?php }?>
+					<tr style="font-weight: bold;">
+						<td colspan="4"  style="text-align: right;">Celkem</td>
+						<td style="text-align: right;"><?= number_format($totalPrice, 0, '.', ' ').' '.$this->currency;?></td>
+					</tr>
+				<?php }else{?>
+					<tr>
+						<td>Objednávka neobsahuje žádné zboží</td>
+						<td>&nbsp;</td>
+						<td>&nbsp;</td>
+						<td>&nbsp;</td>
+						<td>&nbsp;</td>
+					</tr>
+				<?php }?>
+			</tbody>
+		</table>
+	</div>
+	<div id="tab2">
+		<?= $this->formGeneral;?>
+	</div>
+	<div id="tab3">
+		<nav id="form-tab-menu">
+			<ul>
+			  <li id="billing" class="first active">Fakturační adresa</li>
+			  <li id="delivery" class="last">Dodací adresa</li>
+			  <li class="line" style="width: 471px;"></li>
+			</ul>
+		</nav>
+		<div id="form-tab-box">
+			<div id="tab3-1">
+				<nav id="form-tab-menu">
+					<ul>
+					  <li id="customer" class="first active">Koncový zákazník</li>
+					  <li id="company" class="last">Firma</li>
+					  <li class="line" style="width: 478px;"></li>
+					</ul>
+				</nav>
+				<div id="form-tab-box">
+					<?= $this->formBilling;?>
+				</div>
+			</div>
+			<div id="tab3-2">
+				<nav id="form-tab-menu">
+					<ul>
+					  <li id="customer" class="first active">Koncový zákazník</li>
+					  <li id="company" class="last">Firma</li>
+					  <li class="line" style="width: 478px;"></li>
+					</ul>
+				</nav>
+				<div id="form-tab-box">
+					<?= $this->formDelivery;?>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div id="tab4">
+		<table>
+			<thead>
+				<tr>
+					<th>Kód</th>
+					<th>Zboží</th>
+					<th>Cena za kus</th>
+					<th colspan="3">Množství</th>
+					<th>Celkem</th>
+					<th>&nbsp;</th>
+				</tr>
+			</thead>
+			<tfoot>
+				<tr>
+					<th>&nbsp;</th>
+					<th>&nbsp;</th>
+					<th>&nbsp;</th>
+					<th colspan="3">&nbsp;</th>
+					<th>&nbsp;</th>
+					<th>&nbsp;</th>
+				</tr>
+			</tfoot>
+			<tbody>
+				<?php if ($this->products){?>
+					<?php $totalPrice = 0;?>
+					<?php foreach ($this->products as $item) {?>
+						<tr>
+							<td><?= $item['code'];?></td>
+							<td><?= $item['title'];?></td>
+							<td style="text-align: right;"><?= number_format($item['price'], 0, '.', ' ').' '.$this->currency;?></td>
+							<td class="text-center"><?= $item['count'];?></td>
+							<td class="width-20">
+								<span class="plus">
+									<a href="<?= $this->url(array('id'			=>	$this->order['id'],
+									   							  'product_id'	=>	$item['id'],
+									   							  'back'		=>	1),
+															'admin_orders_orders-edit-add-product');?>"
+									   title="Přidat"></a>
+								</span>
+							</td>
+							<td class="width-20">
+								<?php if ($item['count']>1){?>
+									<span class="minus">
+										<a href="<?= $this->url(array('id'			=>	$this->order['id'],
+									   							  	  'product_id'	=>	$item['id'],
+										   							  'back'		=>	1),
+																'admin_orders_orders-edit-remove-product');?>"
+										   title="Odebrat"></a>
+									</span>
+								<?php }else{?>
+									<span class="minus-gray"></span>
+								<?php }?>
+							</td>
+							<td style="text-align: right;"><?= number_format($item['price'] * $item['count'], 0, '.', ' ').' '.$this->currency;?></td>
+							<td class="width-20">
+								<span class="delete">
+									<a href="<?= $this->url(array('id'			=>	$this->order['id'],
+									   							  'product_id'	=>	$item['id'],
+										   						  'back'		=>	1),
+																  'admin_orders_orders-edit-del-product');?>"
+									   title="Smazat"></a>
+								</span>
+							</td>
+						</tr>
+						<?php $totalPrice += $item['price'] * $item['count'];?>
+					<?php }?>
+					<tr style="font-weight: bold;">
+						<td colspan="6"  style="text-align: right;">Celkem</td>
+						<td style="text-align: right;"><?= number_format($totalPrice, 0, '.', ' ').' '.$this->currency;?></td>
+						<td>&nbsp;</td>
+					</tr>
+				<?php }?>
+			</tbody>
+		</table>
+	</div>
+	<div id="tab5">
+		<table>
+			<caption><b>Změny statusu</b></caption>
+			<thead>
+				<tr>
+					<th>Původní status</th>
+					<th>Nový status</th>
+					<th>Datum</th>
+				</tr>
+			</thead>
+			<tfoot>
+				<tr>
+					<th>&nbsp;</th>
+					<th>&nbsp;</th>
+					<th>&nbsp;</th>
+				</tr>
+			</tfoot>
+			<tbody>
+				<?php if ($this->statusesLogs){?>
+					<?php foreach ($this->statusesLogs as $item) {?>
+						<tr style="text-align:center;">
+							<td><?= $this->statuses[$item['original']];?></td>
+							<td><?= $this->statuses[$item['new']];?></td>
+							<?php $date = new DateTime($item['date']);?>
+							<?php $date = $date->format('d.m.Y H:i:s');?>
+							<td><?= $date;?></td>
+						</tr>
+					<?php }?>
+				<?php }else{?>
+					<tr>
+						<td>Status nebyl ještě změněn</td>
+						<td>&nbsp;</td>
+						<td>&nbsp;</td>
+					</tr>
+				<?php }?>
+			</tbody>
+		</table>
+	</div>
+</div>
+
+

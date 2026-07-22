@@ -1,0 +1,59 @@
+@charset "utf-8";
+/* FORM ******************************************************************************************/
+form{
+	width: 100%;
+}
+form label{
+	display: inline-block;
+	width: 150px;
+	padding-right: 10px;
+	text-align: right;
+}
+form label.optional{
+	color: #8c8c8c;
+}
+form input[type="text"], form input[type="password"], form select{
+	display: inline-block;
+	width: 200px;
+	height: 16px;
+	border: 1px #656565 solid;
+	margin: 2px;
+	padding: 2px;
+}
+form select{
+	width: 206px;
+	height: 22px;
+}
+form input[type="submit"], form input[type="submit"]:visited{
+	background: url(/img/layout/article/button-medium.png) no-repeat bottom left;
+	color: #ffffff;
+	border: none;
+	width: 89px;
+	height: 22px;
+	cursor: pointer;
+	position: relative;
+	margin-top: 10px;
+	padding-top: 2px;
+	font-size: 11px;
+	font_weight: bold;
+}
+form input[type="submit"]:hover{
+	background-position: top left;
+}
+form input[type="submit"]:active{
+	top: 1px;
+	outline: none;
+}
+button::-moz-focus-inner,
+input[type="submit"]::-moz-focus-inner{
+	border: none;
+}
+form .errors{
+	margin: 0px 0px 0px 170px;
+	padding: 0px;
+	color: #FE0000;
+	list-style: none;
+}
+/*************************************************************************************************/
+form div.company{display: none;}
+form #fieldset-deliveryInformation{display: none;}

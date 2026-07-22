@@ -1,0 +1,20 @@
+@charset "utf-8";
+
+/* ASIDE LEFT ************************************************************************************/
+aside ul.aside-left{margin:0px; padding:0px;}
+aside ul.aside-left li{display: block;}
+aside .aside-left .top{background: url(/img/modules/newsletter/left-top.png) no-repeat 0 0; width: 39px; height: 15px;}
+aside .aside-left .middle{background: url(/img/modules/newsletter/left-middle.png) repeat-y 0 0; width: 39px;}
+aside .aside-left .bottom{background: url(/img/modules/newsletter/left-bottom.png) no-repeat 0 0; width: 39px; height: 15px;}
+aside .aside-left-box{background-color: #1F1F1F; border-top: 1px solid #ffffff; border-bottom: 1px solid #ffffff;}
+/* ***********************************************************************************************/
+/* NEWSLETTER ************************************************************************************/
+aside#newsletter{position: fixed; left: 0px; top: 160px;}
+aside#newsletter #newsletter-bar{height: 95px; float: right;  cursor: pointer;}
+aside#newsletter #newsletter-bar .aside-left .middle{height: 65px; background: url(/img/modules/newsletter/newsletter.png) no-repeat 0 0;}
+aside#newsletter #newsletter-box{width: 200px; height: 93px; float: left; display: none;}
+aside#newsletter #newsletter-box h1{font-size: 1em; font-weight: normal; display: block; width: 200px;}
+/* ***********************************************************************************************/
+aside#newsletter #newsletter-box form input{width: 180px; margin-left: 10px;}
+aside#newsletter #newsletter-box form input[type="submit"]{width: 80px;}
+aside#newsletter #newsletter-box form .errors{margin: 0px 0px 0px 10px; display: block; width: 190px;}
