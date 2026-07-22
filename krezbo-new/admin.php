@@ -24,7 +24,7 @@ if (isset($_GET['odhlasit'])) {
 
 /* ---- Přihlášení ---- */
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['akce'] ?? '') === 'login') {
-    if (password_verify((string)($_POST['heslo'] ?? ''), KREZBO_ADMIN_HASH)) {
+    if (password_verify((string)($_POST['heslo'] ?? ''), krezbo_admin_hash())) {
         session_regenerate_id(true);
         $_SESSION['krezbo_admin'] = true;
     } else {
@@ -58,6 +58,24 @@ if ($logged && $_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['akce'] ?? '') =
         $msg = 'Prodejní doba byla uložena.';
     } else {
         $err = 'Soubor prodejni-doba.txt se nepodařilo zapsat. Zkontrolujte prosím práva k zápisu.';
+    }
+}
+
+/* ---- Změna hesla ---- */
+if ($logged && $_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['akce'] ?? '') === 'change_password') {
+    $stare  = (string)($_POST['stare'] ?? '');
+    $nove   = (string)($_POST['nove'] ?? '');
+    $nove2  = (string)($_POST['nove2'] ?? '');
+    if (!password_verify($stare, krezbo_admin_hash())) {
+        $err = 'Stávající heslo není správné.';
+    } elseif (mb_strlen($nove) < 6) {
+        $err = 'Nové heslo musí mít alespoň 6 znaků.';
+    } elseif ($nove !== $nove2) {
+        $err = 'Nové heslo a jeho potvrzení se neshodují.';
+    } elseif (@file_put_contents(KREZBO_ADMIN_HASH_FILE, password_hash($nove, PASSWORD_DEFAULT) . "\n") === false) {
+        $err = 'Nové heslo se nepodařilo uložit. Zkontrolujte prosím práva k zápisu.';
+    } else {
+        $msg = 'Heslo bylo změněno. Příště se přihlaste novým heslem.';
     }
 }
 
@@ -156,6 +174,22 @@ function e(string $s): string {
         <?php endforeach; ?>
         <p class="hint">Např.: <code>8:30–12:00, 13:00–16:00</code> nebo <code>Zavřeno</code>.</p>
         <button type="submit" class="btn">Uložit prodejní dobu</button>
+    </form>
+
+    <hr class="divider">
+
+    <h2>Změna hesla</h2>
+    <p class="sub">Heslo pro přihlášení do této administrace.</p>
+    <form method="post" autocomplete="off">
+        <input type="hidden" name="akce" value="change_password">
+        <label for="stare">Stávající heslo</label>
+        <input type="password" id="stare" name="stare" required>
+        <label for="nove" style="margin-top:14px;">Nové heslo</label>
+        <input type="password" id="nove" name="nove" required>
+        <label for="nove2" style="margin-top:14px;">Nové heslo znovu</label>
+        <input type="password" id="nove2" name="nove2" required>
+        <p class="hint">Nové heslo musí mít alespoň 6 znaků.</p>
+        <button type="submit" class="btn">Změnit heslo</button>
     </form>
 <?php endif; ?>
 

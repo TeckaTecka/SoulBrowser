@@ -27,6 +27,22 @@ const KREZBO_MAIL_FROM = 'krezbo@krezbo.cz';
  * --------------------------------------------------------------------- */
 const KREZBO_ADMIN_HASH = '$2y$12$WpMW6enLX2qceKEIf9MEIeCZxohBmD2k4HTXAIWtn4ivoTmgMxjTO';
 
+/*  Když si heslo změníte přímo v administraci (admin.php → Změna hesla),
+ *  uloží se sem – tento soubor pak má přednost před hodnotou výše.
+ *  Soubor je chráněný proti čtení z webu (viz .htaccess). */
+const KREZBO_ADMIN_HASH_FILE = __DIR__ . '/admin.hash';
+
+/** Vrátí aktuálně platný hash hesla (ze souboru, jinak výchozí z configu). */
+function krezbo_admin_hash(): string {
+    if (is_file(KREZBO_ADMIN_HASH_FILE)) {
+        $h = trim((string)file_get_contents(KREZBO_ADMIN_HASH_FILE));
+        if ($h !== '') {
+            return $h;
+        }
+    }
+    return KREZBO_ADMIN_HASH;
+}
+
 /* -----------------------------------------------------------------------
  *  Soubor, do kterého se ukládá text oznámení na úvodní stránce
  * --------------------------------------------------------------------- */

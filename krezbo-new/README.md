@@ -48,9 +48,12 @@ Ukládá se do souboru `prodejni-doba.txt` (musí být zapisovatelný, stejně j
 
 ### Změna hesla do administrace
 
-1. Otevřete `https://www.krezbo.cz/admin.php?heslo=VASE_NOVE_HESLO`
-   – stránka vypíše zašifrovaný řetězec (`$2y$...`).
-2. Tento řetězec vložte v `config.php` do `KREZBO_ADMIN_HASH`.
+Nejjednodušší je přímo v administraci: `admin.php` → sekce **Změna hesla** (zadáte stávající
+a nové heslo). Nové heslo se uloží do souboru `admin.hash` (musí být zapisovatelný, je chráněný
+proti čtení z webu přes `.htaccess`).
+
+Ruční varianta (bez UI): otevřete `https://www.krezbo.cz/admin.php?heslo=VASE_NOVE_HESLO`,
+stránka vypíše hash (`$2y$...`), který vložíte v `config.php` do `KREZBO_ADMIN_HASH`.
 
 ## Mapa a Street View (Kontakt)
 

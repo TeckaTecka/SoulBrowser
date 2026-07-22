@@ -3,7 +3,7 @@ DirectoryIndex index.php index.html
 AddDefaultCharset UTF-8
 
 # Ochrana citlivých souborů
-<FilesMatch "^(config\.php)$">
+<FilesMatch "^(config\.php|admin\.hash)$">
     Require all denied
 </FilesMatch>
 
