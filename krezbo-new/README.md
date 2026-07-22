@@ -40,6 +40,12 @@ adresu tazatele. Chcete-li adresáta změnit, upravte `KREZBO_MAIL_TO`.
 Alternativně jde obsah zapsat přímo do souboru `oznameni.txt` (přes FTP). Prázdný soubor =
 žádné oznámení.
 
+## Prodejní doba (Kontakt)
+
+Otevírací dobu lze upravovat ve stejné administraci `admin.php` – sekce **Prodejní doba**.
+Pro každý den vyplňte hodiny (např. `8:30–12:00, 13:00–16:00`) nebo `Zavřeno` a uložte.
+Ukládá se do souboru `prodejni-doba.txt` (musí být zapisovatelný, stejně jako `oznameni.txt`).
+
 ### Změna hesla do administrace
 
 1. Otevřete `https://www.krezbo.cz/admin.php?heslo=VASE_NOVE_HESLO`

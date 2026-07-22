@@ -317,13 +317,10 @@ $streetView = 'https://maps.app.goo.gl/qrbChQAjdSHbSK6A6';
                 </ul>
                 <h3>Prodejní doba</h3>
                 <table class="hours">
-                    <tr><th>Pondělí</th><td>8:30–12:00, 13:00–16:00</td></tr>
-                    <tr><th>Úterý</th><td>8:30–12:00, 13:00–16:00</td></tr>
-                    <tr><th>Středa</th><td>8:30–12:00, 13:00–16:00</td></tr>
-                    <tr><th>Čtvrtek</th><td>8:30–12:00, 13:00–16:00</td></tr>
-                    <tr><th>Pátek</th><td>8:30–12:00, 13:00–16:00</td></tr>
-                    <tr><th>Sobota</th><td>Zavřeno</td></tr>
-                    <tr><th>Neděle</th><td>Zavřeno</td></tr>
+                    <?php $hours = krezbo_load_hours(); ?>
+                    <?php foreach (KREZBO_HOURS_DAYS as $i => $day): ?>
+                        <tr><th><?= e($day) ?></th><td><?= e($hours[$i]) ?></td></tr>
+                    <?php endforeach; ?>
                 </table>
             </div>
             <div class="map-wrap">

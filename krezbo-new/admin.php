@@ -46,7 +46,23 @@ if ($logged && $_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['akce'] ?? '') =
     }
 }
 
+/* ---- Uložení prodejní doby ---- */
+if ($logged && $_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['akce'] ?? '') === 'save_hours') {
+    $vals = [];
+    foreach (KREZBO_HOURS_DAYS as $i => $_) {
+        $v = trim((string)($_POST['den'][$i] ?? ''));
+        $v = str_replace(["\r\n", "\r", "\n"], ' ', $v);      // jednořádkově
+        $vals[] = $v;
+    }
+    if (@file_put_contents(KREZBO_HOURS_FILE, implode("\n", $vals) . "\n") !== false) {
+        $msg = 'Prodejní doba byla uložena.';
+    } else {
+        $err = 'Soubor prodejni-doba.txt se nepodařilo zapsat. Zkontrolujte prosím práva k zápisu.';
+    }
+}
+
 $current = is_file(KREZBO_NOTICE_FILE) ? (string)file_get_contents(KREZBO_NOTICE_FILE) : '';
+$hours   = krezbo_load_hours();
 
 function e(string $s): string {
     return htmlspecialchars($s, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
@@ -57,7 +73,7 @@ function e(string $s): string {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>KREZBO – správa oznámení</title>
+<title>KREZBO – správa webu</title>
 <link rel="icon" href="img/krezbo.ico">
 <style>
     body{font-family:"Segoe UI",Roboto,Arial,sans-serif;background:#f4f6f8;color:#243040;margin:0;padding:40px 16px;}
@@ -78,6 +94,11 @@ function e(string $s): string {
     .hint{color:#6b7785;font-size:.9rem;margin-top:8px;}
     .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.4em;}
     .preview{background:#f4a300;color:#3a2c00;border-radius:8px;padding:12px 16px;margin-top:10px;font-weight:600;white-space:pre-wrap;}
+    .divider{border:0;border-top:1px solid #e2e7ec;margin:32px 0 24px;}
+    h2{color:#0d3b66;font-size:1.2rem;margin:0 0 .2em;}
+    .day-row{display:flex;align-items:center;gap:12px;margin-bottom:10px;}
+    .day-row label{flex:0 0 96px;margin:0;}
+    .day-row input[type=text]{flex:1;padding:10px 12px;border:1px solid #e2e7ec;border-radius:8px;font:inherit;box-sizing:border-box;}
 </style>
 </head>
 <body>
@@ -87,8 +108,8 @@ function e(string $s): string {
 <?php if ($err): ?><div class="err"><?= e($err) ?></div><?php endif; ?>
 
 <?php if (!$logged): ?>
-    <h1>Správa oznámení</h1>
-    <p class="sub">Zadejte heslo pro přístup ke správě oznámení na úvodní stránce.</p>
+    <h1>Správa webu</h1>
+    <p class="sub">Zadejte heslo pro přístup ke správě oznámení a prodejní doby.</p>
     <form method="post">
         <input type="hidden" name="akce" value="login">
         <label for="heslo">Heslo</label>
@@ -97,9 +118,10 @@ function e(string $s): string {
     </form>
 <?php else: ?>
     <div class="top">
-        <h1>Správa oznámení</h1>
+        <h1>Správa webu</h1>
         <a class="btn-link" href="admin.php?odhlasit=1">Odhlásit</a>
     </div>
+    <h2>Oznámení na úvodní stránce</h2>
     <p class="sub">
         Sem napište krátké oznámení, které se zobrazí nahoře na úvodní stránce
         (např. „Zítra zavřeno" nebo „Ve středu 24.7. otevřeno jen do 12:00").
@@ -114,7 +136,26 @@ function e(string $s): string {
             <div>Náhled aktuálního oznámení:</div>
             <div class="preview"><?= e(trim($current)) ?></div>
         <?php endif; ?>
-        <button type="submit" class="btn">Uložit</button>
+        <button type="submit" class="btn">Uložit oznámení</button>
+    </form>
+
+    <hr class="divider">
+
+    <h2>Prodejní doba</h2>
+    <p class="sub">
+        Upravte otevírací dobu pro jednotlivé dny (zobrazuje se v sekci Kontakt).
+        Pokud je zavřeno, napište „Zavřeno".
+    </p>
+    <form method="post">
+        <input type="hidden" name="akce" value="save_hours">
+        <?php foreach (KREZBO_HOURS_DAYS as $i => $day): ?>
+            <div class="day-row">
+                <label for="den<?= $i ?>"><?= e($day) ?></label>
+                <input type="text" id="den<?= $i ?>" name="den[<?= $i ?>]" value="<?= e($hours[$i]) ?>">
+            </div>
+        <?php endforeach; ?>
+        <p class="hint">Např.: <code>8:30–12:00, 13:00–16:00</code> nebo <code>Zavřeno</code>.</p>
+        <button type="submit" class="btn">Uložit prodejní dobu</button>
     </form>
 <?php endif; ?>
 

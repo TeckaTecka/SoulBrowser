@@ -33,6 +33,41 @@ const KREZBO_ADMIN_HASH = '$2y$12$WpMW6enLX2qceKEIf9MEIeCZxohBmD2k4HTXAIWtn4ivoT
 const KREZBO_NOTICE_FILE = __DIR__ . '/oznameni.txt';
 
 /* -----------------------------------------------------------------------
+ *  Prodejní doba (editovatelná přes admin.php) – ukládá se do souboru,
+ *  jeden řádek na den ve stejném pořadí jako dny níže.
+ * --------------------------------------------------------------------- */
+const KREZBO_HOURS_FILE = __DIR__ . '/prodejni-doba.txt';
+const KREZBO_HOURS_DAYS = ['Pondělí', 'Úterý', 'Středa', 'Čtvrtek', 'Pátek', 'Sobota', 'Neděle'];
+const KREZBO_HOURS_DEFAULT = [
+    '8:30–12:00, 13:00–16:00',
+    '8:30–12:00, 13:00–16:00',
+    '8:30–12:00, 13:00–16:00',
+    '8:30–12:00, 13:00–16:00',
+    '8:30–12:00, 13:00–16:00',
+    'Zavřeno',
+    'Zavřeno',
+];
+
+/**
+ * Načte prodejní dobu (7 hodnot v pořadí dle KREZBO_HOURS_DAYS).
+ * Když soubor neexistuje, vrátí výchozí hodnoty.
+ */
+function krezbo_load_hours(): array {
+    $hours = KREZBO_HOURS_DEFAULT;
+    if (is_file(KREZBO_HOURS_FILE)) {
+        $lines = file(KREZBO_HOURS_FILE, FILE_IGNORE_NEW_LINES);
+        if ($lines !== false) {
+            foreach (KREZBO_HOURS_DAYS as $i => $_) {
+                if (array_key_exists($i, $lines)) {
+                    $hours[$i] = trim($lines[$i]);
+                }
+            }
+        }
+    }
+    return $hours;
+}
+
+/* -----------------------------------------------------------------------
  *  (Volitelné) Google Maps Embed API klíč pro vložený Street View.
  *  Mapa funguje i bez klíče. Pokud klíč vyplníte, zobrazí se Street View
  *  přímo na stránce. Klíč zdarma: https://console.cloud.google.com/
