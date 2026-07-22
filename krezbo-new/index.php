@@ -78,7 +78,7 @@ $partners = [
     ['aquatrading.png', 'Aquatrading',       'https://www.aquatradingpumps.cz/'],
     ['aqua-cup.png',    'Aquacup',           'https://www.aquacup.cz/'],
     ['flygt.png',       'Flygt',             'https://www.flygt.com/'],
-    ['',                'Pedrollo',          'https://www.pedrollocz.cz'],
+    ['pedrollo.png',    'Pedrollo',          'https://www.pedrollocz.cz'],
     ['pumpa.png',       'Pumpa a.s.',        'https://www.pumpa.eu/cs/'],
     ['',                'Mave',              'http://www.mave-nymburk.cz'],
     ['kh.svg',          'K+H čerpadla',      'https://www.k-h.cz'],
