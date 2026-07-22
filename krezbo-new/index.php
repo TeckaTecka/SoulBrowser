@@ -80,10 +80,10 @@ $partners = [
     ['flygt.png',       'Flygt',             'https://www.flygt.com/'],
     ['pedrollo.png',    'Pedrollo',          'https://www.pedrollocz.cz'],
     ['pumpa.png',       'Pumpa a.s.',        'https://www.pumpa.eu/cs/'],
-    ['',                'Mave',              'http://www.mave-nymburk.cz'],
+    ['mave.png',        'Mave',              'http://www.mave-nymburk.cz'],
     ['kh.svg',          'K+H čerpadla',      'https://www.k-h.cz'],
     ['',                'LK pumpservice',    'https://www.lk-group.eu'],
-    ['',                'Termolux',          'https://www.termolux.cz'],
+    ['termolux.png',    'Termolux',          'https://www.termolux.cz'],
 ];
 
 $mapQuery  = 'Partyzánské nám. 5, 702 00 Ostrava';
