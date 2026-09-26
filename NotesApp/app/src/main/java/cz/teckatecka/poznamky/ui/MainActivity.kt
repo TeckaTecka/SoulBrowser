@@ -605,6 +605,27 @@ private fun InfoLine(fg: Color, content: @Composable () -> Unit) {
     Row(verticalAlignment = Alignment.CenterVertically) { content() }
 }
 
+@Composable
+fun CardMenu(n: Note, expanded: Boolean, onDismiss: () -> Unit, onPick: (CardAction) -> Unit) {
+    DropdownMenu(expanded, onDismiss) {
+        @Composable
+        fun I(label: String, icon: ImageVector, a: CardAction) =
+            DropdownMenuItem(text = { Text(label) }, leadingIcon = { Icon(icon, null) }, onClick = { onDismiss(); onPick(a) })
+        I("Upravit…", Icons.Default.Edit, CardAction.EDIT)
+        I(if (n.readOnly) "Odemknout" else "Zámek", if (n.readOnly) Icons.Default.LockOpen else Icons.Default.Lock, CardAction.LOCK)
+        HorizontalDivider()
+        I("Přesunout na jinou kartu…", Icons.Default.DriveFileMove, CardAction.MOVE)
+        I("Nastavení kalendáře", Icons.Default.CalendarMonth, CardAction.CALENDAR)
+        HorizontalDivider()
+        I("Sdílet poznámku", Icons.Default.Share, CardAction.SHARE)
+        I("Vytvořit zástupce", Icons.Default.AddToHomeScreen, CardAction.SHORTCUT)
+        HorizontalDivider()
+        if (n.isList) I("Odstraňte zaškrtnuté položky", Icons.Default.RemoveDone, CardAction.REMOVE_CHECKED)
+        I("Vymazat obsah", Icons.Default.CleaningServices, CardAction.CLEAR)
+        I("Odebrat poznámku", Icons.Default.Delete, CardAction.DELETE)
+    }
+}
+
 fun formatDateTime(context: Context, ms: Long): String {
     val d = java.util.Date(ms)
     return android.text.format.DateFormat.getDateFormat(context).format(d) + " " +
