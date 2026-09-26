@@ -380,7 +380,10 @@ private fun MainScreen(startTab: Long) {
     if (about) AlertDialog(
         onDismissRequest = { about = false },
         title = { Text("Poznámky") },
-        text = { Text("Bez reklam, bez internetu. Data zůstávají v telefonu.\nZálohy .bak jsou kompatibilní s aplikací My Notes.") },
+        text = {
+            val version = remember { runCatching { context.packageManager.getPackageInfo(context.packageName, 0).versionName }.getOrNull() }
+            Text("Verze $version\n\nBez reklam, bez internetu. Data zůstávají v telefonu.\nZálohy .bak jsou kompatibilní s aplikací My Notes.")
+        },
         confirmButton = { TextButton(onClick = { about = false }) { Text("OK") } },
     )
     pending?.let { (n, a) ->

@@ -12,8 +12,10 @@ android {
         applicationId = "cz.teckatecka.poznamky"
         minSdk = 26
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0"
+        // Číslo buildu z GitHub Actions – každá sestavená verze má vyšší číslo (lokálně 1).
+        val build = System.getenv("GITHUB_RUN_NUMBER")?.toIntOrNull() ?: 1
+        versionCode = build
+        versionName = "1.0.$build"
     }
 
     signingConfigs {

@@ -35,7 +35,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: poznamky-latest
-          name: Poznámky – nejnovější verze
-          body: "Automaticky sestaveno z commitu ${{ github.sha }}."
+          name: "Poznámky 1.0.${{ github.run_number }}"
+          body: "Verze 1.0.${{ github.run_number }} – automaticky sestaveno z commitu ${{ github.sha }}."
           prerelease: true
           files: NotesApp/Poznamky.apk
