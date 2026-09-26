@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Poznámky</string>
+    <string name="channel_reminders">Připomínky</string>
+    <string name="today">Dnes</string>
+    <string name="new_note">Nová poznámka</string>
+    <string name="widget_select_note">Vybrat poznámku</string>
+    <string name="widget_stub">Klepněte a vyberte poznámku</string>
+    <string name="no_notes_for_day">Žádné poznámky na tento den</string>
+    <string name="prev_day">Předchozí den</string>
+    <string name="next_day">Další den</string>
+    <string name="prev_note">Předchozí poznámka</string>
+    <string name="next_note">Další poznámka</string>
+    <string name="widget_note_white">Poznámka – bílá</string>
+    <string name="widget_note_black">Poznámka – černá</string>
+    <string name="widget_note_transparent">Poznámka – průhledná</string>
+    <string name="widget_today">Poznámky na den</string>
+    <string name="widget_date">Kalendář – poznámka dne</string>
+    <string name="widget_note_desc">Jedna poznámka nebo seznam s odškrtáváním</string>
+    <string name="widget_today_desc">Všechny poznámky s připomínkou na zvolený den</string>
+    <string name="widget_date_desc">Poznámky dne jedna po druhé, s listováním</string>
+</resources>

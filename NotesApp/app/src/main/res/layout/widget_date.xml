@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root" android:layout_width="match_parent" android:layout_height="match_parent">
+    <ImageView android:id="@+id/bg" android:layout_width="match_parent" android:layout_height="match_parent" android:src="@drawable/widget_bg" android:scaleType="fitXY" android:contentDescription="@null" />
+    <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:padding="10dp">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
+            <ImageView android:id="@+id/btn_prev_date" android:layout_width="36dp" android:layout_height="36dp" android:padding="7dp" android:background="@drawable/widget_btn_bg" android:src="@drawable/ic_left" android:contentDescription="@string/prev_day" android:layout_marginStart="4dp" />
+            <TextView android:id="@+id/date_title" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:gravity="center" android:textStyle="bold" android:maxLines="1" android:ellipsize="end" />
+            <ImageView android:id="@+id/btn_next_date" android:layout_width="36dp" android:layout_height="36dp" android:padding="7dp" android:background="@drawable/widget_btn_bg" android:src="@drawable/ic_right" android:contentDescription="@string/next_day" android:layout_marginStart="4dp" />
+            <ImageView android:id="@+id/btn_add" android:layout_width="36dp" android:layout_height="36dp" android:padding="7dp" android:background="@drawable/widget_btn_bg" android:src="@drawable/ic_add" android:contentDescription="@string/new_note" android:layout_marginStart="4dp" />
+        </LinearLayout>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginTop="4dp">
+            <TextView android:id="@+id/title" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:textStyle="bold" android:maxLines="1" android:ellipsize="end" />
+            <ImageView android:id="@+id/btn_prev_note" android:layout_width="36dp" android:layout_height="36dp" android:padding="7dp" android:background="@drawable/widget_btn_bg" android:src="@drawable/ic_left" android:contentDescription="@string/prev_note" android:layout_marginStart="4dp" />
+            <TextView android:id="@+id/counter" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="12sp" android:layout_marginStart="4dp" />
+            <ImageView android:id="@+id/btn_next_note" android:layout_width="36dp" android:layout_height="36dp" android:padding="7dp" android:background="@drawable/widget_btn_bg" android:src="@drawable/ic_right" android:contentDescription="@string/next_note" android:layout_marginStart="4dp" />
+        </LinearLayout>
+        <FrameLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_marginTop="4dp">
+            <ListView android:id="@+id/list" android:layout_width="match_parent" android:layout_height="match_parent" android:divider="@null" android:dividerHeight="0dp" android:scrollbars="none" />
+            <TextView android:id="@+id/empty" android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center" android:text="@string/no_notes_for_day" android:textSize="13sp" android:visibility="gone" />
+        </FrameLayout>
+    <LinearLayout android:id="@+id/info" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:paddingTop="2dp">
+        <TextView android:id="@+id/info_text" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="11sp" android:alpha="0.7" android:maxLines="1" android:ellipsize="end" />
+    </LinearLayout>
+    </LinearLayout>
+</FrameLayout>
