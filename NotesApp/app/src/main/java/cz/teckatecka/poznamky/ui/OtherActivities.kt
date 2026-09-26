@@ -142,7 +142,52 @@ object Backup {
         Repo.changed(context)
     }
 
-    fun fileName(): String = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date()) + ".bak"
+    /** Název jako v původní appce: RRRRMMDD_HHMMSSmmm.bak */
+    fun fileName(): String = SimpleDateFormat("yyyyMMdd_HHmmssSSS", Locale.US).format(Date()) + ".bak"
+    fun zipNameFor(bakName: String) = bakName.removeSuffix(".bak") + "_attachments.zip"
+
+    // ---------- složka se zálohami (jako složka Notes v originále) ----------
+    private const val PREF_FOLDER = "backup_folder"
+
+    fun folder(context: Context): androidx.documentfile.provider.DocumentFile? {
+        val uri = context.getSharedPreferences("settings", Context.MODE_PRIVATE).getString(PREF_FOLDER, null)?.let(Uri::parse) ?: return null
+        val granted = context.contentResolver.persistedUriPermissions.any { it.uri == uri && it.isWritePermission }
+        if (!granted) return null
+        return androidx.documentfile.provider.DocumentFile.fromTreeUri(context, uri)?.takeIf { it.canWrite() }
+    }
+
+    fun setFolder(context: Context, uri: Uri) {
+        context.contentResolver.takePersistableUriPermission(
+            uri, Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION,
+        )
+        context.getSharedPreferences("settings", Context.MODE_PRIVATE).edit().putString(PREF_FOLDER, uri.toString()).apply()
+    }
+
+    fun listBackups(folder: androidx.documentfile.provider.DocumentFile) =
+        folder.listFiles().filter { it.isFile && it.name?.endsWith(".bak", ignoreCase = true) == true }.sortedByDescending { it.name }
+
+    /** Plná záloha = .bak + …_attachments.zip vedle sebe; lehká jen .bak. */
+    fun backupToFolder(context: Context, folder: androidx.documentfile.provider.DocumentFile, full: Boolean): String {
+        val name = fileName()
+        val bak = folder.createFile("application/octet-stream", name) ?: error("Nelze vytvořit soubor")
+        export(context, bak.uri)
+        var extra = ""
+        if (full) {
+            val zip = folder.createFile("application/zip", zipNameFor(name)) ?: error("Nelze vytvořit soubor příloh")
+            val n = cz.teckatecka.poznamky.data.Attachments.exportZip(context, zip.uri)
+            extra = "\n+ přílohy: $n souborů"
+        }
+        return "Záložní soubor byl úspěšně vytvořen\n${bak.name}$extra"
+    }
+
+    /** Obnoví .bak a automaticky i přílohy ze stejnojmenného …_attachments.zip ve stejné složce. */
+    fun restoreFromFolder(context: Context, folder: androidx.documentfile.provider.DocumentFile, bak: androidx.documentfile.provider.DocumentFile): String {
+        import(context, bak.uri)
+        val notes = Repo.db(context).allActiveNotes().size
+        val zip = folder.findFile(zipNameFor(bak.name ?: ""))
+        val att = if (zip != null) "\nNačteno příloh: ${cz.teckatecka.poznamky.data.Attachments.importZip(context, zip.uri)}" else ""
+        return "Operace obnovení byla úspěšně dokončena\nPoznámek: $notes$att"
+    }
 }
 
 @Composable
@@ -154,7 +199,6 @@ private fun SettingsScreen(startAction: String?, onBack: () -> Unit) {
     var askFull by remember { mutableStateOf(false) }
     var askZip by remember { mutableStateOf(false) }
     var busy by remember { mutableStateOf<String?>(null) }
-    var zipName by remember { mutableStateOf("") }
     val scope = androidx.compose.runtime.rememberCoroutineScope()
     fun toast(t: String) = Toast.makeText(context, t, Toast.LENGTH_LONG).show()
     /** Práce se soubory na pozadí s oknem „Čekejte…“ (zip může mít desítky MB). */
@@ -168,25 +212,32 @@ private fun SettingsScreen(startAction: String?, onBack: () -> Unit) {
         }
     }
 
-    val zipExportLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/zip")) { uri ->
-        if (uri != null) work("Ukládám přílohy…") { "Přílohy uloženy (${cz.teckatecka.poznamky.data.Attachments.exportZip(context, uri)} souborů)" }
-    }
-    val exportLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/octet-stream")) { uri ->
+    val importLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri -> pendingImport = uri }
+    var backupFolder by remember { mutableStateOf(Backup.folder(context)) }
+    var afterFolder by remember { mutableStateOf<String?>(null) }
+    var pickBackup by remember { mutableStateOf(false) }
+    var confirmBak by remember { mutableStateOf<androidx.documentfile.provider.DocumentFile?>(null) }
+    val folderLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
         if (uri != null) {
-            runCatching { Backup.export(context, uri) }
-                .onSuccess {
-                    // Plná záloha: hned potom druhý soubor s přílohami, pojmenovaný jako v originále.
-                    if (zipName.isNotEmpty()) zipExportLauncher.launch(zipName) else toast("Záložní soubor byl úspěšně vytvořen")
-                }
-                .onFailure { toast("Zálohování selhalo! ${it.message}") }
+            runCatching { Backup.setFolder(context, uri) }
+            backupFolder = Backup.folder(context)
+            when (afterFolder) {
+                SettingsActivity.ACTION_BACKUP -> askFull = true
+                SettingsActivity.ACTION_RESTORE -> pickBackup = true
+            }
         }
+        afterFolder = null
+    }
+    /** Záloha / obnova vždy přes složku – napoprvé si ji appka vyžádá. */
+    fun withFolder(action: String) {
+        if (backupFolder == null) { afterFolder = action; folderLauncher.launch(null) }
+        else if (action == SettingsActivity.ACTION_BACKUP) askFull = true else pickBackup = true
     }
     fun startBackup(full: Boolean) {
-        val name = Backup.fileName()
-        zipName = if (full) name.removeSuffix(".bak") + "_attachments.zip" else ""
-        exportLauncher.launch(name)
+        val folder = backupFolder
+        if (folder == null) { withFolder(SettingsActivity.ACTION_BACKUP); return }
+        work(if (full) "Vytvářím plnou zálohu…" else "Vytvářím zálohu…") { Backup.backupToFolder(context, folder, full) }
     }
-    val importLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri -> pendingImport = uri }
     val zipImportLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri != null) work("Načítám přílohy…") {
             val n = cz.teckatecka.poznamky.data.Attachments.importZip(context, uri)
@@ -199,8 +250,8 @@ private fun SettingsScreen(startAction: String?, onBack: () -> Unit) {
         if (launched) return@LaunchedEffect
         launched = true
         when (startAction) {
-            SettingsActivity.ACTION_BACKUP -> askFull = true
-            SettingsActivity.ACTION_RESTORE -> importLauncher.launch(arrayOf("*/*"))
+            SettingsActivity.ACTION_BACKUP -> withFolder(SettingsActivity.ACTION_BACKUP)
+            SettingsActivity.ACTION_RESTORE -> withFolder(SettingsActivity.ACTION_RESTORE)
         }
     }
 
@@ -217,6 +268,41 @@ private fun SettingsScreen(startAction: String?, onBack: () -> Unit) {
                     if (missing > 0) askZip = true
                 }
                 .onFailure { toast("Operace obnovení se nezdařila! ${it.message}") }
+        }
+    }
+    if (pickBackup) {
+        val folder = backupFolder
+        val files = remember(folder) { folder?.let { Backup.listBackups(it) } ?: emptyList() }
+        AlertDialog(
+            onDismissRequest = { pickBackup = false },
+            title = { Text("Vyberte název záložního souboru, který chcete obnovit") },
+            text = {
+                androidx.compose.foundation.lazy.LazyColumn {
+                    if (files.isEmpty()) item { Text("Ve složce „${folder?.name ?: ""}“ nejsou žádné soubory .bak.") }
+                    items(files.size) { i ->
+                        val f = files[i]
+                        val hasZip = folder?.findFile(Backup.zipNameFor(f.name ?: "")) != null
+                        Column(Modifier.fillMaxWidth().clickable { pickBackup = false; confirmBak = f }.padding(vertical = 10.dp)) {
+                            Text(f.name ?: "")
+                            Text(if (hasZip) "+ přílohy (${Backup.zipNameFor(f.name ?: "")})" else "bez příloh",
+                                style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.outline)
+                        }
+                    }
+                }
+            },
+            confirmButton = { TextButton(onClick = { pickBackup = false }) { Text("zrušení") } },
+            dismissButton = {
+                TextButton(onClick = { pickBackup = false; afterFolder = SettingsActivity.ACTION_RESTORE; folderLauncher.launch(null) }) {
+                    Text("Jiná složka…")
+                }
+            },
+        )
+    }
+    confirmBak?.let { f ->
+        ConfirmDialog("Jste si jisti, že chcete obnovit soubor databáze:\n\n${f.name}\n\nVšechna místní data budou přepsána údaji z tohoto souboru.", { confirmBak = null }) {
+            confirmBak = null
+            val folder = backupFolder ?: return@ConfirmDialog
+            work("Obnovuji zálohu…") { Backup.restoreFromFolder(context, folder, f) }
         }
     }
     if (askFull) AlertDialog(
@@ -319,8 +405,16 @@ private fun SettingsScreen(startAction: String?, onBack: () -> Unit) {
             Toggle("Vibrační signál", s.reminderVibrate, "Vibrace zařízení při připomenutí") { s.reminderVibrate = it }
             HorizontalDivider()
             Header("Servisní funkce")
-            Action("Vytvořit zálohu", "Soubor .bak (+ přílohy v …_attachments.zip) – stejný formát jako původní My Notes") { askFull = true }
-            Action("Obnovit zálohu", "Načte .bak z této aplikace i z My Notes (Pro)") { importLauncher.launch(arrayOf("*/*")) }
+            Action("Vytvořit zálohu", "Soubor .bak (+ přílohy v …_attachments.zip) do složky záloh – stejný formát jako My Notes") {
+                withFolder(SettingsActivity.ACTION_BACKUP)
+            }
+            Action("Obnovit zálohu", "Vyberte .bak ze složky záloh – přílohy (…_attachments.zip) se načtou automaticky") {
+                withFolder(SettingsActivity.ACTION_RESTORE)
+            }
+            Action("Složka záloh", backupFolder?.name ?: "Nevybráno – klepnutím vyberte (např. Stažené nebo Documents/Notes)") {
+                afterFolder = null; folderLauncher.launch(null)
+            }
+            Action("Obnovit ze souboru…", "Ruční výběr jednoho souboru .bak odkudkoli") { importLauncher.launch(arrayOf("*/*")) }
             Action("Obnovit přílohy", "Načte soubor …_attachments.zip se soubory příloh") {
                 zipImportLauncher.launch(arrayOf("application/zip", "application/x-zip-compressed", "*/*"))
             }
