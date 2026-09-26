@@ -50,6 +50,7 @@ import cz.teckatecka.poznamky.data.Settings
 import cz.teckatecka.poznamky.widget.WidgetPrefs
 import cz.teckatecka.poznamky.widget.WidgetUpdater
 import java.io.File
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -150,31 +151,100 @@ private fun SettingsScreen(startAction: String?, onBack: () -> Unit) {
     val s = remember { Settings(context) }
     var tick by remember { mutableStateOf(0) }
     var pendingImport by remember { mutableStateOf<Uri?>(null) }
+    var askFull by remember { mutableStateOf(false) }
+    var askZip by remember { mutableStateOf(false) }
+    var busy by remember { mutableStateOf<String?>(null) }
+    var zipName by remember { mutableStateOf("") }
+    val scope = androidx.compose.runtime.rememberCoroutineScope()
+    fun toast(t: String) = Toast.makeText(context, t, Toast.LENGTH_LONG).show()
+    /** Práce se soubory na pozadí s oknem „Čekejte…“ (zip může mít desítky MB). */
+    fun work(label: String, job: () -> String) {
+        busy = label
+        scope.launch {
+            val msg = runCatching { kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { job() } }
+                .getOrElse { "Chyba: ${it.message}" }
+            busy = null
+            toast(msg)
+        }
+    }
 
+    val zipExportLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/zip")) { uri ->
+        if (uri != null) work("Ukládám přílohy…") { "Přílohy uloženy (${cz.teckatecka.poznamky.data.Attachments.exportZip(context, uri)} souborů)" }
+    }
     val exportLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/octet-stream")) { uri ->
-        if (uri != null) runCatching { Backup.export(context, uri) }
-            .onSuccess { Toast.makeText(context, "Záloha uložena", Toast.LENGTH_SHORT).show() }
-            .onFailure { Toast.makeText(context, "Záloha selhala: ${it.message}", Toast.LENGTH_LONG).show() }
+        if (uri != null) {
+            runCatching { Backup.export(context, uri) }
+                .onSuccess {
+                    // Plná záloha: hned potom druhý soubor s přílohami, pojmenovaný jako v originále.
+                    if (zipName.isNotEmpty()) zipExportLauncher.launch(zipName) else toast("Záložní soubor byl úspěšně vytvořen")
+                }
+                .onFailure { toast("Zálohování selhalo! ${it.message}") }
+        }
+    }
+    fun startBackup(full: Boolean) {
+        val name = Backup.fileName()
+        zipName = if (full) name.removeSuffix(".bak") + "_attachments.zip" else ""
+        exportLauncher.launch(name)
     }
     val importLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri -> pendingImport = uri }
+    val zipImportLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri != null) work("Načítám přílohy…") {
+            val n = cz.teckatecka.poznamky.data.Attachments.importZip(context, uri)
+            "Načteno příloh: $n"
+        }
+    }
     // Spuštěno z bočního menu „Servisní funkce“.
     var launched by androidx.compose.runtime.saveable.rememberSaveable { mutableStateOf(false) }
     androidx.compose.runtime.LaunchedEffect(Unit) {
         if (launched) return@LaunchedEffect
         launched = true
         when (startAction) {
-            SettingsActivity.ACTION_BACKUP -> exportLauncher.launch(Backup.fileName())
+            SettingsActivity.ACTION_BACKUP -> askFull = true
             SettingsActivity.ACTION_RESTORE -> importLauncher.launch(arrayOf("*/*"))
         }
     }
 
     pendingImport?.let { uri ->
-        ConfirmDialog("Obnovit ze zálohy? Současné poznámky budou nahrazeny obsahem zálohy.", { pendingImport = null }) {
+        ConfirmDialog("Obnovit ze zálohy? Všechna místní data budou přepsána údaji z tohoto souboru.", { pendingImport = null }) {
             pendingImport = null
             runCatching { Backup.import(context, uri) }
-                .onSuccess { Toast.makeText(context, "Obnoveno: ${Repo.db(context).allActiveNotes().size} poznámek", Toast.LENGTH_LONG).show() }
-                .onFailure { Toast.makeText(context, "Soubor se nepodařilo načíst: ${it.message}", Toast.LENGTH_LONG).show() }
+                .onSuccess {
+                    toast("Operace obnovení byla úspěšně dokončena: ${Repo.db(context).allActiveNotes().size} poznámek")
+                    // Pokud poznámky odkazují na přílohy, které tu ještě nejsou, nabídneme načíst zip.
+                    val missing = Repo.db(context).allNotesIncludingDeleted().flatMap { n ->
+                        cz.teckatecka.poznamky.data.NoteAttachment.listFromJson(n.attachmentsJson)
+                    }.count { !cz.teckatecka.poznamky.data.Attachments.exists(context, it.name) }
+                    if (missing > 0) askZip = true
+                }
+                .onFailure { toast("Operace obnovení se nezdařila! ${it.message}") }
         }
+    }
+    if (askFull) AlertDialog(
+        onDismissRequest = { askFull = false },
+        title = { Text("Vytvořte záložní soubor") },
+        text = { Text("Chcete vytvořit úplnou zálohu?\n\nV úplném archivu bude text všech poznámek a všechny soubory připojené k poznámkám (druhý soubor …_attachments.zip).") },
+        confirmButton = { TextButton(onClick = { askFull = false; startBackup(true) }) { Text("Plná záloha") } },
+        dismissButton = {
+            Row {
+                TextButton(onClick = { askFull = false }) { Text("zrušení") }
+                TextButton(onClick = { askFull = false; startBackup(false) }) { Text("Lehká záloha") }
+            }
+        },
+    )
+    if (askZip) AlertDialog(
+        onDismissRequest = { askZip = false },
+        title = { Text("Obnovit i přílohy?") },
+        text = { Text("Poznámky mají přílohy. Vyberte soubor …_attachments.zip, který patří k této záloze.") },
+        confirmButton = { TextButton(onClick = { askZip = false; zipImportLauncher.launch(arrayOf("application/zip", "application/x-zip-compressed", "*/*")) }) { Text("Vybrat zip") } },
+        dismissButton = { TextButton(onClick = { askZip = false }) { Text("Teď ne") } },
+    )
+    busy?.let { label ->
+        AlertDialog(onDismissRequest = {}, confirmButton = {}, text = {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                androidx.compose.material3.CircularProgressIndicator()
+                Text(label, Modifier.padding(start = 16.dp))
+            }
+        })
     }
 
     @Composable
@@ -249,8 +319,11 @@ private fun SettingsScreen(startAction: String?, onBack: () -> Unit) {
             Toggle("Vibrační signál", s.reminderVibrate, "Vibrace zařízení při připomenutí") { s.reminderVibrate = it }
             HorizontalDivider()
             Header("Servisní funkce")
-            Action("Vytvořit zálohu", "Soubor .bak – stejný formát jako původní My Notes") { exportLauncher.launch(Backup.fileName()) }
+            Action("Vytvořit zálohu", "Soubor .bak (+ přílohy v …_attachments.zip) – stejný formát jako původní My Notes") { askFull = true }
             Action("Obnovit zálohu", "Načte .bak z této aplikace i z My Notes (Pro)") { importLauncher.launch(arrayOf("*/*")) }
+            Action("Obnovit přílohy", "Načte soubor …_attachments.zip se soubory příloh") {
+                zipImportLauncher.launch(arrayOf("application/zip", "application/x-zip-compressed", "*/*"))
+            }
             HorizontalDivider()
             Header("Pokročilé nastavení")
             Toggle("Spustit editor poznámek na widgetu", s.runEditorFromWidget,

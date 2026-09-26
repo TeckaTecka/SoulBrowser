@@ -112,6 +112,13 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.material.icons.filled.PhotoCamera
+import cz.teckatecka.poznamky.data.Attachments
+import cz.teckatecka.poznamky.data.NoteAttachment
+import cz.teckatecka.poznamky.data.attachments
+import cz.teckatecka.poznamky.data.withAttachments
 import cz.teckatecka.poznamky.data.Note
 import cz.teckatecka.poznamky.data.NoteItem
 import cz.teckatecka.poznamky.data.NoteTab
@@ -273,6 +280,19 @@ private fun NoteEditor(
     val dim = fg.copy(alpha = 0.6f)
     val tabs = remember { Repo.db(context).tabs() }
     val align = if (note.reverseAlignment || settings.reverseAlignment) TextAlign.End else TextAlign.Start
+    var attachMenu by remember { mutableStateOf(false) }
+    val pickFiles = rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { uris ->
+        val added = uris.mapNotNull { runCatching { Attachments.addFromUri(context, it) }.getOrNull() }
+        if (added.isNotEmpty()) update(note.withAttachments(note.attachments + added))
+    }
+    var photoName by remember { mutableStateOf<String?>(null) }
+    val takePhoto = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { ok ->
+        val n = photoName
+        if (n != null) {
+            if (ok) update(note.withAttachments(note.attachments + NoteAttachment(n, ""))) else Attachments.file(context, n).delete()
+        }
+        photoName = null
+    }
     fun placeInWidget(w: Int) {
         save()
         if (note.id == Note.NEW_ID) return
@@ -371,6 +391,12 @@ private fun NoteEditor(
             }
         },
         bottomBar = { Column {
+            if (note.attachments.isNotEmpty()) {
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                Box(Modifier.background(MaterialTheme.colorScheme.surfaceContainer)) {
+                    AttachmentStrip(note.attachments, note.readOnly) { update(note.withAttachments(it)) }
+                }
+            }
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
             Row(
                 Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surfaceContainer).navigationBarsPadding()
@@ -421,9 +447,23 @@ private fun NoteEditor(
                     RoundButton(onClick = { dialog = 1 }, background = white) {
                         Icon(Icons.Default.Palette, "Barva", tint = if (note.color != 0) Color(note.color) else Color(0xFFE53935))
                     }
-                    RoundButton(onClick = {
-                        Toast.makeText(context, "Přílohy zatím nejsou hotové – z importu se ale zachovávají.", Toast.LENGTH_SHORT).show()
-                    }, background = white) { Icon(Icons.Default.AttachFile, "Příloha", tint = Color(0xFF616161)) }
+                    Box {
+                        RoundButton(onClick = { if (!note.readOnly) attachMenu = true }, background = white) {
+                            Icon(Icons.Default.AttachFile, "Příloha", tint = Color(0xFF616161))
+                        }
+                        DropdownMenu(attachMenu, { attachMenu = false }) {
+                            DropdownMenuItem(text = { Text("Soubor…") }, leadingIcon = { Icon(Icons.Default.AttachFile, null) },
+                                onClick = { attachMenu = false; pickFiles.launch(arrayOf("*/*")) })
+                            DropdownMenuItem(text = { Text("Fotoaparát") }, leadingIcon = { Icon(Icons.Default.PhotoCamera, null) }, onClick = {
+                                attachMenu = false
+                                val name = "photo_${System.currentTimeMillis()}.jpg"
+                                Attachments.file(context, name).createNewFile()
+                                photoName = name
+                                runCatching { takePhoto.launch(Attachments.uri(context, name)) }
+                                    .onFailure { Toast.makeText(context, "Fotoaparát není k dispozici", Toast.LENGTH_SHORT).show() }
+                            })
+                        }
+                    }
                     RoundButton(onClick = { save(); onClose() }, background = Color(0xFF2E7D32), size = 60,
                         border = BorderStroke(3.dp, Color.White)) {
                         Icon(Icons.Default.Check, "Uložit", Modifier.size(36.dp), tint = Color.White)

@@ -150,3 +150,29 @@ fun contrastTextColor(bg: Int): Int {
     val lum = (0.299 * r + 0.587 * g + 0.114 * b)
     return if (lum > 140) 0xff202124.toInt() else 0xfff1f3f4.toInt()
 }
+
+/** Příloha poznámky – JSON klíče jako v původní appce (mName = soubor, mTitle = popis). */
+data class NoteAttachment(val name: String, val title: String = "") {
+    companion object {
+        fun listFromJson(json: String?): List<NoteAttachment> {
+            if (json.isNullOrBlank()) return emptyList()
+            return try {
+                val arr = JSONArray(json)
+                (0 until arr.length()).mapNotNull { i ->
+                    val o = arr.optJSONObject(i) ?: return@mapNotNull null
+                    val name = o.optString("mName", "")
+                    if (name.isBlank()) null else NoteAttachment(name, o.optString("mTitle", ""))
+                }
+            } catch (e: Exception) {
+                emptyList()
+            }
+        }
+
+        fun listToJson(list: List<NoteAttachment>): String = JSONArray().apply {
+            list.forEach { put(JSONObject().put("mName", it.name).put("mTitle", it.title)) }
+        }.toString()
+    }
+}
+
+val Note.attachments: List<NoteAttachment> get() = NoteAttachment.listFromJson(attachmentsJson)
+fun Note.withAttachments(list: List<NoteAttachment>) = copy(attachmentsJson = NoteAttachment.listToJson(list))

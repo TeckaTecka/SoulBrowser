@@ -41,6 +41,8 @@ class NotesDb private constructor(context: Context) :
     fun allActiveNotes(sort: SortMode = SortMode.MODIFIED_DESC): List<Note> =
         queryNotes("deleted=0", null, sort.orderBy)
 
+    fun allNotesIncludingDeleted(): List<Note> = queryNotes(null, null, null)
+
     fun deletedNotes(): List<Note> = queryNotes("deleted=1", null, "time_stamp desc")
 
     fun activeCalendarNotes(): List<Note> = queryNotes("reminder_enabled=1 AND deleted=0", null, null)

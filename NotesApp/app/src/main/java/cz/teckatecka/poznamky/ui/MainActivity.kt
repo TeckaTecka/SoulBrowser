@@ -137,6 +137,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cz.teckatecka.poznamky.R
 import cz.teckatecka.poznamky.data.Note
+import cz.teckatecka.poznamky.data.attachments
 import cz.teckatecka.poznamky.data.NoteTab
 import cz.teckatecka.poznamky.data.Repo
 import cz.teckatecka.poznamky.data.Settings
@@ -576,6 +577,7 @@ fun NoteCard(
             // Spodní řádek (bottom_frame): zámek, připomínka, vytvořeno, změněno – podle nastavení.
             val showInfo = contentMode != 2 || expanded
             if (showInfo) Row(verticalAlignment = Alignment.Bottom, modifier = Modifier.padding(start = 4.dp, top = 2.dp)) {
+                CardAttachmentBadge(n.attachments)
                 if (n.readOnly) Icon(Icons.Default.Lock, "Zamčeno", Modifier.size(18.dp).padding(2.dp).alpha(0.4f), tint = fg)
                 Column {
                     if (settings.showReminderTime && n.reminderEnabled && n.reminderNextDate > 0) InfoLine(fg) {
