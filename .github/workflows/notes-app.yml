@@ -7,6 +7,9 @@ on:
       - ".github/workflows/notes-app.yml"
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -26,3 +29,13 @@ jobs:
         with:
           name: poznamky-apk
           path: NotesApp/app/build/outputs/apk/release/*.apk
+      - name: Přejmenovat APK
+        run: cp app/build/outputs/apk/release/app-release.apk Poznamky.apk
+      - name: Zveřejnit jako release (stálý odkaz ke stažení)
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: poznamky-latest
+          name: Poznámky – nejnovější verze
+          body: "Automaticky sestaveno z commitu ${{ github.sha }}."
+          prerelease: true
+          files: NotesApp/Poznamky.apk
