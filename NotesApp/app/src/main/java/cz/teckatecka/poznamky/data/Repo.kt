@@ -48,9 +48,14 @@ object Repo {
     }
 }
 
-/** Nastavení (SharedPreferences). */
+/** Nastavení (SharedPreferences) – volby a výchozí hodnoty jako v původní appce. */
 class Settings(context: Context) {
     private val p = context.applicationContext.getSharedPreferences("settings", Context.MODE_PRIVATE)
+    private fun bool(key: String, def: Boolean) = object : kotlin.properties.ReadWriteProperty<Any?, Boolean> {
+        override fun getValue(thisRef: Any?, property: kotlin.reflect.KProperty<*>) = p.getBoolean(key, def)
+        override fun setValue(thisRef: Any?, property: kotlin.reflect.KProperty<*>, value: Boolean) =
+            p.edit().putBoolean(key, value).apply()
+    }
 
     var sortMode: SortMode
         get() = SortMode.entries.getOrElse(p.getInt("sort", 0)) { SortMode.MODIFIED_DESC }
@@ -58,33 +63,41 @@ class Settings(context: Context) {
     var viewMode: Int // 0 = volný, 1 = dva sloupce, 2 = seznam
         get() = p.getInt("view_mode2", 0)
         set(v) = p.edit().putInt("view_mode2", v).apply()
-    var contentMode: Int // 0 = celý obsah, 1 = krátký náhled, 2 = jen název
-        get() = p.getInt("content_mode", 1)
-        set(v) = p.edit().putInt("content_mode", v).apply()
+    var contentMode: Int // 0 = plné zobrazení, 1 = krátký náhled, 2 = pouze název
+        get() = p.getInt("content_mode2", 0)
+        set(v) = p.edit().putInt("content_mode2", v).apply()
     var currentTab: Long
         get() = p.getLong("current_tab", NoteTab.COMMON_ID)
         set(v) = p.edit().putLong("current_tab", v).apply()
     var theme: Int // 0 = podle systému, 1 = světlé, 2 = tmavé
         get() = p.getInt("theme", 0)
         set(v) = p.edit().putInt("theme", v).apply()
-    var doneItemsBottom: Boolean
-        get() = p.getBoolean("done_bottom", false)
-        set(v) = p.edit().putBoolean("done_bottom", v).apply()
-    var askBeforeDelete: Boolean
-        get() = p.getBoolean("ask_delete", true)
-        set(v) = p.edit().putBoolean("ask_delete", v).apply()
-    var showCalendarTab: Boolean
-        get() = p.getBoolean("calendar_tab", true)
-        set(v) = p.edit().putBoolean("calendar_tab", v).apply()
-    var widgetShowCreated: Boolean
-        get() = p.getBoolean("w_created", false)
-        set(v) = p.edit().putBoolean("w_created", v).apply()
-    var widgetShowModified: Boolean
-        get() = p.getBoolean("w_modified", false)
-        set(v) = p.edit().putBoolean("w_modified", v).apply()
-    var widgetShowReminder: Boolean
-        get() = p.getBoolean("w_reminder", true)
-        set(v) = p.edit().putBoolean("w_reminder", v).apply()
+    /** java.util.Calendar: 1 = neděle, 2 = pondělí. */
+    var firstDayOfWeek: Int
+        get() = p.getInt("first_dow", 2)
+        set(v) = p.edit().putInt("first_dow", v).apply()
+
+    var doneItemsBottom by bool("done_bottom", false)
+    var colorFullTab by bool("color_full_tab", true)
+    var showReminderTime by bool("show_reminder_ts", true)
+    var showCreatedTime by bool("show_created_ts", true)
+    var showModifiedTime by bool("show_modified_ts", true)
+    var reverseAlignment by bool("reverse_alignment", false)
+    var showCalendarTab by bool("calendar_tab", true)
+    var calendarToday by bool("calendar_today", false)
+    var calendarTitleText by bool("calendar_title_text", true)
+    var remindersOn by bool("reminders_on", true)
+    var reminderVibrate by bool("reminder_vibro", true)
+    var runEditorFromWidget by bool("run_editor_from_widget", false)
+    var askBeforeDelete by bool("ask_delete", true)
+    var backspaceRemovesItem by bool("backspace_remove_item", true)
+    var highlightLinks by bool("highlight_links", true)
+    var highlightEmails by bool("highlight_emails", true)
+    var highlightPhones by bool("highlight_phones", true)
+    var calendarSelectedDay: Long
+        get() = p.getLong("calendar_day", 0L)
+        set(v) = p.edit().putLong("calendar_day", v).apply()
+
     var defaultColor: Int
         get() = p.getInt("default_color", 0)
         set(v) = p.edit().putInt("default_color", v).apply()

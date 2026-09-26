@@ -151,20 +151,29 @@ object Reminders {
         WidgetUpdater.updateAll(context)
     }
 
-    private fun notify(context: Context, n: Note) {
+    /** „Upozornit hned“ z Nastavení kalendáře. */
+    fun notifyNow(context: Context, n: Note) = notify(context, n, force = true)
+
+    private fun notify(context: Context, n: Note, force: Boolean = false) {
+        val settings = cz.teckatecka.poznamky.data.Settings(context)
+        if (!force && !settings.remindersOn) return
         if (Build.VERSION.SDK_INT >= 33 &&
             ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
         ) return
         val nm = context.getSystemService(NotificationManager::class.java)
+        // Vibrace nejde u kanálu měnit po vytvoření – proto dva kanály podle nastavení „Vibrační signál“.
+        val vibrate = settings.reminderVibrate
+        val channelId = if (vibrate) CHANNEL else CHANNEL + "_silent"
         nm.createNotificationChannel(
-            NotificationChannel(CHANNEL, context.getString(R.string.channel_reminders), NotificationManager.IMPORTANCE_HIGH),
+            NotificationChannel(channelId, context.getString(R.string.channel_reminders), NotificationManager.IMPORTANCE_HIGH)
+                .apply { enableVibration(vibrate) },
         )
         val open = PendingIntent.getActivity(
             context, n.id.toInt(), EditorActivity.intent(context, n.id),
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
         val text = n.plainText().take(500)
-        val notification = NotificationCompat.Builder(context, CHANNEL)
+        val notification = NotificationCompat.Builder(context, channelId)
             .setSmallIcon(R.drawable.ic_stat_note)
             .setContentTitle(n.title.ifBlank { context.getString(R.string.app_name) })
             .setContentText(text)

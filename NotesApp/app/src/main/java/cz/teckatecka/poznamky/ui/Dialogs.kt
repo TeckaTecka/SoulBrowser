@@ -23,6 +23,13 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Alarm
+import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material3.Checkbox
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.FormatColorText
 import androidx.compose.material.icons.filled.KeyboardArrowDown
@@ -198,117 +205,165 @@ fun TabsDialog(tabs: List<NoteTab>, startWithNew: Boolean = false, onDismiss: ()
     )
 }
 
-private fun reminderLabel(t: ReminderType) = when (t) {
-    ReminderType.DAY -> "Každý den"
-    ReminderType.WEEK -> "Každý týden"
+/** Názvy periodicity přesně jako v původní appce. */
+fun reminderLabel(t: ReminderType) = when (t) {
+    ReminderType.DAY -> "Denně"
+    ReminderType.WEEK -> "Týdně"
     ReminderType.TWO_WEEKS -> "Každé 2 týdny"
     ReminderType.FOUR_WEEKS -> "Každé 4 týdny"
-    ReminderType.MONTH -> "Každý měsíc"
+    ReminderType.MONTH -> "Měsíční"
     ReminderType.TWO_MONTHS -> "Každé 2 měsíce"
-    ReminderType.QUARTER -> "Čtvrtletně"
-    ReminderType.HALF_YEAR -> "Pololetně"
-    ReminderType.YEAR -> "Každý rok"
-    ReminderType.ONE_TIME -> "Jednorázově"
+    ReminderType.QUARTER -> "Čtvrtletní"
+    ReminderType.HALF_YEAR -> "Každého půl roku"
+    ReminderType.YEAR -> "Každoročně"
+    ReminderType.ONE_TIME -> "Jeden čas"
 }
 
-/** Nastavení připomínky / kalendáře – stejné volby jako v původní appce. */
-@OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
+@Composable
+private fun PickList(title: String, options: List<String>, selected: Int, onDismiss: () -> Unit, onPick: (Int) -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(title) },
+        text = {
+            LazyColumn {
+                itemsIndexed(options) { i, o ->
+                    Row(Modifier.fillMaxWidth().clickable { onPick(i) }.padding(vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
+                        androidx.compose.material3.RadioButton(selected = i == selected, onClick = { onPick(i) })
+                        Text(o)
+                    }
+                }
+            }
+        },
+        confirmButton = { TextButton(onClick = onDismiss) { Text("zrušení") } },
+    )
+}
+
+/** „Nastavení kalendáře“ – celoobrazovkové okno podle fragment_reminder_change.xml. */
 @Composable
 fun ReminderDialog(note: Note, onDismiss: () -> Unit, onApply: (Note) -> Unit) {
     val context = LocalContext.current
-    var n by remember { mutableStateOf(if (note.reminderEnabled) note else note.copy(reminderEnabled = true)) }
-    var typeMenu by remember { mutableStateOf(false) }
+    var enabled by remember { mutableStateOf(true) }
+    var n by remember { mutableStateOf(note) }
+    var pick by remember { mutableStateOf(0) } // 1 periodicita, 2 den v týdnu, 3 měsíc roku, 4 den v měsíci
     val cal = Calendar.getInstance().apply { timeInMillis = n.reminderOneTimeDate }
-    val step = when (n.reminderType) {
-        ReminderType.TWO_MONTHS, ReminderType.QUARTER, ReminderType.HALF_YEAR, ReminderType.YEAR -> true
-        else -> false
+    val weekTypes = setOf(ReminderType.WEEK, ReminderType.TWO_WEEKS, ReminderType.FOUR_WEEKS)
+    val yearMonthTypes = setOf(ReminderType.TWO_MONTHS, ReminderType.QUARTER, ReminderType.HALF_YEAR, ReminderType.YEAR)
+    val monthTypes = yearMonthTypes + ReminderType.MONTH
+    val dayNames = DateFormatSymbols.getInstance().weekdays
+    val months = DateFormatSymbols.getInstance().months
+    val firstDow = cz.teckatecka.poznamky.data.Settings(context).firstDayOfWeek
+    val weekOrder = (0 until 7).map { (firstDow - 1 + it) % 7 + 1 }
+    fun applyAndClose() = onApply(if (enabled) n.copy(reminderEnabled = true) else note.copy(reminderEnabled = false, reminderNextDate = 0))
+
+    when (pick) {
+        1 -> PickList("Periodicita", ReminderType.ordered.map(::reminderLabel), ReminderType.ordered.indexOf(n.reminderType), { pick = 0 }) {
+            n = n.copy(reminderType = ReminderType.ordered[it]); pick = 0
+        }
+        2 -> PickList("Den v týdnu", weekOrder.map { dayNames[it] }, weekOrder.indexOf(n.reminderWeekDay), { pick = 0 }) {
+            n = n.copy(reminderWeekDay = weekOrder[it]); pick = 0
+        }
+        3 -> PickList("Měsíc roku", (0 until 12).map { months[it] }, n.reminderYearMonth - 1, { pick = 0 }) {
+            n = n.copy(reminderYearMonth = it + 1); pick = 0
+        }
+        4 -> PickList("Den v měsíci", (1..31).map { "$it" }, n.reminderMonthDay - 1, { pick = 0 }) {
+            n = n.copy(reminderMonthDay = it + 1); pick = 0
+        }
     }
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Připomínka") },
-        text = {
-            Column(Modifier.verticalScroll(rememberScrollState())) {
-                Box {
-                    OutlinedButton(onClick = { typeMenu = true }, modifier = Modifier.fillMaxWidth()) { Text(reminderLabel(n.reminderType)) }
-                    DropdownMenu(typeMenu, { typeMenu = false }) {
-                        ReminderType.ordered.forEach { t ->
-                            DropdownMenuItem(text = { Text(reminderLabel(t)) }, onClick = { n = n.copy(reminderType = t); typeMenu = false })
-                        }
-                    }
+
+    androidx.compose.ui.window.Dialog(onDismissRequest = onDismiss,
+        properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false)) {
+        androidx.compose.material3.Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+            Column {
+                Row(
+                    Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surfaceContainer).padding(horizontal = 4.dp, vertical = 2.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Icon(Icons.Default.CalendarMonth, null, Modifier.size(50.dp).padding(10.dp))
+                    Text("Nastavení kalendáře", Modifier.weight(1f).padding(start = 8.dp), fontSize = 20.sp)
+                    IconButton(onClick = ::applyAndClose, Modifier.size(44.dp)) { Icon(Icons.Default.Check, "OK", tint = Color(0xFF43A047)) }
                 }
-                Spacer(Modifier.height(8.dp))
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    OutlinedButton(onClick = {
-                        DatePickerDialog(context, { _, y, m, d ->
-                            val c = Calendar.getInstance().apply { timeInMillis = n.reminderOneTimeDate; set(y, m, d) }
-                            n = n.copy(
-                                reminderOneTimeDate = c.timeInMillis,
-                                reminderWeekDay = c.get(Calendar.DAY_OF_WEEK),
-                                reminderMonthDay = d,
-                                reminderYearMonth = m + 1,
+                Column(Modifier.verticalScroll(rememberScrollState()).padding(4.dp)) {
+                    Column(Modifier.fillMaxWidth().border(1.dp, MaterialTheme.colorScheme.outlineVariant).padding(6.dp)) {
+                        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.clickable { enabled = !enabled }) {
+                            Checkbox(enabled, { enabled = it })
+                            Text("Přidat do kalendáře")
+                        }
+                        if (enabled) {
+                            @Composable
+                            fun Field(label: String, value: String, onClick: () -> Unit) {
+                                Column(Modifier.fillMaxWidth().clickable(onClick = onClick).padding(start = 4.dp, top = 8.dp, bottom = 4.dp)) {
+                                    Text(label, color = MaterialTheme.colorScheme.outline)
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Text(value, Modifier.weight(1f), fontSize = 18.sp)
+                                        Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null, tint = MaterialTheme.colorScheme.outline)
+                                    }
+                                }
+                            }
+                            Field("Periodicita", reminderLabel(n.reminderType)) { pick = 1 }
+                            if (n.reminderType in weekTypes) Field("Den v týdnu", dayNames[n.reminderWeekDay]) { pick = 2 }
+                            if (n.reminderType in yearMonthTypes) Field("Měsíc roku", months[(n.reminderYearMonth - 1).coerceIn(0, 11)]) { pick = 3 }
+                            if (n.reminderType in monthTypes) Field("Den v měsíci", "${n.reminderMonthDay}") { pick = 4 }
+                            if (n.reminderType == ReminderType.ONE_TIME) {
+                                Text("Datum (v budoucnu)", color = MaterialTheme.colorScheme.outline, modifier = Modifier.padding(start = 4.dp, top = 8.dp))
+                                Row(
+                                    Modifier.padding(4.dp).border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(6.dp))
+                                        .clickable {
+                                            DatePickerDialog(context, { _, y, m, d ->
+                                                val c = Calendar.getInstance().apply { timeInMillis = n.reminderOneTimeDate; set(y, m, d) }
+                                                n = n.copy(reminderOneTimeDate = c.timeInMillis, reminderWeekDay = c.get(Calendar.DAY_OF_WEEK),
+                                                    reminderMonthDay = d, reminderYearMonth = m + 1)
+                                            }, cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH)).show()
+                                        }.padding(6.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    Icon(Icons.Default.CalendarMonth, null, Modifier.size(22.dp))
+                                    Text(android.text.format.DateFormat.getDateFormat(context).format(cal.time), fontSize = 18.sp,
+                                        modifier = Modifier.padding(start = 6.dp))
+                                }
+                            }
+                            Text("Čas:", color = MaterialTheme.colorScheme.outline, modifier = Modifier.padding(start = 4.dp, top = 8.dp))
+                            Text(
+                                android.text.format.DateFormat.getTimeFormat(context).format(cal.time), fontSize = 18.sp,
+                                modifier = Modifier.padding(4.dp).border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(6.dp))
+                                    .clickable {
+                                        TimePickerDialog(context, { _, h, min ->
+                                            val c = Calendar.getInstance().apply {
+                                                timeInMillis = n.reminderOneTimeDate
+                                                set(Calendar.HOUR_OF_DAY, h); set(Calendar.MINUTE, min); set(Calendar.SECOND, 0)
+                                            }
+                                            n = n.copy(reminderOneTimeDate = c.timeInMillis)
+                                        }, cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE),
+                                            android.text.format.DateFormat.is24HourFormat(context)).show()
+                                    }.padding(horizontal = 10.dp, vertical = 6.dp),
                             )
-                        }, cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH)).show()
-                    }, modifier = Modifier.weight(1f)) {
-                        Text(android.text.format.DateFormat.getDateFormat(context).format(cal.time))
-                    }
-                    OutlinedButton(onClick = {
-                        TimePickerDialog(context, { _, h, min ->
-                            val c = Calendar.getInstance().apply {
-                                timeInMillis = n.reminderOneTimeDate
-                                set(Calendar.HOUR_OF_DAY, h); set(Calendar.MINUTE, min); set(Calendar.SECOND, 0)
-                            }
-                            n = n.copy(reminderOneTimeDate = c.timeInMillis)
-                        }, cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE),
-                            android.text.format.DateFormat.is24HourFormat(context)).show()
-                    }) {
-                        Text(android.text.format.DateFormat.getTimeFormat(context).format(cal.time))
-                    }
-                }
-                Text(
-                    if (n.reminderType == ReminderType.ONE_TIME) "Datum a čas připomínky" else "Datum = začátek opakování, čas = kdy připomenout",
-                    style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.outline,
-                )
-                when (n.reminderType) {
-                    ReminderType.WEEK, ReminderType.TWO_WEEKS, ReminderType.FOUR_WEEKS -> {
-                        Spacer(Modifier.height(8.dp))
-                        val names = DateFormatSymbols.getInstance().shortWeekdays
-                        val first = Calendar.getInstance().firstDayOfWeek
-                        FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                            (0 until 7).map { (first - 1 + it) % 7 + 1 }.forEach { dow ->
-                                FilterChip(selected = n.reminderWeekDay == dow, onClick = { n = n.copy(reminderWeekDay = dow) },
-                                    label = { Text(names[dow]) })
+                            Text("Datum / čas příštího kalendáře", color = MaterialTheme.colorScheme.outline, modifier = Modifier.padding(start = 4.dp, top = 8.dp))
+                            val next = cz.teckatecka.poznamky.reminder.Reminders.nextDate(n.copy(reminderEnabled = true))
+                            Text(if (next > 0) formatDateTime(context, next) else "–", modifier = Modifier.padding(start = 4.dp))
+                            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 8.dp)) {
+                                Switch(n.reminderNotification, { n = n.copy(reminderNotification = it) })
+                                Text("Připomínka", Modifier.padding(start = 8.dp).weight(1f))
+                                Row(
+                                    Modifier.border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(6.dp))
+                                        .clickable { cz.teckatecka.poznamky.reminder.Reminders.notifyNow(context, n) }.padding(6.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    Icon(Icons.Default.Alarm, null)
+                                    Text("Upozornit hned", fontSize = 16.sp, modifier = Modifier.padding(start = 4.dp))
+                                }
                             }
                         }
                     }
-                    ReminderType.DAY, ReminderType.ONE_TIME -> {}
-                    else -> {
-                        Spacer(Modifier.height(8.dp))
-                        Text("Den v měsíci: ${n.reminderMonthDay}")
-                        Slider(value = n.reminderMonthDay.toFloat(), onValueChange = { n = n.copy(reminderMonthDay = it.toInt()) },
-                            valueRange = 1f..31f, steps = 29)
-                        if (step) {
-                            val months = DateFormatSymbols.getInstance().months
-                            Text("Počínaje měsícem: ${months[(n.reminderYearMonth - 1).coerceIn(0, 11)]}")
-                            Slider(value = n.reminderYearMonth.toFloat(), onValueChange = { n = n.copy(reminderYearMonth = it.toInt()) },
-                                valueRange = 1f..12f, steps = 10)
-                        }
+                    Row(
+                        Modifier.align(Alignment.CenterHorizontally).padding(top = 8.dp)
+                            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(6.dp)).clickable(onClick = ::applyAndClose)
+                            .padding(horizontal = 16.dp, vertical = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Icon(Icons.Default.Check, null, tint = Color(0xFF43A047))
+                        Text("OK", fontSize = 18.sp, modifier = Modifier.padding(start = 8.dp))
                     }
                 }
-                Spacer(Modifier.height(8.dp))
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("Upozornění (notifikace)", Modifier.weight(1f))
-                    Switch(n.reminderNotification, { n = n.copy(reminderNotification = it) })
-                }
             }
-        },
-        confirmButton = { TextButton(onClick = { onApply(n.copy(reminderEnabled = true)) }) { Text("Uložit") } },
-        dismissButton = {
-            Row {
-                if (note.reminderEnabled) TextButton(onClick = { onApply(note.copy(reminderEnabled = false, reminderNextDate = 0)) }) {
-                    Text("Vypnout")
-                }
-                TextButton(onClick = onDismiss) { Text("Zrušit") }
-            }
-        },
-    )
+        }
+    }
 }

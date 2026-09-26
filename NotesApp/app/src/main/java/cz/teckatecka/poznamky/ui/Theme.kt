@@ -18,24 +18,27 @@ fun AppTheme(content: @Composable () -> Unit) {
         2 -> true
         else -> isSystemInDarkTheme()
     }
-    // Barvy podle původní appky: tmavě šedé plochy, tyrkysové odkazy a tlačítka.
+    // Barvy převzaté z původní appky (values/colors.xml a values-night/colors.xml):
+    // pozadí, rámeček lišt (frame_background/frame_border), obsah kartiček (content_background).
     val scheme = if (dark) {
         darkColorScheme(
             primary = Color(0xFF80CBC4), onPrimary = Color(0xFF00201D),
-            background = Color(0xFF121212), onBackground = Color(0xFFE6E6E6),
-            surface = Color(0xFF1B1B1B), onSurface = Color(0xFFE6E6E6),
-            surfaceVariant = Color(0xFF2A2A2A), onSurfaceVariant = Color(0xFFE0E0E0),
-            surfaceContainer = Color(0xFF232323), surfaceContainerHigh = Color(0xFF2C2C2C),
-            outline = Color(0xFF8A8A8A),
+            background = Color(0xFF070707), onBackground = Color(0xFFE6E6E6),
+            surface = Color(0xFF151515), onSurface = Color(0xFFE6E6E6),
+            surfaceVariant = Color(0xFF232323), onSurfaceVariant = Color(0xFFE6E6E6),
+            surfaceContainer = Color(0xFF151515), surfaceContainerHigh = Color(0xFF232323),
+            surfaceContainerHighest = Color(0xFF2C2C2C),
+            outline = Color(0xFF8A8A8A), outlineVariant = Color(0xFF323232),
         )
     } else {
         lightColorScheme(
             primary = Color(0xFF00897B), onPrimary = Color.White,
-            background = Color(0xFFEFEFEF), onBackground = Color(0xFF202124),
-            surface = Color(0xFFF7F7F7), onSurface = Color(0xFF202124),
-            surfaceVariant = Color(0xFFFFFFFF), onSurfaceVariant = Color(0xFF202124),
-            surfaceContainer = Color(0xFFF2F2F2), surfaceContainerHigh = Color(0xFFFFFFFF),
-            outline = Color(0xFF8A8A8A),
+            background = Color(0xFFE5E5E5), onBackground = Color(0xFF202124),
+            surface = Color(0xFFF5F5F5), onSurface = Color(0xFF202124),
+            surfaceVariant = Color(0xFFFAFAFA), onSurfaceVariant = Color(0xFF202124),
+            surfaceContainer = Color(0xFFF5F5F5), surfaceContainerHigh = Color(0xFFFAFAFA),
+            surfaceContainerHighest = Color(0xFFFFFFFF),
+            outline = Color(0xFF8A8A8A), outlineVariant = Color(0xFFDFDFDF),
         )
     }
     MaterialTheme(colorScheme = scheme, content = content)

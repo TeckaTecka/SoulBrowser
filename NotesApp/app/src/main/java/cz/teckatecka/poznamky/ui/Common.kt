@@ -60,41 +60,61 @@ fun createShortcut(context: Context, n: Note) {
     ShortcutManagerCompat.requestPinShortcut(context, info, null)
 }
 
-/** ID widgetů „Poznámka“, které zobrazují danou poznámku. */
-fun widgetsShowing(context: Context, noteId: Long): List<Int> {
-    if (noteId == Note.NEW_ID) return emptyList()
+/** Všechny widgety „Poznámka“ na ploše. */
+fun allNoteWidgets(context: Context): List<Int> {
     val m = AppWidgetManager.getInstance(context)
     return listOf(NoteWidgetWhite::class.java, NoteWidgetBlack::class.java, NoteWidgetTransparent::class.java)
         .flatMap { m.getAppWidgetIds(ComponentName(context, it)).toList() }
-        .filter { WidgetPrefs.noteId(context, it) == noteId }
 }
 
-/** Text s klikacími odkazy (web, e-mail, telefon) – podtržené tyrkysově jako v originále. */
+/** ID widgetů „Poznámka“, které zobrazují danou poznámku. */
+fun widgetsShowing(context: Context, noteId: Long): List<Int> =
+    if (noteId == Note.NEW_ID) emptyList() else allNoteWidgets(context).filter { WidgetPrefs.noteId(context, it) == noteId }
+
+/** Text s klikacími odkazy (web, e-mail, telefon) podle nastavení – podtržené tyrkysově jako v originále. */
 @Composable
 fun linkified(text: String): AnnotatedString {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val settings = androidx.compose.runtime.remember { cz.teckatecka.poznamky.data.Settings(context) }
     val linkColor = MaterialTheme.colorScheme.primary
     val styles = TextLinkStyles(SpanStyle(color = linkColor, textDecoration = TextDecoration.Underline))
     return buildAnnotatedString {
         append(text)
-        val m = Patterns.WEB_URL.matcher(text)
-        while (m.find()) {
-            val raw = m.group()
-            val url = if (raw.contains("://")) raw else "https://$raw"
-            if (!raw.contains('.') ) continue
-            addLink(LinkAnnotation.Url(url, styles), m.start(), m.end())
+        val taken = mutableListOf<IntRange>()
+        fun link(start: Int, end: Int, url: String) {
+            if (taken.any { start < it.last + 1 && end > it.first }) return
+            taken.add(start until end)
+            addLink(LinkAnnotation.Url(url, styles), start, end)
         }
-        val e = Patterns.EMAIL_ADDRESS.matcher(text)
-        while (e.find()) addLink(LinkAnnotation.Url("mailto:" + e.group(), styles), e.start(), e.end())
+        if (settings.highlightEmails) {
+            val e = Patterns.EMAIL_ADDRESS.matcher(text)
+            while (e.find()) link(e.start(), e.end(), "mailto:" + e.group())
+        }
+        if (settings.highlightLinks) {
+            val m = Patterns.WEB_URL.matcher(text)
+            while (m.find()) {
+                val raw = m.group()
+                if (!raw.contains('.')) continue
+                link(m.start(), m.end(), if (raw.contains("://")) raw else "https://$raw")
+            }
+        }
+        if (settings.highlightPhones) {
+            val ph = Patterns.PHONE.matcher(text)
+            while (ph.find()) {
+                val raw = ph.group()
+                if (raw.count { it.isDigit() } >= 9) link(ph.start(), ph.end(), "tel:" + raw.filter { it.isDigit() || it == '+' })
+            }
+        }
     }
 }
 
-/** Kulaté tlačítko se šipkou a počítadlo „3 / 10“ – přepínání karet i poznámek. */
+/** Kulaté tlačítko se šipkou (32 dp, rámeček) a počítadlo „3 / 10“ – přepínání karet i poznámek. */
 @Composable
 fun PagerCounter(index: Int, count: Int, onPrev: () -> Unit, onNext: () -> Unit) {
-    val c = MaterialTheme.colorScheme.onSurface
+    val c = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
     Row(verticalAlignment = Alignment.CenterVertically) {
         CircleArrow(Icons.AutoMirrored.Filled.ArrowBack, index > 0, onPrev)
-        Text("${if (count == 0) 0 else index + 1} / $count", fontSize = 22.sp, color = c, modifier = Modifier.padding(horizontal = 6.dp))
+        Text("${if (count == 0) 0 else index + 1} / $count", fontSize = 22.sp, color = c, modifier = Modifier.padding(horizontal = 4.dp))
         CircleArrow(Icons.AutoMirrored.Filled.ArrowForward, index < count - 1, onNext)
     }
 }
@@ -102,10 +122,11 @@ fun PagerCounter(index: Int, count: Int, onPrev: () -> Unit, onNext: () -> Unit)
 @Composable
 private fun CircleArrow(icon: androidx.compose.ui.graphics.vector.ImageVector, enabled: Boolean, onClick: () -> Unit) {
     Box(
-        Modifier.size(38.dp).clip(CircleShape).background(MaterialTheme.colorScheme.surfaceContainerHigh)
-            .clickable(enabled = enabled, onClick = onClick).alpha(if (enabled) 1f else 0.4f),
+        Modifier.padding(2.dp).size(36.dp).clip(CircleShape).background(MaterialTheme.colorScheme.surfaceContainerHigh)
+            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape)
+            .clickable(enabled = enabled, onClick = onClick).alpha(if (enabled) 0.8f else 0.3f),
         contentAlignment = Alignment.Center,
-    ) { Icon(icon, null, tint = MaterialTheme.colorScheme.onSurface) }
+    ) { Icon(icon, null, Modifier.size(22.dp), tint = MaterialTheme.colorScheme.onSurface) }
 }
 
 /** Kulaté tlačítko ve spodní liště editoru. */

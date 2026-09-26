@@ -178,19 +178,23 @@ private fun SettingsScreen(startAction: String?, onBack: () -> Unit) {
     }
 
     @Composable
-    fun Toggle(label: String, value: Boolean, set: (Boolean) -> Unit) {
+    fun Toggle(label: String, value: Boolean, hint: String? = null, set: (Boolean) -> Unit) {
         Row(Modifier.fillMaxWidth().clickable { set(!value); tick++ }.padding(horizontal = 16.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
-            Text(label, Modifier.weight(1f))
+            Column(Modifier.weight(1f)) {
+                Text(label)
+                if (hint != null) Text(hint, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.outline)
+            }
             Switch(value, { set(it); tick++ })
         }
     }
 
     @Composable
-    fun Choice(label: String, options: List<String>, value: Int, set: (Int) -> Unit) {
+    fun Choice(label: String, options: List<String>, value: Int, hint: String? = null, set: (Int) -> Unit) {
         var open by remember { mutableStateOf(false) }
         Column(Modifier.fillMaxWidth().clickable { open = true }.padding(horizontal = 16.dp, vertical = 10.dp)) {
             Text(label)
             Text(options.getOrElse(value) { "" }, color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.bodySmall)
+            if (hint != null) Text(hint, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.outline)
         }
         if (open) AlertDialog(
             onDismissRequest = { open = false },
@@ -200,7 +204,7 @@ private fun SettingsScreen(startAction: String?, onBack: () -> Unit) {
                     Text((if (i == value) "✓ " else "") + o, Modifier.fillMaxWidth().clickable { set(i); tick++; open = false }.padding(vertical = 12.dp))
                 } }
             },
-            confirmButton = { TextButton(onClick = { open = false }) { Text("Zavřít") } },
+            confirmButton = { TextButton(onClick = { open = false }) { Text("zrušení") } },
         )
     }
 
@@ -208,33 +212,55 @@ private fun SettingsScreen(startAction: String?, onBack: () -> Unit) {
     fun Header(t: String) = Text(t, color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.titleSmall,
         modifier = Modifier.padding(start = 16.dp, top = 20.dp, bottom = 4.dp))
 
+    @Composable
+    fun Action(label: String, hint: String, onClick: () -> Unit) {
+        Column(Modifier.fillMaxWidth().clickable(onClick = onClick).padding(horizontal = 16.dp, vertical = 10.dp)) {
+            Text(label)
+            Text(hint, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.outline)
+        }
+    }
+
+    val refresh = { Repo.changed(context) }
+    // Kategorie a volby podle preferences.xml původní appky (jen ty, které tato verze umí).
     SimpleScaffold("Nastavení", onBack) { m ->
         androidx.compose.runtime.key(tick) { Column(m.verticalScroll(rememberScrollState())) {
-            Header("Zálohy")
-            Column(Modifier.fillMaxWidth().clickable { exportLauncher.launch(Backup.fileName()) }.padding(16.dp)) {
-                Text("Zálohovat do souboru")
-                Text("Soubor .bak – kompatibilní s původní aplikací My Notes", style = MaterialTheme.typography.bodySmall)
-            }
-            Column(Modifier.fillMaxWidth().clickable { importLauncher.launch(arrayOf("*/*")) }.padding(16.dp)) {
-                Text("Obnovit ze zálohy")
-                Text("Načte .bak z této aplikace i z My Notes (Pro)", style = MaterialTheme.typography.bodySmall)
-            }
+            Header("Všeobecné")
+            Choice("První den v týdnu", listOf("Neděle", "Pondělí"), if (s.firstDayOfWeek == 1) 0 else 1,
+                "V aplikaci vyberte první den v týdnu, který upřednostňujete") { s.firstDayOfWeek = if (it == 0) 1 else 2; refresh() }
             HorizontalDivider()
             Header("Vzhled")
-            Choice("Motiv", listOf("Podle systému", "Světlý", "Tmavý"), s.theme) { s.theme = it; (context as? Activity)?.recreate() }
-            Choice("Náhled poznámek v seznamu", listOf("Celý obsah", "Krátký náhled", "Jen název"), s.contentMode) {
-                s.contentMode = it; Repo.changed(context)
-            }
-            Toggle("Karta Kalendář", s.showCalendarTab) { s.showCalendarTab = it; Repo.changed(context) }
+            Choice("Téma", listOf("Systémové výchozí", "Světlé", "Tmavé"), s.theme,
+                "Světlé, tmavé nebo systémové výchozí téma") { s.theme = it; (context as? Activity)?.recreate() }
+            Toggle("Hotové položky dole", s.doneItemsBottom, "Hotové položky seznamu se zobrazí dole") { s.doneItemsBottom = it; refresh() }
+            Toggle("Barevné pozadí celé karty", s.colorFullTab,
+                "Zapnuto: barva vyplní celé pozadí karty. Vypnuto: obarví se jen název karty") { s.colorFullTab = it; refresh() }
+            Toggle("Datum / čas kalendáře", s.showReminderTime, "Zobrazit kalendářní datum a čas poznámky") { s.showReminderTime = it; refresh() }
+            Toggle("Vytvořeno datum / čas", s.showCreatedTime, "Zobrazit datum a čas vytvoření poznámky") { s.showCreatedTime = it; refresh() }
+            Toggle("Poslední změněné datum / čas", s.showModifiedTime, "Zobrazit datum a čas poslední změny poznámky") { s.showModifiedTime = it; refresh() }
+            Toggle("Zpětné seřízení", s.reverseAlignment, "Text zarovnaný zprava doleva") { s.reverseAlignment = it; refresh() }
             HorizontalDivider()
-            Header("Poznámky")
-            Toggle("Hotové položky seznamu přesouvat dolů", s.doneItemsBottom) { s.doneItemsBottom = it; Repo.changed(context) }
-            Toggle("Potvrzovat mazání", s.askBeforeDelete) { s.askBeforeDelete = it }
+            Header("Karta Kalendář")
+            Toggle("Karta Kalendář", s.showCalendarTab, "Zobrazit první kartu kalendáře") { s.showCalendarTab = it; refresh() }
+            Toggle("Dnešní datum", s.calendarToday, "Při otevírání vždy vybrat v kalendáři dnešní datum") { s.calendarToday = it }
+            Toggle("Text názvu kalendáře", s.calendarTitleText, "Zobrazit na kartě kalendáře text „Kalendář“") { s.calendarTitleText = it; refresh() }
             HorizontalDivider()
-            Header("Widgety")
-            Toggle("Zobrazovat čas připomínky", s.widgetShowReminder) { s.widgetShowReminder = it; WidgetUpdater.updateAll(context) }
-            Toggle("Zobrazovat datum vytvoření", s.widgetShowCreated) { s.widgetShowCreated = it; WidgetUpdater.updateAll(context) }
-            Toggle("Zobrazovat datum úpravy", s.widgetShowModified) { s.widgetShowModified = it; WidgetUpdater.updateAll(context) }
+            Header("Připomínka")
+            Toggle("Připomínka", s.remindersOn, "Vypněte, chcete-li skrýt oznámení z připomenutí") { s.remindersOn = it }
+            Toggle("Vibrační signál", s.reminderVibrate, "Vibrace zařízení při připomenutí") { s.reminderVibrate = it }
+            HorizontalDivider()
+            Header("Servisní funkce")
+            Action("Vytvořit zálohu", "Soubor .bak – stejný formát jako původní My Notes") { exportLauncher.launch(Backup.fileName()) }
+            Action("Obnovit zálohu", "Načte .bak z této aplikace i z My Notes (Pro)") { importLauncher.launch(arrayOf("*/*")) }
+            HorizontalDivider()
+            Header("Pokročilé nastavení")
+            Toggle("Spustit editor poznámek na widgetu", s.runEditorFromWidget,
+                "Zapnuto: klepnutí na widget otevře editor. Vypnuto: úvodní obrazovka s kartami") { s.runEditorFromWidget = it; WidgetUpdater.updateAll(context) }
+            Toggle("Potvrzení o vymazání poznámky", s.askBeforeDelete) { s.askBeforeDelete = it }
+            Toggle("Backspace – automatické odebrání položky seznamu", s.backspaceRemovesItem,
+                "Klávesa Zpět v prázdné položce seznamu ji odebere") { s.backspaceRemovesItem = it }
+            Toggle("Zvýrazněte webové odkazy", s.highlightLinks) { s.highlightLinks = it; refresh() }
+            Toggle("Zvýrazněte e-mailové adresy", s.highlightEmails) { s.highlightEmails = it; refresh() }
+            Toggle("Zvýrazněte telefonní čísla", s.highlightPhones) { s.highlightPhones = it; refresh() }
         } }
     }
 }

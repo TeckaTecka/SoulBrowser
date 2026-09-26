@@ -101,6 +101,11 @@ object WidgetUpdater {
         scheduleMidnight(context)
     }
 
+    /** Jako v originále: podle nastavení otevře editor, nebo úvodní obrazovku na kartě poznámky. */
+    fun openNoteIntent(context: Context, note: Note): Intent =
+        if (Settings(context).runEditorFromWidget) EditorActivity.intent(context, note.id)
+        else MainActivity.intent(context, note.tabId, note.id)
+
     fun styleOf(context: Context, widgetId: Int): WidgetStyle {
         val info = AppWidgetManager.getInstance(context).getAppWidgetInfo(widgetId) ?: return WidgetStyle.WHITE
         return noteProviders.entries.firstOrNull { it.key.name == info.provider.className }?.value ?: WidgetStyle.WHITE
@@ -145,11 +150,11 @@ object WidgetUpdater {
         val df = DateFormat.getDateFormat(context)
         val tf = DateFormat.getTimeFormat(context)
         val parts = mutableListOf<String>()
-        if (s.widgetShowReminder && n.reminderEnabled && n.reminderNextDate > 0) {
+        if (s.showReminderTime && n.reminderEnabled && n.reminderNextDate > 0) {
             parts += "⏰ " + df.format(Date(n.reminderNextDate)) + " " + tf.format(Date(n.reminderNextDate))
         }
-        if (s.widgetShowCreated && n.createdTimeStamp > 0) parts += "✚ " + df.format(Date(n.createdTimeStamp))
-        if (s.widgetShowModified && n.timeStamp > 0) parts += "✎ " + df.format(Date(n.timeStamp)) + " " + tf.format(Date(n.timeStamp))
+        if (s.showCreatedTime && n.createdTimeStamp > 0) parts += "✚ " + df.format(Date(n.createdTimeStamp))
+        if (s.showModifiedTime && n.timeStamp > 0) parts += "✎ " + df.format(Date(n.timeStamp)) + " " + tf.format(Date(n.timeStamp))
         return parts.joinToString("   ")
     }
 
@@ -174,7 +179,7 @@ object WidgetUpdater {
             rv.setTextViewText(R.id.title, note.title)
             rv.setViewVisibility(R.id.title, if (note.title.isBlank()) View.INVISIBLE else View.VISIBLE)
             rv.setTextViewTextSize(R.id.title, TypedValue.COMPLEX_UNIT_SP, note.effectiveTitleFontSize.toFloat())
-            rv.setOnClickPendingIntent(R.id.title, activityPi(context, 200_000 + widgetId, EditorActivity.intent(context, note.id)))
+            rv.setOnClickPendingIntent(R.id.title, activityPi(context, 200_000 + widgetId, openNoteIntent(context, note)))
             val info = infoLine(context, note)
             rv.setTextViewText(R.id.info_text, info)
             rv.setViewVisibility(R.id.info, if (info.isEmpty()) View.GONE else View.VISIBLE)
@@ -234,7 +239,7 @@ object WidgetUpdater {
         rv.setOnClickPendingIntent(R.id.btn_prev_note, selfPi(context, DateWidget::class.java, widgetId, ACTION_PREV_NOTE))
         rv.setOnClickPendingIntent(R.id.btn_next_note, selfPi(context, DateWidget::class.java, widgetId, ACTION_NEXT_NOTE))
         rv.setOnClickPendingIntent(R.id.btn_add, activityPi(context, 500_000 + widgetId, EditorActivity.intent(context, Note.NEW_ID, reminderDay = day)))
-        if (note != null) rv.setOnClickPendingIntent(R.id.title, activityPi(context, 600_000 + widgetId, EditorActivity.intent(context, note.id)))
+        if (note != null) rv.setOnClickPendingIntent(R.id.title, activityPi(context, 600_000 + widgetId, openNoteIntent(context, note)))
         rv.setRemoteAdapter(R.id.list, listAdapterIntent(context, widgetId, WidgetListService.KIND_DATE))
         rv.setEmptyView(R.id.list, R.id.empty)
         rv.setPendingIntentTemplate(R.id.list, actionTemplate(context, widgetId))
@@ -341,7 +346,8 @@ class WidgetActionReceiver : BroadcastReceiver() {
             }.start()
         } else {
             context.startActivity(
-                EditorActivity.intent(context, noteId).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK),
+                WidgetUpdater.openNoteIntent(context, NotesDb.get(context).note(noteId) ?: return)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK),
             )
         }
     }

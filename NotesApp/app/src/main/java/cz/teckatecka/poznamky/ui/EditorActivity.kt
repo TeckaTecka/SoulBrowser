@@ -87,7 +87,14 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.border
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
@@ -211,7 +218,7 @@ private fun NoteEditor(
     var note by remember { mutableStateOf(initial) }
     var saved by remember { mutableStateOf(initial) }
     var menu by remember { mutableStateOf(false) }
-    // 1 barva, 2 kalendář, 3 písmo, 4 karta, 5 odebrat, 6 písmo hlavy, 7 převod, 8 vymazat obsah
+    // 1 barva, 2 kalendář, 3 písmo, 4 karta, 5 odebrat, 6 písmo hlavy, 7 převod, 8 vymazat obsah, 9 výběr widgetu
     var dialog by remember { mutableIntStateOf(0) }
     var inWidget by remember { mutableStateOf(widgetsShowing(context, initial.id).isNotEmpty()) }
 
@@ -265,7 +272,13 @@ private fun NoteEditor(
     val fg = if (note.color == 0 && note.fontColor == 0) MaterialTheme.colorScheme.onSurface else noteFg(note.color, note.fontColor)
     val dim = fg.copy(alpha = 0.6f)
     val tabs = remember { Repo.db(context).tabs() }
-    val align = if (note.reverseAlignment) TextAlign.End else TextAlign.Start
+    val align = if (note.reverseAlignment || settings.reverseAlignment) TextAlign.End else TextAlign.Start
+    fun placeInWidget(w: Int) {
+        save()
+        if (note.id == Note.NEW_ID) return
+        WidgetPrefs.setNoteId(context, w, note.id); WidgetUpdater.updateAll(context); inWidget = true
+        Toast.makeText(context, "Poznámka byla umístěna do widgetu", Toast.LENGTH_SHORT).show()
+    }
 
     when (dialog) {
         1 -> ColorPickerDialog(note.color, { dialog = 0 }) { update(note.copy(color = it)); dialog = 0 }
@@ -283,6 +296,24 @@ private fun NoteEditor(
             dismissButton = { TextButton(onClick = { dialog = 0 }) { Text("ZRUŠENÍ") } },
         )
         8 -> ConfirmDialog("Vymazat obsah poznámky?", { dialog = 0 }) { update(note.copy(body = "", items = emptyList())); dialog = 0 }
+        9 -> {
+            val widgets = remember { allNoteWidgets(context) }
+            val db = remember { Repo.db(context) }
+            AlertDialog(
+                onDismissRequest = { dialog = 0 },
+                title = { Text("Chcete-li poznámku umístit, vyberte widget") },
+                text = {
+                    Column {
+                        widgets.forEachIndexed { i, w ->
+                            val current = db.note(WidgetPrefs.noteId(context, w))?.let { it.title.ifBlank { it.plainText().take(30) } }
+                            Text("Widget ${i + 1}: " + (current ?: "– prázdný –"),
+                                Modifier.fillMaxWidth().clickable { dialog = 0; placeInWidget(w) }.padding(vertical = 12.dp))
+                        }
+                    }
+                },
+                confirmButton = { TextButton(onClick = { dialog = 0 }) { Text("zrušení") } },
+            )
+        }
     }
 
     Scaffold(
@@ -339,9 +370,11 @@ private fun NoteEditor(
                 }
             }
         },
-        bottomBar = {
+        bottomBar = { Column {
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
             Row(
-                Modifier.fillMaxWidth().navigationBarsPadding().padding(start = 16.dp, end = 12.dp, top = 4.dp, bottom = 8.dp),
+                Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surfaceContainer).navigationBarsPadding()
+                    .padding(start = 16.dp, end = 6.dp, top = 4.dp, bottom = 4.dp),
                 verticalAlignment = Alignment.Bottom,
             ) {
                 Column(Modifier.weight(1f)) {
@@ -372,14 +405,12 @@ private fun NoteEditor(
                             inWidget -> {
                                 widgetsShowing(context, note.id).forEach { WidgetPrefs.setNoteId(context, it, Note.NEW_ID) }
                                 WidgetUpdater.updateAll(context); inWidget = false
+                                Toast.makeText(context, "Poznámka byla odstraněna z widgetu", Toast.LENGTH_SHORT).show()
                             }
-                            widgetId != AppWidgetManager.INVALID_APPWIDGET_ID -> {
-                                save()
-                                if (note.id != Note.NEW_ID) {
-                                    WidgetPrefs.setNoteId(context, widgetId, note.id); WidgetUpdater.updateAll(context); inWidget = true
-                                }
-                            }
-                            else -> Toast.makeText(context, "Přidejte na plochu widget Poznámka a vyberte v něm tuto poznámku.", Toast.LENGTH_LONG).show()
+                            widgetId != AppWidgetManager.INVALID_APPWIDGET_ID -> placeInWidget(widgetId)
+                            allNoteWidgets(context).size == 1 -> placeInWidget(allNoteWidgets(context).first())
+                            allNoteWidgets(context).isNotEmpty() -> dialog = 9
+                            else -> Toast.makeText(context, "Nejdřív přidejte na plochu widget Poznámky.", Toast.LENGTH_LONG).show()
                         }
                     }, background = if (inWidget) MaterialTheme.colorScheme.primary else white) {
                         Text("W", fontWeight = FontWeight.Bold, fontSize = 20.sp, color = if (inWidget) MaterialTheme.colorScheme.onPrimary else Color(0xFF3D5272))
@@ -399,7 +430,7 @@ private fun NoteEditor(
                     }
                 }
             }
-        },
+        } },
     ) { padding ->
         Column(Modifier.padding(padding).fillMaxSize().imePadding().verticalScroll(rememberScrollState())) {
             val fieldColors = TextFieldDefaults.colors(
@@ -409,8 +440,21 @@ private fun NoteEditor(
                 focusedTextColor = fg, unfocusedTextColor = fg, disabledTextColor = fg,
             )
             val titleColor = if (note.fontColorTitle != 0) Color(note.fontColorTitle) else fg
+            // Štítek karty pod lištou vpravo (note_tab_frame_view) – klepnutím přesun na jinou kartu.
+            val tabTitle = tabs.firstOrNull { it.id == note.tabId }?.title ?: ""
+            val chipShape = RoundedCornerShape(bottomStart = 6.dp, bottomEnd = 6.dp)
+            Row(
+                Modifier.align(Alignment.End).padding(end = 4.dp).clip(chipShape)
+                    .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+                    .border(1.dp, MaterialTheme.colorScheme.outlineVariant, chipShape).clickable { dialog = 4 }
+                    .padding(start = 10.dp, end = 6.dp, top = 2.dp, bottom = 2.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                if (note.reminderEnabled) Icon(Icons.Default.CalendarMonth, null, Modifier.size(18.dp).alpha(0.7f))
+                Text(tabTitle, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f), fontSize = 15.sp)
+            }
             Row(verticalAlignment = Alignment.Top) {
-                IconButton(onClick = { update(note.copy(pinned = !note.pinned)) }, Modifier.padding(top = 6.dp)) {
+                IconButton(onClick = { update(note.copy(pinned = !note.pinned)) }) {
                     Icon(if (note.pinned) Icons.Filled.PushPin else Icons.Outlined.PushPin, "Připnout", tint = if (note.pinned) fg else dim)
                 }
                 TextField(
@@ -420,20 +464,9 @@ private fun NoteEditor(
                     colors = fieldColors, modifier = Modifier.weight(1f),
                     keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
                 )
-                // Štítek karty vpravo nahoře – klepnutím přesun na jinou kartu.
-                val tabTitle = tabs.firstOrNull { it.id == note.tabId }?.title ?: ""
-                Row(
-                    Modifier.padding(top = 4.dp, end = 6.dp).clip(RoundedCornerShape(8.dp))
-                        .background(MaterialTheme.colorScheme.surfaceContainerHigh).clickable { dialog = 4 }
-                        .padding(horizontal = 10.dp, vertical = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    if (note.reminderEnabled) Icon(Icons.Default.CalendarMonth, null, Modifier.size(14.dp), tint = MaterialTheme.colorScheme.outline)
-                    Text(tabTitle, color = MaterialTheme.colorScheme.outline, fontSize = 15.sp)
-                }
             }
             if (note.isList) {
-                ChecklistEditor(note, fg, fieldColors, settings.doneItemsBottom) { update(note.copy(items = it)) }
+                ChecklistEditor(note, fg, fieldColors, settings.doneItemsBottom, settings.backspaceRemovesItem, align) { update(note.copy(items = it)) }
             } else if (note.readOnly) {
                 // Zamčená poznámka: odkazy jsou klikací.
                 Text(linkified(note.body), color = fg, fontSize = note.effectiveFontSize.sp, textAlign = align,
@@ -461,6 +494,8 @@ private fun ChecklistEditor(
     fg: Color,
     colors: androidx.compose.material3.TextFieldColors,
     doneBottom: Boolean,
+    backspaceRemoves: Boolean,
+    align: TextAlign,
     onChange: (List<NoteItem>) -> Unit,
 ) {
     val items = note.items
@@ -503,12 +538,19 @@ private fun ChecklistEditor(
                 readOnly = note.readOnly,
                 textStyle = TextStyle(
                     fontSize = note.effectiveFontSize.sp, color = if (item.done) fg.copy(alpha = 0.6f) else fg,
-                    textAlign = if (note.reverseAlignment) TextAlign.End else TextAlign.Start,
+                    textAlign = align,
                     textDecoration = if (item.done) TextDecoration.LineThrough else null,
                 ),
                 colors = colors,
                 keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences, imeAction = ImeAction.None),
-                modifier = Modifier.weight(1f).focusRequester(requesters[i]),
+                modifier = Modifier.weight(1f).focusRequester(requesters[i]).onPreviewKeyEvent { e ->
+                    // Backspace v prázdné položce ji odstraní a skočí na předchozí (jako v originále).
+                    if (backspaceRemoves && e.type == KeyEventType.KeyDown && e.key == Key.Backspace && item.title.isEmpty() && items.size > 1) {
+                        onChange(items.toMutableList().also { it.removeAt(i) })
+                        focusIndex = (i - 1).coerceAtLeast(0)
+                        true
+                    } else false
+                },
             )
             if (!note.readOnly) IconButton(onClick = { onChange(items.toMutableList().also { it.removeAt(i) }) }) {
                 Icon(Icons.Default.Close, "Odstranit položku", tint = fg.copy(alpha = 0.6f))
