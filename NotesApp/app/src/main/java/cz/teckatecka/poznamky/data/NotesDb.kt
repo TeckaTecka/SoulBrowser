@@ -23,7 +23,7 @@ class NotesDb private constructor(context: Context) :
         db.execSQL(CREATE_NOTES)
         db.execSQL(CREATE_USERS)
         val now = System.currentTimeMillis()
-        listOf(NoteTab.COMMON_ID to "Obecné", NoteTab.WORK_ID to "Práce", NoteTab.HOME_ID to "Domov")
+        listOf(NoteTab.COMMON_ID to "Společný", NoteTab.WORK_ID to "Práce", NoteTab.HOME_ID to "Domov")
             .forEachIndexed { i, (id, title) ->
                 db.insert(TABS, null, tabValues(NoteTab(id, title, spool = i, timeStamp = now)))
             }
@@ -313,9 +313,10 @@ class NotesDb private constructor(context: Context) :
 }
 
 /** Řazení – stejné varianty jako v původní appce; připnuté vždy nahoře. */
+// Pořadí konstant se ukládá do nastavení – neměnit.
 enum class SortMode(val orderBy: String, val label: String) {
-    MODIFIED_DESC("pin, time_stamp desc", "Od nejnovějších"),
-    MODIFIED("pin, time_stamp", "Od nejstarších"),
-    TITLE("pin, title COLLATE LOCALIZED", "Podle názvu A–Z"),
-    TITLE_DESC("pin, title COLLATE LOCALIZED desc", "Podle názvu Z–A"),
+    MODIFIED_DESC("pin, time_stamp desc", "Upravené datum sestupně"),
+    MODIFIED("pin, time_stamp", "Upravené datum"),
+    TITLE("pin, title COLLATE LOCALIZED", "Název"),
+    TITLE_DESC("pin, title COLLATE LOCALIZED desc", "Název sestupně"),
 }

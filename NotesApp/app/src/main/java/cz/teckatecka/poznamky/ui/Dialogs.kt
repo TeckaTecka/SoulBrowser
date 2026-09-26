@@ -24,6 +24,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.FormatColorText
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.AlertDialog
@@ -85,21 +86,21 @@ fun ColorPickerDialog(current: Int, onDismiss: () -> Unit, title: String = "Barv
 
 /** Barva textu – stejná paleta + tmavé/bílé. */
 @Composable
-fun FontDialog(note: Note, onDismiss: () -> Unit, onApply: (Note) -> Unit) {
-    var size by remember { mutableStateOf(note.effectiveFontSize.toFloat()) }
+fun FontDialog(note: Note, forTitle: Boolean = false, onDismiss: () -> Unit, onApply: (Note) -> Unit) {
+    var size by remember { mutableStateOf((if (forTitle) note.effectiveTitleFontSize else note.effectiveFontSize).toFloat()) }
     var pickColor by remember { mutableStateOf(false) }
-    var fontColor by remember { mutableStateOf(note.fontColor) }
+    var fontColor by remember { mutableStateOf(if (forTitle) note.fontColorTitle else note.fontColor) }
     if (pickColor) {
         ColorPickerDialog(fontColor, { pickColor = false }, "Barva textu") { fontColor = it; pickColor = false }
         return
     }
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Písmo") },
+        title = { Text(if (forTitle) "Písmo hlavy" else "Písmo") },
         text = {
             Column {
                 Text("Velikost: ${size.toInt()} sp")
-                Slider(value = size, onValueChange = { size = it }, valueRange = 10f..32f, steps = 21)
+                Slider(value = size, onValueChange = { size = it }, valueRange = 8f..40f, steps = 31)
                 Text("Ukázka textu", fontSize = size.sp)
                 Spacer(Modifier.height(12.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -115,7 +116,10 @@ fun FontDialog(note: Note, onDismiss: () -> Unit, onApply: (Note) -> Unit) {
         confirmButton = {
             TextButton(onClick = {
                 val s = size.toInt()
-                onApply(note.copy(fontSize = if (s == Note.DEFAULT_FONT_SIZE) 0 else s, fontColor = fontColor))
+                onApply(
+                    if (forTitle) note.copy(fontSizeTitle = if (s == note.effectiveFontSize + 4) 0 else s, fontColorTitle = fontColor)
+                    else note.copy(fontSize = if (s == Note.DEFAULT_FONT_SIZE) 0 else s, fontColor = fontColor),
+                )
             }) { Text("OK") }
         },
         dismissButton = { TextButton(onClick = onDismiss) { Text("Zrušit") } },
@@ -123,41 +127,47 @@ fun FontDialog(note: Note, onDismiss: () -> Unit, onApply: (Note) -> Unit) {
 }
 
 @Composable
-fun TabsDialog(tabs: List<NoteTab>, onDismiss: () -> Unit) {
+fun TabsDialog(tabs: List<NoteTab>, startWithNew: Boolean = false, onDismiss: () -> Unit) {
     val context = LocalContext.current
-    var edit by remember { mutableStateOf<NoteTab?>(null) }
+    var edit by remember { mutableStateOf<NoteTab?>(if (startWithNew) NoteTab(0, "") else null) }
     var colorFor by remember { mutableStateOf<NoteTab?>(null) }
+    var fontColorFor by remember { mutableStateOf<NoteTab?>(null) }
     var deleteFor by remember { mutableStateOf<NoteTab?>(null) }
 
     edit?.let { t ->
         var title by remember(t) { mutableStateOf(t.title) }
         AlertDialog(
             onDismissRequest = { edit = null },
-            title = { Text(if (t.id <= 0) "Nová záložka" else "Přejmenovat") },
+            title = { Text(if (t.id <= 0) "Nová karta" else "Upravit kartu") },
             text = { OutlinedTextField(title, { title = it }, singleLine = true) },
             confirmButton = {
                 TextButton(onClick = {
                     if (title.isNotBlank()) Repo.saveTab(context, t.copy(title = title.trim()))
                     edit = null
+                    if (startWithNew) onDismiss()
                 }) { Text("OK") }
             },
-            dismissButton = { TextButton(onClick = { edit = null }) { Text("Zrušit") } },
+            dismissButton = { TextButton(onClick = { edit = null; if (startWithNew) onDismiss() }) { Text("Zrušit") } },
         )
         return
     }
     colorFor?.let { t ->
-        ColorPickerDialog(t.color, { colorFor = null }) { Repo.saveTab(context, t.copy(color = it)); colorFor = null }
+        ColorPickerDialog(t.color, { colorFor = null }, "Barva pozadí karty") { Repo.saveTab(context, t.copy(color = it)); colorFor = null }
+        return
+    }
+    fontColorFor?.let { t ->
+        ColorPickerDialog(t.fontColor, { fontColorFor = null }, "Barva písma karty") { Repo.saveTab(context, t.copy(fontColor = it)); fontColorFor = null }
         return
     }
     deleteFor?.let { t ->
-        ConfirmDialog("Smazat záložku „${t.title}“? Její poznámky se přesunou do koše.", { deleteFor = null }) {
+        ConfirmDialog("Odstranit kartu „${t.title}“? Její poznámky se přesunou do koše.", { deleteFor = null }) {
             Repo.deleteTab(context, t.id); deleteFor = null
         }
         return
     }
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Záložky") },
+        title = { Text("Správa karet") },
         text = {
             LazyColumn {
                 itemsIndexed(tabs, key = { _, t -> t.id }) { i, t ->
@@ -169,7 +179,9 @@ fun TabsDialog(tabs: List<NoteTab>, onDismiss: () -> Unit) {
                                 .clickable { colorFor = t },
                         )
                         Spacer(Modifier.width(8.dp))
-                        Text(t.title, Modifier.weight(1f).clickable { edit = t }.padding(vertical = 12.dp))
+                        Text(t.title, Modifier.weight(1f).clickable { edit = t }.padding(vertical = 12.dp),
+                            color = if (t.fontColor != 0) Color(t.fontColor) else MaterialTheme.colorScheme.onSurface)
+                        IconButton(onClick = { fontColorFor = t }) { Icon(Icons.Default.FormatColorText, "Barva písma") }
                         IconButton(onClick = { Repo.moveTab(context, t.id, -1) }, enabled = i > 0) {
                             Icon(Icons.Default.KeyboardArrowUp, "Nahoru")
                         }
@@ -182,7 +194,7 @@ fun TabsDialog(tabs: List<NoteTab>, onDismiss: () -> Unit) {
             }
         },
         confirmButton = { TextButton(onClick = onDismiss) { Text("Hotovo") } },
-        dismissButton = { TextButton(onClick = { edit = NoteTab(0, "") }) { Text("Přidat záložku") } },
+        dismissButton = { TextButton(onClick = { edit = NoteTab(0, "") }) { Text("Přidat kartu") } },
     )
 }
 

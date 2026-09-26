@@ -86,7 +86,7 @@ private fun RecycleBin(onBack: () -> Unit) {
     SimpleScaffold("Koš", onBack, actions = {
         if (notes.isNotEmpty()) TextButton(onClick = { confirmEmpty = true }) { Text("Vysypat") }
     }) { m ->
-        Column(m) { NotesList(notes, 1, 1, { selected = it }) { selected = it } }
+        Column(m) { NotesList(notes, 2, 1, { selected = it }) }
     }
     selected?.let { n ->
         AlertDialog(
@@ -108,7 +108,16 @@ class SettingsActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContent { AppTheme { SettingsScreen { finish() } } }
+        val action = intent.getStringExtra(EXTRA_ACTION)
+        setContent { AppTheme { SettingsScreen(action) { finish() } } }
+    }
+
+    companion object {
+        private const val EXTRA_ACTION = "action"
+        const val ACTION_BACKUP = "backup"
+        const val ACTION_RESTORE = "restore"
+        fun intent(context: Context, action: String? = null) =
+            Intent(context, SettingsActivity::class.java).putExtra(EXTRA_ACTION, action)
     }
 }
 
@@ -136,7 +145,7 @@ object Backup {
 }
 
 @Composable
-private fun SettingsScreen(onBack: () -> Unit) {
+private fun SettingsScreen(startAction: String?, onBack: () -> Unit) {
     val context = LocalContext.current
     val s = remember { Settings(context) }
     var tick by remember { mutableStateOf(0) }
@@ -148,6 +157,16 @@ private fun SettingsScreen(onBack: () -> Unit) {
             .onFailure { Toast.makeText(context, "Záloha selhala: ${it.message}", Toast.LENGTH_LONG).show() }
     }
     val importLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri -> pendingImport = uri }
+    // Spuštěno z bočního menu „Servisní funkce“.
+    var launched by androidx.compose.runtime.saveable.rememberSaveable { mutableStateOf(false) }
+    androidx.compose.runtime.LaunchedEffect(Unit) {
+        if (launched) return@LaunchedEffect
+        launched = true
+        when (startAction) {
+            SettingsActivity.ACTION_BACKUP -> exportLauncher.launch(Backup.fileName())
+            SettingsActivity.ACTION_RESTORE -> importLauncher.launch(arrayOf("*/*"))
+        }
+    }
 
     pendingImport?.let { uri ->
         ConfirmDialog("Obnovit ze zálohy? Současné poznámky budou nahrazeny obsahem zálohy.", { pendingImport = null }) {
@@ -206,7 +225,7 @@ private fun SettingsScreen(onBack: () -> Unit) {
             Choice("Náhled poznámek v seznamu", listOf("Celý obsah", "Krátký náhled", "Jen název"), s.contentMode) {
                 s.contentMode = it; Repo.changed(context)
             }
-            Toggle("Záložka Kalendář", s.showCalendarTab) { s.showCalendarTab = it; Repo.changed(context) }
+            Toggle("Karta Kalendář", s.showCalendarTab) { s.showCalendarTab = it; Repo.changed(context) }
             HorizontalDivider()
             Header("Poznámky")
             Toggle("Hotové položky seznamu přesouvat dolů", s.doneItemsBottom) { s.doneItemsBottom = it; Repo.changed(context) }
@@ -258,7 +277,7 @@ private fun SelectNote(onBack: () -> Unit, onPick: (Note) -> Unit) {
     SimpleScaffold("Vyberte poznámku pro widget", onBack) { m ->
         Column(m.fillMaxSize()) {
             val notes = remember { tabs.flatMap { t -> db.notesInTab(t.id, settings.sortMode) } }
-            NotesList(notes, settings.viewMode, 1, onPick, onLongPress = onPick)
+            NotesList(notes, settings.viewMode, 1, onPick)
         }
     }
 }

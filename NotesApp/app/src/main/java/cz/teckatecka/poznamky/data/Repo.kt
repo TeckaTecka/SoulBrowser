@@ -55,9 +55,9 @@ class Settings(context: Context) {
     var sortMode: SortMode
         get() = SortMode.entries.getOrElse(p.getInt("sort", 0)) { SortMode.MODIFIED_DESC }
         set(v) = p.edit().putInt("sort", v.ordinal).apply()
-    var viewMode: Int // 0 = mřížka, 1 = seznam
-        get() = p.getInt("view_mode", 0)
-        set(v) = p.edit().putInt("view_mode", v).apply()
+    var viewMode: Int // 0 = volný, 1 = dva sloupce, 2 = seznam
+        get() = p.getInt("view_mode2", 0)
+        set(v) = p.edit().putInt("view_mode2", v).apply()
     var contentMode: Int // 0 = celý obsah, 1 = krátký náhled, 2 = jen název
         get() = p.getInt("content_mode", 1)
         set(v) = p.edit().putInt("content_mode", v).apply()

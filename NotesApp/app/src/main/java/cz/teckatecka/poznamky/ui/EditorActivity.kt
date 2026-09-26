@@ -4,12 +4,16 @@ import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -17,26 +21,51 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Notes
+import androidx.compose.material.icons.automirrored.filled.Redo
+import androidx.compose.material.icons.automirrored.filled.Undo
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.AddToHomeScreen
 import androidx.compose.material.icons.filled.Alarm
+import androidx.compose.material.icons.filled.AttachFile
+import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Checklist
+import androidx.compose.material.icons.filled.CleaningServices
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.DriveFileMove
+import androidx.compose.material.icons.filled.FormatAlignRight
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.PushPin
+import androidx.compose.material.icons.filled.RemoveDone
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.SortByAlpha
+import androidx.compose.material.icons.filled.Sync
+import androidx.compose.material.icons.filled.Title
 import androidx.compose.material.icons.outlined.PushPin
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -45,33 +74,37 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import cz.teckatecka.poznamky.data.Note
 import cz.teckatecka.poznamky.data.NoteItem
 import cz.teckatecka.poznamky.data.NoteTab
@@ -81,7 +114,7 @@ import cz.teckatecka.poznamky.data.Repo
 import cz.teckatecka.poznamky.data.Settings
 import cz.teckatecka.poznamky.widget.WidgetPrefs
 import cz.teckatecka.poznamky.widget.WidgetUpdater
-import org.json.JSONArray
+import kotlinx.coroutines.launch
 import java.util.Calendar
 
 class EditorActivity : ComponentActivity() {
@@ -127,8 +160,11 @@ class EditorActivity : ComponentActivity() {
         setContent {
             AppTheme {
                 val pager = rememberPagerState(initialPage = start) { pages.size }
+                val scope = rememberCoroutineScope()
+                // Listování mezi poznámkami karty swipem i šipkami „1 / 25“ jako v originále.
                 HorizontalPager(pager, beyondViewportPageCount = 0) { i ->
-                    NoteEditor(pages[i], widgetId, isNew = existing == null) { finish() }
+                    NoteEditor(pages[i], widgetId, isNew = existing == null, index = i, count = pages.size,
+                        onPage = { p -> scope.launch { pager.animateScrollToPage(p.coerceIn(0, pages.size - 1)) } }) { finish() }
                 }
             }
         }
@@ -160,15 +196,42 @@ class EditorActivity : ComponentActivity() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun NoteEditor(initial: Note, widgetId: Int, isNew: Boolean, onClose: () -> Unit) {
+private fun NoteEditor(
+    initial: Note,
+    widgetId: Int,
+    isNew: Boolean,
+    index: Int,
+    count: Int,
+    onPage: (Int) -> Unit,
+    onClose: () -> Unit,
+) {
     val context = LocalContext.current
     val settings = remember { Settings(context) }
     var note by remember { mutableStateOf(initial) }
     var saved by remember { mutableStateOf(initial) }
     var menu by remember { mutableStateOf(false) }
-    var dialog by remember { mutableIntStateOf(0) } // 1 barva, 2 připomínka, 3 písmo, 4 záložka, 5 smazat
+    // 1 barva, 2 kalendář, 3 písmo, 4 karta, 5 odebrat, 6 písmo hlavy, 7 převod, 8 vymazat obsah
+    var dialog by remember { mutableIntStateOf(0) }
+    var inWidget by remember { mutableStateOf(widgetsShowing(context, initial.id).isNotEmpty()) }
+
+    // Zpět / znovu: historie stavů, psaní se slučuje do kroků po ~0,8 s.
+    val history = remember { mutableListOf(initial) }
+    var histIndex by remember { mutableIntStateOf(0) }
+    var lastPush by remember { mutableLongStateOf(0L) }
+    fun update(n: Note) {
+        val now = android.os.SystemClock.uptimeMillis()
+        if (now - lastPush > 800) {
+            while (history.size > histIndex + 1) history.removeAt(history.lastIndex)
+            history.add(n); histIndex = history.lastIndex
+        } else {
+            history[histIndex] = n
+        }
+        lastPush = now
+        note = n
+    }
+    fun undo() { if (histIndex > 0) { histIndex--; note = history[histIndex]; lastPush = 0 } }
+    fun redo() { if (histIndex < history.lastIndex) { histIndex++; note = history[histIndex]; lastPush = 0 } }
 
     fun save() {
         if (note == saved) return
@@ -177,11 +240,17 @@ private fun NoteEditor(initial: Note, widgetId: Int, isNew: Boolean, onClose: ()
         if (isNew && widgetId != AppWidgetManager.INVALID_APPWIDGET_ID && saved.id == Note.NEW_ID) {
             WidgetPrefs.setNoteId(context, widgetId, result.id)
             WidgetUpdater.updateAll(context)
+            inWidget = true
         }
         saved = result
         note = result
     }
     val saveNow by rememberUpdatedState(::save)
+    fun remove() {
+        if (note.id != Note.NEW_ID) { save(); Repo.trash(context, note.id) }
+        saved = note // nic dalšího neukládat
+        onClose()
+    }
 
     // Automatické ukládání při odchodu ze stránky / aplikace.
     val lifecycle = LocalLifecycleOwner.current.lifecycle
@@ -192,70 +261,147 @@ private fun NoteEditor(initial: Note, widgetId: Int, isNew: Boolean, onClose: ()
     }
     BackHandler { save(); onClose() }
 
-    val bg = if (note.color == 0) MaterialTheme.colorScheme.surface else Color(note.color)
+    val bg = if (note.color == 0) MaterialTheme.colorScheme.background else Color(note.color)
     val fg = if (note.color == 0 && note.fontColor == 0) MaterialTheme.colorScheme.onSurface else noteFg(note.color, note.fontColor)
+    val dim = fg.copy(alpha = 0.6f)
     val tabs = remember { Repo.db(context).tabs() }
+    val align = if (note.reverseAlignment) TextAlign.End else TextAlign.Start
 
     when (dialog) {
-        1 -> ColorPickerDialog(note.color, { dialog = 0 }) { note = note.copy(color = it); dialog = 0 }
-        2 -> ReminderDialog(note, { dialog = 0 }) { note = it; dialog = 0; save() }
-        3 -> FontDialog(note, { dialog = 0 }) { note = it; dialog = 0 }
-        4 -> TabPickerDialog(tabs, note.tabId, { dialog = 0 }) { note = note.copy(tabId = it); dialog = 0 }
-        5 -> ConfirmDialog("Přesunout poznámku do koše?", { dialog = 0 }) {
-            dialog = 0
-            if (note.id != Note.NEW_ID) { save(); Repo.trash(context, note.id) }
-            saved = note // nic dalšího neukládat
-            onClose()
-        }
+        1 -> ColorPickerDialog(note.color, { dialog = 0 }) { update(note.copy(color = it)); dialog = 0 }
+        2 -> ReminderDialog(note, { dialog = 0 }) { update(it); dialog = 0; save() }
+        3 -> FontDialog(note, onDismiss = { dialog = 0 }) { update(it); dialog = 0 }
+        4 -> TabPickerDialog(tabs, note.tabId, { dialog = 0 }) { update(note.copy(tabId = it)); dialog = 0 }
+        5 -> ConfirmDialog("Odebrat poznámku do koše?", { dialog = 0 }) { dialog = 0; remove() }
+        6 -> FontDialog(note, forTitle = true, onDismiss = { dialog = 0 }) { update(it); dialog = 0 }
+        7 -> AlertDialog(
+            onDismissRequest = { dialog = 0 },
+            icon = { Icon(if (note.isList) Icons.AutoMirrored.Filled.Notes else Icons.Default.Checklist, null) },
+            title = { Text(if (note.isList) "Převést na text?" else "Převést na seznam?") },
+            text = { Text(if (note.isList) "Chcete převést tělo poznámky na text?" else "Chcete převést tělo poznámky na seznam?") },
+            confirmButton = { TextButton(onClick = { update(note.toggledType()); dialog = 0 }) { Text("OK") } },
+            dismissButton = { TextButton(onClick = { dialog = 0 }) { Text("ZRUŠENÍ") } },
+        )
+        8 -> ConfirmDialog("Vymazat obsah poznámky?", { dialog = 0 }) { update(note.copy(body = "", items = emptyList())); dialog = 0 }
     }
 
     Scaffold(
         containerColor = bg,
         topBar = {
-            TopAppBar(
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = bg, navigationIconContentColor = fg, actionIconContentColor = fg, titleContentColor = fg),
-                title = { Text(tabs.firstOrNull { it.id == note.tabId }?.title ?: "", style = MaterialTheme.typography.titleSmall) },
-                navigationIcon = { IconButton(onClick = { save(); onClose() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Zpět") } },
-                actions = {
-                    IconButton(onClick = { note = note.copy(pinned = !note.pinned) }) {
-                        Icon(if (note.pinned) Icons.Filled.PushPin else Icons.Outlined.PushPin, "Připnout")
-                    }
-                    IconButton(onClick = { dialog = 1 }) { Icon(Icons.Default.Palette, "Barva") }
-                    IconButton(onClick = { dialog = 2 }) {
-                        Icon(Icons.Default.Alarm, "Připomínka", tint = if (note.reminderEnabled) MaterialTheme.colorScheme.primary else fg)
-                    }
-                    IconButton(onClick = { menu = true }) { Icon(Icons.Default.MoreVert, "Další") }
+            Row(
+                Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surfaceContainer).statusBarsPadding()
+                    .height(64.dp).padding(horizontal = 4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                IconButton(onClick = { save(); onClose() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Zpět") }
+                PagerCounter(index, count, { save(); onPage(index - 1) }, { save(); onPage(index + 1) })
+                Spacer(Modifier.weight(1f))
+                IconButton(onClick = ::undo, enabled = histIndex > 0) { Icon(Icons.AutoMirrored.Filled.Undo, "Zpět o krok") }
+                IconButton(onClick = ::redo, enabled = histIndex < history.lastIndex) { Icon(Icons.AutoMirrored.Filled.Redo, "Znovu") }
+                IconButton(onClick = { update(note.copy(readOnly = !note.readOnly)) }) {
+                    Icon(if (note.readOnly) Icons.Default.Lock else Icons.Default.LockOpen, if (note.readOnly) "Odemknout" else "Zámek")
+                }
+                IconButton(onClick = { dialog = 7 }) {
+                    Icon(if (note.isList) Icons.AutoMirrored.Filled.Notes else Icons.Default.Checklist, "Text / seznam")
+                }
+                Box {
+                    IconButton(onClick = { menu = true }) { Icon(Icons.Default.MoreVert, "Menu") }
                     DropdownMenu(menu, { menu = false }) {
-                        DropdownMenuItem(text = { Text(if (note.isList) "Převést na text" else "Převést na seznam") },
-                            onClick = { note = note.toggledType(); menu = false })
+                        @Composable
+                        fun I(label: String, icon: ImageVector, trailing: (@Composable () -> Unit)? = null, action: () -> Unit) =
+                            DropdownMenuItem(text = { Text(label) }, leadingIcon = { Icon(icon, null) }, trailingIcon = trailing,
+                                onClick = { menu = false; action() })
+                        I("Písmo hlavy", Icons.Default.Title) { dialog = 6 }
+                        I("Zpětné seřízení", Icons.Default.FormatAlignRight, trailing = {
+                            Checkbox(note.reverseAlignment, null)
+                        }) { update(note.copy(reverseAlignment = !note.reverseAlignment)) }
                         if (note.isList) {
-                            DropdownMenuItem(text = { Text("Odškrtnout vše") }, onClick = {
-                                note = note.copy(items = note.items.map { it.copy(done = false) }); menu = false
-                            })
-                            DropdownMenuItem(text = { Text("Smazat hotové položky") }, onClick = {
-                                note = note.copy(items = note.items.filterNot { it.done }); menu = false
-                            })
-                        }
-                        DropdownMenuItem(text = { Text("Písmo…") }, onClick = { dialog = 3; menu = false })
-                        DropdownMenuItem(text = { Text((if (note.readOnly) "✓ " else "") + "Jen pro čtení") },
-                            onClick = { note = note.copy(readOnly = !note.readOnly); menu = false })
-                        DropdownMenuItem(text = { Text("Přesunout do záložky…") }, onClick = { dialog = 4; menu = false })
-                        DropdownMenuItem(text = { Text("Sdílet") }, onClick = { shareNote(context, note); menu = false })
-                        DropdownMenuItem(text = { Text("Smazat") }, onClick = {
-                            menu = false
-                            if (settings.askBeforeDelete) dialog = 5 else {
-                                if (note.id != Note.NEW_ID) { save(); Repo.trash(context, note.id) }
-                                saved = note; onClose()
+                            I("Seřadit vzestupně", Icons.Default.SortByAlpha) {
+                                update(note.copy(items = note.items.sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER) { it.title })))
                             }
-                        })
+                            I("Seřadit sestupně", Icons.Default.SortByAlpha) {
+                                update(note.copy(items = note.items.sortedWith(compareByDescending(String.CASE_INSENSITIVE_ORDER) { it.title })))
+                            }
+                        }
+                        HorizontalDivider()
+                        I("Přesunout na jinou kartu…", Icons.Default.DriveFileMove) { dialog = 4 }
+                        I("Nastavení kalendáře", Icons.Default.CalendarMonth) { dialog = 2 }
+                        HorizontalDivider()
+                        I("Sdílet poznámku", Icons.Default.Share) { shareNote(context, note) }
+                        I("Vytvořit zástupce", Icons.Default.AddToHomeScreen) { save(); createShortcut(context, note) }
+                        HorizontalDivider()
+                        if (note.isList) I("Odstraňte zaškrtnuté položky", Icons.Default.RemoveDone) {
+                            update(note.copy(items = note.items.filterNot { it.done }))
+                        }
+                        I("Vymazat obsah", Icons.Default.CleaningServices) { dialog = 8 }
+                        I("Odebrat poznámku", Icons.Default.Delete) { if (settings.askBeforeDelete) dialog = 5 else remove() }
                     }
-                },
-            )
+                }
+            }
+        },
+        bottomBar = {
+            Row(
+                Modifier.fillMaxWidth().navigationBarsPadding().padding(start = 16.dp, end = 12.dp, top = 4.dp, bottom = 8.dp),
+                verticalAlignment = Alignment.Bottom,
+            ) {
+                Column(Modifier.weight(1f)) {
+                    if (note.reminderEnabled && note.reminderNextDate > 0) Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.clickable { dialog = 2 }.padding(vertical = 2.dp),
+                    ) {
+                        Icon(Icons.Default.CalendarMonth, null, Modifier.size(16.dp), tint = dim)
+                        if (note.reminderNotification) Icon(Icons.Default.Alarm, null, Modifier.size(16.dp), tint = dim)
+                        Text(" " + formatDateTime(context, note.reminderNextDate), color = dim, fontSize = 14.sp)
+                        Icon(Icons.Default.Close, "Zrušit připomínku", Modifier.padding(start = 6.dp).size(16.dp)
+                            .clickable { update(note.copy(reminderEnabled = false, reminderNextDate = 0)) }, tint = dim)
+                    }
+                    if (note.createdTimeStamp > 0) Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(Modifier.size(12.dp).clip(CircleShape).background(Color(0xFFC9A227)))
+                        Text("  " + formatShort(context, note.createdTimeStamp), color = dim, fontSize = 14.sp)
+                    }
+                    if (note.timeStamp > 0) Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Default.Sync, null, Modifier.size(14.dp), tint = dim)
+                        Text(" " + formatShort(context, note.timeStamp), color = dim, fontSize = 14.sp)
+                    }
+                }
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
+                    val white = Color(0xFFF5F5F5)
+                    // W – zobrazit / odebrat poznámku ve widgetu
+                    RoundButton(onClick = {
+                        when {
+                            inWidget -> {
+                                widgetsShowing(context, note.id).forEach { WidgetPrefs.setNoteId(context, it, Note.NEW_ID) }
+                                WidgetUpdater.updateAll(context); inWidget = false
+                            }
+                            widgetId != AppWidgetManager.INVALID_APPWIDGET_ID -> {
+                                save()
+                                if (note.id != Note.NEW_ID) {
+                                    WidgetPrefs.setNoteId(context, widgetId, note.id); WidgetUpdater.updateAll(context); inWidget = true
+                                }
+                            }
+                            else -> Toast.makeText(context, "Přidejte na plochu widget Poznámka a vyberte v něm tuto poznámku.", Toast.LENGTH_LONG).show()
+                        }
+                    }, background = if (inWidget) MaterialTheme.colorScheme.primary else white) {
+                        Text("W", fontWeight = FontWeight.Bold, fontSize = 20.sp, color = if (inWidget) MaterialTheme.colorScheme.onPrimary else Color(0xFF3D5272))
+                    }
+                    RoundButton(onClick = { dialog = 3 }, background = white) {
+                        Text("T", fontWeight = FontWeight.Bold, fontSize = 22.sp, color = Color(0xFFB71C1C), fontFamily = FontFamily.Serif)
+                    }
+                    RoundButton(onClick = { dialog = 1 }, background = white) {
+                        Icon(Icons.Default.Palette, "Barva", tint = if (note.color != 0) Color(note.color) else Color(0xFFE53935))
+                    }
+                    RoundButton(onClick = {
+                        Toast.makeText(context, "Přílohy zatím nejsou hotové – z importu se ale zachovávají.", Toast.LENGTH_SHORT).show()
+                    }, background = white) { Icon(Icons.Default.AttachFile, "Příloha", tint = Color(0xFF616161)) }
+                    RoundButton(onClick = { save(); onClose() }, background = Color(0xFF2E7D32), size = 60,
+                        border = BorderStroke(3.dp, Color.White)) {
+                        Icon(Icons.Default.Check, "Uložit", Modifier.size(36.dp), tint = Color.White)
+                    }
+                }
+            }
         },
     ) { padding ->
-        Column(
-            Modifier.padding(padding).fillMaxSize().imePadding().verticalScroll(rememberScrollState()).padding(horizontal = 4.dp),
-        ) {
+        Column(Modifier.padding(padding).fillMaxSize().imePadding().verticalScroll(rememberScrollState())) {
             val fieldColors = TextFieldDefaults.colors(
                 focusedContainerColor = Color.Transparent, unfocusedContainerColor = Color.Transparent,
                 disabledContainerColor = Color.Transparent,
@@ -263,43 +409,51 @@ private fun NoteEditor(initial: Note, widgetId: Int, isNew: Boolean, onClose: ()
                 focusedTextColor = fg, unfocusedTextColor = fg, disabledTextColor = fg,
             )
             val titleColor = if (note.fontColorTitle != 0) Color(note.fontColorTitle) else fg
-            TextField(
-                value = note.title, onValueChange = { note = note.copy(title = it) },
-                readOnly = note.readOnly, placeholder = { Text("Název", color = fg.copy(alpha = 0.5f)) },
-                textStyle = TextStyle(fontSize = note.effectiveTitleFontSize.sp, fontWeight = FontWeight.Bold, color = titleColor),
-                colors = fieldColors, modifier = Modifier.fillMaxWidth(),
-                keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
-            )
+            Row(verticalAlignment = Alignment.Top) {
+                IconButton(onClick = { update(note.copy(pinned = !note.pinned)) }, Modifier.padding(top = 6.dp)) {
+                    Icon(if (note.pinned) Icons.Filled.PushPin else Icons.Outlined.PushPin, "Připnout", tint = if (note.pinned) fg else dim)
+                }
+                TextField(
+                    value = note.title, onValueChange = { update(note.copy(title = it)) },
+                    readOnly = note.readOnly, placeholder = { Text("Titul", color = dim, fontSize = note.effectiveTitleFontSize.sp) },
+                    textStyle = TextStyle(fontSize = note.effectiveTitleFontSize.sp, color = titleColor, textAlign = align),
+                    colors = fieldColors, modifier = Modifier.weight(1f),
+                    keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+                )
+                // Štítek karty vpravo nahoře – klepnutím přesun na jinou kartu.
+                val tabTitle = tabs.firstOrNull { it.id == note.tabId }?.title ?: ""
+                Row(
+                    Modifier.padding(top = 4.dp, end = 6.dp).clip(RoundedCornerShape(8.dp))
+                        .background(MaterialTheme.colorScheme.surfaceContainerHigh).clickable { dialog = 4 }
+                        .padding(horizontal = 10.dp, vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    if (note.reminderEnabled) Icon(Icons.Default.CalendarMonth, null, Modifier.size(14.dp), tint = MaterialTheme.colorScheme.outline)
+                    Text(tabTitle, color = MaterialTheme.colorScheme.outline, fontSize = 15.sp)
+                }
+            }
             if (note.isList) {
-                ChecklistEditor(note, fg, fieldColors, settings.doneItemsBottom) { note = note.copy(items = it) }
+                ChecklistEditor(note, fg, fieldColors, settings.doneItemsBottom) { update(note.copy(items = it)) }
+            } else if (note.readOnly) {
+                // Zamčená poznámka: odkazy jsou klikací.
+                Text(linkified(note.body), color = fg, fontSize = note.effectiveFontSize.sp, textAlign = align,
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp))
             } else {
                 TextField(
-                    value = note.body, onValueChange = { note = note.copy(body = it) },
-                    readOnly = note.readOnly, placeholder = { Text("Poznámka", color = fg.copy(alpha = 0.5f)) },
-                    textStyle = TextStyle(fontSize = note.effectiveFontSize.sp, color = fg),
+                    value = note.body, onValueChange = { update(note.copy(body = it)) },
+                    placeholder = { Text("Napište text…", color = dim) },
+                    textStyle = TextStyle(fontSize = note.effectiveFontSize.sp, color = fg, textAlign = align),
                     colors = fieldColors, modifier = Modifier.fillMaxWidth(),
                     keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
                 )
             }
             Spacer(Modifier.height(24.dp))
-            val attachments = remember(note.attachmentsJson) {
-                try { JSONArray(note.attachmentsJson ?: "[]").length() } catch (e: Exception) { 0 }
-            }
-            val small = MaterialTheme.typography.bodySmall
-            if (attachments > 0) Text("📎 Příloh: $attachments (zobrazení příloh zatím není hotové)", color = fg.copy(alpha = 0.6f), style = small,
-                modifier = Modifier.padding(horizontal = 16.dp))
-            if (note.reminderEnabled && note.reminderNextDate > 0) {
-                Text("⏰ " + formatDateTime(context, note.reminderNextDate), color = fg.copy(alpha = 0.7f), style = small,
-                    modifier = Modifier.padding(horizontal = 16.dp).clickable { dialog = 2 })
-            }
-            if (note.createdTimeStamp > 0) Text("Vytvořeno " + formatDateTime(context, note.createdTimeStamp), color = fg.copy(alpha = 0.6f),
-                style = small, modifier = Modifier.padding(horizontal = 16.dp))
-            if (note.timeStamp > 0) Text("Upraveno " + formatDateTime(context, note.timeStamp), color = fg.copy(alpha = 0.6f),
-                style = small, modifier = Modifier.padding(horizontal = 16.dp, vertical = 2.dp))
-            Spacer(Modifier.height(48.dp))
         }
     }
 }
+
+private fun formatShort(context: Context, ms: Long): String =
+    java.text.SimpleDateFormat("dd.MM.yy HH:mm", java.util.Locale.getDefault()).format(java.util.Date(ms))
 
 @Composable
 private fun ChecklistEditor(
@@ -349,6 +503,7 @@ private fun ChecklistEditor(
                 readOnly = note.readOnly,
                 textStyle = TextStyle(
                     fontSize = note.effectiveFontSize.sp, color = if (item.done) fg.copy(alpha = 0.6f) else fg,
+                    textAlign = if (note.reverseAlignment) TextAlign.End else TextAlign.Start,
                     textDecoration = if (item.done) TextDecoration.LineThrough else null,
                 ),
                 colors = colors,

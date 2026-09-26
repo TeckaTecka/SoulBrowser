@@ -5,13 +5,13 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,56 +19,88 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
-import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.filled.Notes
+import androidx.compose.material.icons.automirrored.filled.ShortText
+import androidx.compose.material.icons.automirrored.filled.Sort
+import androidx.compose.material.icons.automirrored.filled.ViewList
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.AddCircleOutline
+import androidx.compose.material.icons.filled.AddToHomeScreen
 import androidx.compose.material.icons.filled.Alarm
-import androidx.compose.material.icons.filled.Checklist
+import androidx.compose.material.icons.filled.Build
+import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.CleaningServices
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.CloudDownload
+import androidx.compose.material.icons.filled.CloudUpload
+import androidx.compose.material.icons.filled.Dashboard
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.DriveFileMove
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.FormatAlignLeft
+import androidx.compose.material.icons.filled.GridView
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.LockOpen
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.PushPin
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.RemoveDone
+import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.automirrored.filled.Sort
-import androidx.compose.material.icons.filled.ViewAgenda
-import androidx.compose.material.icons.filled.GridView
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.SortByAlpha
+import androidx.compose.material.icons.filled.Tab
+import androidx.compose.material.icons.outlined.PushPin
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.PrimaryScrollableTabRow
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SmallFloatingActionButton
-import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -83,19 +115,23 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import cz.teckatecka.poznamky.R
 import cz.teckatecka.poznamky.data.Note
 import cz.teckatecka.poznamky.data.NoteTab
 import cz.teckatecka.poznamky.data.Repo
 import cz.teckatecka.poznamky.data.Settings
 import cz.teckatecka.poznamky.data.SortMode
 import cz.teckatecka.poznamky.reminder.Reminders
+import cz.teckatecka.poznamky.widget.WidgetUpdater
 import cz.teckatecka.poznamky.widget.dayTitle
 import cz.teckatecka.poznamky.widget.startOfDay
 import cz.teckatecka.poznamky.widget.startOfToday
@@ -118,7 +154,27 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+/** Akce z menu ⋮ na kartičce poznámky – stejné položky jako v původní appce. */
+enum class CardAction { EDIT, LOCK, MOVE, CALENDAR, SHARE, SHORTCUT, REMOVE_CHECKED, CLEAR, DELETE }
+
+private val contentModes = listOf(
+    Triple("Plné zobrazení", Icons.Default.FormatAlignLeft, 0),
+    Triple("Krátký náhled", Icons.AutoMirrored.Filled.Notes, 1),
+    Triple("Pouze název", Icons.AutoMirrored.Filled.ShortText, 2),
+)
+
+private fun sortIcon(m: SortMode): ImageVector = when (m) {
+    SortMode.MODIFIED -> Icons.Default.Schedule
+    SortMode.MODIFIED_DESC -> Icons.AutoMirrored.Filled.Sort
+    SortMode.TITLE, SortMode.TITLE_DESC -> Icons.Default.SortByAlpha
+}
+
+private val viewModes = listOf(
+    Triple("Volný režim zobrazení", Icons.Default.Dashboard, 0),
+    Triple("Režim zobrazení dvou sloupců", Icons.Default.GridView, 1),
+    Triple("Režim zobrazení seznamu", Icons.AutoMirrored.Filled.ViewList, 2),
+)
+
 @Composable
 private fun MainScreen(startTab: Long) {
     val context = LocalContext.current
@@ -126,131 +182,172 @@ private fun MainScreen(startTab: Long) {
     val settings = remember { Settings(context) }
     val db = remember { Repo.db(context) }
     val tabs = remember(version) { db.tabs() }
+    // Kalendář je v původní appce první kartou.
     val pages = remember(tabs) {
-        tabs.map { it.id to it.title } + if (settings.showCalendarTab) listOf(NoteTab.CALENDAR_ID to "Kalendář") else emptyList()
+        (if (settings.showCalendarTab) listOf(NoteTab(NoteTab.CALENDAR_ID, "Kalendář")) else emptyList()) + tabs
     }
     val initial = if (startTab != Long.MIN_VALUE) startTab else settings.currentTab
-    val pager = rememberPagerState(initialPage = pages.indexOfFirst { it.first == initial }.coerceAtLeast(0)) { pages.size }
+    val pager = rememberPagerState(initialPage = pages.indexOfFirst { it.id == initial }.coerceAtLeast(0)) { pages.size }
     val scope = rememberCoroutineScope()
-    val currentTabId = pages.getOrNull(pager.currentPage)?.first ?: NoteTab.COMMON_ID
+    val drawer = rememberDrawerState(DrawerValue.Closed)
+    val currentTabId = pages.getOrNull(pager.currentPage)?.id ?: NoteTab.COMMON_ID
     LaunchedEffect(currentTabId) { settings.currentTab = currentTabId }
 
     var sort by remember { mutableStateOf(settings.sortMode) }
     var viewMode by remember { mutableIntStateOf(settings.viewMode) }
+    var contentMode by remember { mutableIntStateOf(settings.contentMode) }
     var searching by remember { mutableStateOf(false) }
     var query by remember { mutableStateOf("") }
-    var menu by remember { mutableStateOf(false) }
-    var sortMenu by remember { mutableStateOf(false) }
+    var menu by remember { mutableIntStateOf(0) } // 1 obsah, 2 řazení, 3 zobrazení
     var showTabs by remember { mutableStateOf(false) }
-    var actionsFor by remember { mutableStateOf<Note?>(null) }
-
-    fun open(note: Note) = context.startActivity(EditorActivity.intent(context, note.id, tabId = note.tabId))
-    fun newNote(list: Boolean, day: Long = 0L) {
-        val tab = if (currentTabId == NoteTab.CALENDAR_ID) NoteTab.COMMON_ID else currentTabId
-        context.startActivity(EditorActivity.intent(context, Note.NEW_ID, tabId = tab, list = list,
-            reminderDay = if (currentTabId == NoteTab.CALENDAR_ID) (if (day != 0L) day else startOfToday()) else 0L))
-    }
+    var newTab by remember { mutableStateOf(false) }
+    var about by remember { mutableStateOf(false) }
+    var serviceOpen by remember { mutableStateOf(false) }
     var calendarDay by remember { mutableLongStateOf(startOfToday()) }
+    var pending by remember { mutableStateOf<Pair<Note, CardAction>?>(null) }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
+    fun open(note: Note) = context.startActivity(EditorActivity.intent(context, note.id))
+    fun newNote() {
+        val onCalendar = currentTabId == NoteTab.CALENDAR_ID
+        context.startActivity(EditorActivity.intent(context, Note.NEW_ID,
+            tabId = if (onCalendar) settings.lastRealTab(tabs) else currentTabId,
+            reminderDay = if (onCalendar) calendarDay else 0L))
+    }
+    fun goTo(i: Int) { scope.launch { pager.animateScrollToPage(i.coerceIn(0, pages.size - 1)) } }
+    val onAction: (Note, CardAction) -> Unit = { n, a ->
+        when (a) {
+            CardAction.EDIT -> open(n)
+            CardAction.LOCK -> Repo.saveNote(context, n.copy(readOnly = !n.readOnly), touch = false)
+            CardAction.SHARE -> shareNote(context, n)
+            CardAction.SHORTCUT -> createShortcut(context, n)
+            CardAction.REMOVE_CHECKED -> Repo.saveNote(context, n.copy(items = n.items.filterNot { it.done }))
+            CardAction.DELETE -> if (settings.askBeforeDelete) pending = n to a else Repo.trash(context, n.id)
+            else -> pending = n to a
+        }
+    }
+
+    ModalNavigationDrawer(drawerState = drawer, drawerContent = {
+        ModalDrawerSheet {
+            Row(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surfaceContainerHigh).padding(20.dp),
+                verticalAlignment = Alignment.CenterVertically) {
+                Icon(painterResource(R.drawable.ic_launcher_foreground), null, Modifier.size(64.dp).clip(CircleShape)
+                    .background(Color(0xFFF3DE8A)), tint = Color.Unspecified)
+                Spacer(Modifier.width(16.dp))
+                Text("Poznámky", fontSize = 28.sp)
+            }
+            fun close() = scope.launch { drawer.close() }
+            @Composable
+            fun Item(label: String, icon: ImageVector, indent: Boolean = false, trailing: (@Composable () -> Unit)? = null, onClick: () -> Unit) =
+                NavigationDrawerItem(
+                    label = { Text(label) }, selected = false, onClick = onClick,
+                    icon = { Icon(icon, null) }, badge = trailing,
+                    modifier = Modifier.padding(start = if (indent) 24.dp else 0.dp),
+                )
+            Column(Modifier.padding(horizontal = 8.dp, vertical = 8.dp)) {
+                Item("Nová poznámka", Icons.Default.AddCircleOutline) { close(); newNote() }
+                Item("Správa karet", Icons.Default.Tab) { close(); showTabs = true }
+                if (settings.showCalendarTab) Item("Kalendář", Icons.Default.CalendarMonth) { close(); goTo(0) }
+                Item("Odpadkový koš", Icons.Default.Delete) {
+                    close(); context.startActivity(Intent(context, RecycleBinActivity::class.java))
+                }
+                HorizontalDivider(Modifier.padding(vertical = 6.dp))
+                Item("Nastavení", Icons.Default.Settings) {
+                    close(); context.startActivity(Intent(context, SettingsActivity::class.java))
+                }
+                Item("Servisní funkce", Icons.Default.Build, trailing = {
+                    Icon(if (serviceOpen) Icons.Default.ExpandLess else Icons.Default.ExpandMore, null)
+                }) { serviceOpen = !serviceOpen }
+                if (serviceOpen) {
+                    Item("Vytvořit zálohu", Icons.Default.CloudUpload, indent = true) {
+                        close(); context.startActivity(SettingsActivity.intent(context, SettingsActivity.ACTION_BACKUP))
+                    }
+                    Item("Obnovit zálohu", Icons.Default.CloudDownload, indent = true) {
+                        close(); context.startActivity(SettingsActivity.intent(context, SettingsActivity.ACTION_RESTORE))
+                    }
+                }
+                HorizontalDivider(Modifier.padding(vertical = 6.dp))
+                Item("Obnovte všechny widgety", Icons.Default.Refresh) {
+                    close(); WidgetUpdater.updateAll(context)
+                    Toast.makeText(context, "Widgety obnoveny", Toast.LENGTH_SHORT).show()
+                }
+                HorizontalDivider(Modifier.padding(vertical = 6.dp))
+                Item("O aplikaci…", Icons.Default.Info) { close(); about = true }
+            }
+        }
+    }) {
+        Scaffold(
+            floatingActionButton = {
+                // Průhledné kulaté „+“ jako v originále.
+                RoundButton(
+                    onClick = ::newNote, size = 64,
+                    background = MaterialTheme.colorScheme.surface.copy(alpha = 0.55f),
+                    border = BorderStroke(2.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)),
+                ) { Icon(Icons.Default.Add, "Nová poznámka", Modifier.size(36.dp), tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)) }
+            },
+        ) { padding ->
+            Column(Modifier.padding(bottom = padding.calculateBottomPadding()).fillMaxSize()) {
+                // Horní lišta
+                Row(
+                    Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surfaceContainer).statusBarsPadding()
+                        .height(64.dp).padding(horizontal = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    IconButton(onClick = { scope.launch { drawer.open() } }) { Icon(Icons.Default.Menu, "Menu") }
                     if (searching) {
                         TextField(
                             value = query, onValueChange = { query = it }, singleLine = true,
-                            placeholder = { Text("Hledat v poznámkách") },
-                            colors = TextFieldDefaults.colors(
-                                focusedContainerColor = Color.Transparent, unfocusedContainerColor = Color.Transparent,
-                            ),
-                            modifier = Modifier.fillMaxWidth(),
+                            leadingIcon = { Icon(Icons.Default.Search, null) },
+                            trailingIcon = { IconButton(onClick = { searching = false; query = "" }) { Icon(Icons.Default.Close, "Zavřít") } },
+                            placeholder = { Text("Hledejte text") },
+                            colors = TextFieldDefaults.colors(focusedContainerColor = Color.Transparent, unfocusedContainerColor = Color.Transparent),
+                            modifier = Modifier.weight(1f),
                         )
-                    } else Text("Poznámky")
-                },
-                navigationIcon = {
-                    if (searching) IconButton(onClick = { searching = false; query = "" }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Zpět")
-                    }
-                },
-                actions = {
-                    if (!searching) IconButton(onClick = { searching = true }) { Icon(Icons.Default.Search, "Hledat") }
-                    else if (query.isNotEmpty()) IconButton(onClick = { query = "" }) { Icon(Icons.Default.Close, "Smazat") }
-                    IconButton(onClick = {
-                        viewMode = 1 - viewMode; settings.viewMode = viewMode
-                    }) { Icon(if (viewMode == 0) Icons.Default.ViewAgenda else Icons.Default.GridView, "Zobrazení") }
-                    Box {
-                        IconButton(onClick = { sortMenu = true }) { Icon(Icons.AutoMirrored.Filled.Sort, "Řazení") }
-                        DropdownMenu(sortMenu, { sortMenu = false }) {
-                            SortMode.entries.forEach { m ->
-                                DropdownMenuItem(
-                                    text = { Text((if (m == sort) "✓ " else "") + m.label) },
-                                    onClick = { sort = m; settings.sortMode = m; sortMenu = false },
-                                )
+                    } else {
+                        Spacer(Modifier.width(8.dp))
+                        PagerCounter(pager.currentPage, pages.size, { goTo(pager.currentPage - 1) }, { goTo(pager.currentPage + 1) })
+                        Spacer(Modifier.weight(1f))
+                        Box {
+                            IconButton(onClick = { menu = 1 }) { Icon(contentModes[contentMode].second, "Režim obsahu") }
+                            DropdownMenu(menu == 1, { menu = 0 }) {
+                                contentModes.forEach { (label, icon, v) ->
+                                    DropdownMenuItem(text = { Text(label) }, trailingIcon = { Icon(icon, null) },
+                                        onClick = { contentMode = v; settings.contentMode = v; menu = 0 })
+                                }
                             }
                         }
-                    }
-                    Box {
-                        IconButton(onClick = { menu = true }) { Icon(Icons.Default.MoreVert, "Menu") }
-                        DropdownMenu(menu, { menu = false }) {
-                            DropdownMenuItem(text = { Text("Záložky…") }, onClick = { menu = false; showTabs = true })
-                            DropdownMenuItem(text = { Text("Koš") }, onClick = {
-                                menu = false; context.startActivity(Intent(context, RecycleBinActivity::class.java))
-                            })
-                            DropdownMenuItem(text = { Text("Nastavení a zálohy") }, onClick = {
-                                menu = false; context.startActivity(Intent(context, SettingsActivity::class.java))
-                            })
-                        }
-                    }
-                },
-            )
-        },
-        floatingActionButton = {
-            if (!searching) Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                SmallFloatingActionButton(onClick = { newNote(true, calendarDay) }) { Icon(Icons.Default.Checklist, "Nový seznam") }
-                FloatingActionButton(onClick = { newNote(false, calendarDay) }) { Icon(Icons.Default.Add, "Nová poznámka") }
-            }
-        },
-    ) { padding ->
-        Column(Modifier.padding(padding).fillMaxSize()) {
-            if (searching && query.isNotBlank()) {
-                val q = query.trim().lowercase()
-                val found = remember(version, q, sort) {
-                    db.allActiveNotes(sort).filter { n ->
-                        n.title.lowercase().contains(q) || n.body.lowercase().contains(q) ||
-                            n.items.any { it.title.lowercase().contains(q) }
-                    }
-                }
-                NotesList(found, viewMode, settings.contentMode, ::open) { actionsFor = it }
-                return@Column
-            }
-            if (pages.size > 1) {
-                PrimaryScrollableTabRow(selectedTabIndex = pager.currentPage, edgePadding = 8.dp) {
-                    pages.forEachIndexed { i, (id, title) ->
-                        val color = tabs.firstOrNull { it.id == id }?.color ?: 0
-                        Tab(
-                            selected = pager.currentPage == i,
-                            onClick = { scope.launch { pager.animateScrollToPage(i) } },
-                            text = {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    if (color != 0) Box(Modifier.size(10.dp).clip(CircleShape).background(Color(color)))
-                                    if (color != 0) Spacer(Modifier.width(6.dp))
-                                    Text(title, maxLines = 1)
+                        Box {
+                            IconButton(onClick = { menu = 2 }) { Icon(sortIcon(sort), "Řazení") }
+                            DropdownMenu(menu == 2, { menu = 0 }) {
+                                listOf(SortMode.MODIFIED, SortMode.MODIFIED_DESC, SortMode.TITLE, SortMode.TITLE_DESC).forEach { m ->
+                                    DropdownMenuItem(text = { Text(m.label) }, trailingIcon = { Icon(sortIcon(m), null) },
+                                        onClick = { sort = m; settings.sortMode = m; menu = 0 })
                                 }
-                            },
-                        )
+                            }
+                        }
+                        Box {
+                            IconButton(onClick = { menu = 3 }) { Icon(viewModes[viewMode].second, "Zobrazení") }
+                            DropdownMenu(menu == 3, { menu = 0 }) {
+                                viewModes.forEach { (label, icon, v) ->
+                                    DropdownMenuItem(text = { Text(label) }, trailingIcon = { Icon(icon, null) },
+                                        onClick = { viewMode = v; settings.viewMode = v; menu = 0 })
+                                }
+                            }
+                        }
+                        IconButton(onClick = { searching = true }) { Icon(Icons.Default.Search, "Hledat") }
                     }
                 }
-            }
-            HorizontalPager(pager, Modifier.fillMaxSize(), beyondViewportPageCount = 1) { page ->
-                val tabId = pages[page].first
-                if (tabId == NoteTab.CALENDAR_ID) {
-                    CalendarPane(version, calendarDay, { calendarDay = it }, ::open) { actionsFor = it }
-                } else {
-                    val notes = remember(version, tabId, sort) { db.notesInTab(tabId, sort) }
-                    if (notes.isEmpty() && db.allActiveNotes().isEmpty()) {
-                        ImportHint()
+                TabStrip(pages, pager.currentPage, ::goTo) { newTab = true }
+                HorizontalPager(pager, Modifier.fillMaxSize(), beyondViewportPageCount = 1) { page ->
+                    val tabId = pages[page].id
+                    val q = query.trim().lowercase()
+                    fun matches(n: Note) = q.isEmpty() || n.title.lowercase().contains(q) || n.body.lowercase().contains(q) ||
+                        n.items.any { it.title.lowercase().contains(q) }
+                    if (tabId == NoteTab.CALENDAR_ID) {
+                        CalendarPane(version, calendarDay, { calendarDay = it }, ::open, onAction)
                     } else {
-                        NotesList(notes, viewMode, settings.contentMode, ::open) { actionsFor = it }
+                        val notes = remember(version, tabId, sort, q) { db.notesInTab(tabId, sort).filter(::matches) }
+                        if (notes.isEmpty() && q.isEmpty() && db.allActiveNotes().isEmpty()) ImportHint()
+                        else NotesList(notes, viewMode, contentMode, ::open, onAction = onAction)
                     }
                 }
             }
@@ -258,7 +355,61 @@ private fun MainScreen(startTab: Long) {
     }
 
     if (showTabs) TabsDialog(tabs) { showTabs = false }
-    actionsFor?.let { n -> NoteActionsDialog(n, tabs) { actionsFor = null } }
+    if (newTab) TabsDialog(tabs, startWithNew = true) { newTab = false }
+    if (about) AlertDialog(
+        onDismissRequest = { about = false },
+        title = { Text("Poznámky") },
+        text = { Text("Bez reklam, bez internetu. Data zůstávají v telefonu.\nZálohy .bak jsou kompatibilní s aplikací My Notes.") },
+        confirmButton = { TextButton(onClick = { about = false }) { Text("OK") } },
+    )
+    pending?.let { (n, a) ->
+        val dismiss = { pending = null }
+        when (a) {
+            CardAction.MOVE -> TabPickerDialog(tabs, n.tabId, dismiss) { Repo.saveNote(context, n.copy(tabId = it), touch = false); dismiss() }
+            CardAction.CALENDAR -> ReminderDialog(n, dismiss) { Repo.saveNote(context, it); dismiss() }
+            CardAction.CLEAR -> ConfirmDialog("Vymazat obsah poznámky?", dismiss) {
+                Repo.saveNote(context, n.copy(body = "", items = emptyList())); dismiss()
+            }
+            CardAction.DELETE -> ConfirmDialog("Odebrat poznámku do koše?", dismiss) { Repo.trash(context, n.id); dismiss() }
+            else -> dismiss()
+        }
+    }
+}
+
+/** První skutečná karta – pro nové poznámky založené z Kalendáře. */
+private fun Settings.lastRealTab(tabs: List<NoteTab>): Long = tabs.firstOrNull()?.id ?: NoteTab.COMMON_ID
+
+/** Pás karet se zaoblenými horními rohy a tlačítkem „+“ vpravo. */
+@Composable
+private fun TabStrip(pages: List<NoteTab>, selected: Int, onSelect: (Int) -> Unit, onAdd: () -> Unit) {
+    val state = rememberLazyListState()
+    LaunchedEffect(selected) { if (pages.isNotEmpty()) state.animateScrollToItem((selected - 1).coerceAtLeast(0)) }
+    Row(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.background).padding(top = 6.dp),
+        verticalAlignment = Alignment.CenterVertically) {
+        LazyRow(state = state, modifier = Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(3.dp)) {
+            itemsIndexed(pages, key = { _, t -> t.id }) { i, t ->
+                val sel = i == selected
+                val bg = if (t.color != 0) Color(t.color) else MaterialTheme.colorScheme.surfaceContainer
+                val fg = when {
+                    t.fontColor != 0 -> Color(t.fontColor)
+                    t.color != 0 -> Color(cz.teckatecka.poznamky.data.contrastTextColor(t.color))
+                    else -> MaterialTheme.colorScheme.onSurface
+                }
+                Box(
+                    Modifier.clip(RoundedCornerShape(topStart = 14.dp, topEnd = 14.dp))
+                        .background(if (sel && t.color == 0) MaterialTheme.colorScheme.surfaceContainerHigh else bg)
+                        .clickable { onSelect(i) }.padding(horizontal = 22.dp, vertical = 12.dp),
+                ) {
+                    Text(t.title, color = fg, fontSize = 17.sp, maxLines = 1,
+                        textDecoration = if (sel) TextDecoration.Underline else null)
+                }
+            }
+        }
+        IconButton(onClick = onAdd) {
+            Box(Modifier.size(36.dp).clip(CircleShape).background(MaterialTheme.colorScheme.surfaceContainerHigh),
+                contentAlignment = Alignment.Center) { Icon(Icons.Default.Add, "Nová karta") }
+        }
+    }
 }
 
 @Composable
@@ -268,17 +419,18 @@ private fun ImportHint() {
         Text("Zatím tu nejsou žádné poznámky.", style = MaterialTheme.typography.titleMedium)
         Spacer(Modifier.height(12.dp))
         Text(
-            "Máte poznámky v původní aplikaci My Notes? Vytvořte v ní zálohu (Nastavení → Zálohovat) " +
-                "a tady ji načtěte přes Nastavení a zálohy → Obnovit ze zálohy.",
+            "Máte poznámky v původní aplikaci My Notes? Vytvořte v ní zálohu (Servisní funkce → Vytvořit zálohu) " +
+                "a tady ji načtěte přes ☰ → Servisní funkce → Obnovit zálohu.",
             textAlign = TextAlign.Center,
         )
         Spacer(Modifier.height(12.dp))
-        TextButton(onClick = { context.startActivity(Intent(context, SettingsActivity::class.java)) }) {
-            Text("Otevřít zálohy")
+        TextButton(onClick = { context.startActivity(SettingsActivity.intent(context, SettingsActivity.ACTION_RESTORE)) }) {
+            Text("Obnovit zálohu")
         }
     }
 }
 
+/** Seznam kartiček: 0 = volný (dlaždice), 1 = dva sloupce, 2 = seznam. */
 @Composable
 fun NotesList(
     notes: List<Note>,
@@ -286,65 +438,126 @@ fun NotesList(
     contentMode: Int,
     onOpen: (Note) -> Unit,
     header: (@Composable () -> Unit)? = null,
-    onLongPress: (Note) -> Unit,
+    onAction: ((Note, CardAction) -> Unit)? = null,
 ) {
-    LazyVerticalStaggeredGrid(
-        columns = StaggeredGridCells.Fixed(if (viewMode == 0) 2 else 1),
-        contentPadding = PaddingValues(start = 8.dp, end = 8.dp, top = 8.dp, bottom = 160.dp),
-        verticalItemSpacing = 8.dp,
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = Modifier.fillMaxSize(),
-    ) {
-        if (header != null) item(span = StaggeredGridItemSpan.FullLine) { header() }
-        items(notes, key = { it.id }) { n -> NoteCard(n, contentMode, onOpen, onLongPress) }
-        if (notes.isEmpty()) item(span = StaggeredGridItemSpan.FullLine) {
-            Text("Žádné poznámky", Modifier.fillMaxWidth().padding(32.dp), textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.outline)
+    val padding = PaddingValues(start = 10.dp, end = 10.dp, top = 10.dp, bottom = 120.dp)
+    val empty: @Composable () -> Unit = {
+        Text("Žádné poznámky", Modifier.fillMaxWidth().padding(32.dp), textAlign = TextAlign.Center, color = MaterialTheme.colorScheme.outline)
+    }
+    if (viewMode == 1) {
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2), contentPadding = padding, modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            if (header != null) item(span = { GridItemSpan(maxLineSpan) }) { header() }
+            items(notes.size, key = { notes[it].id }) { i ->
+                Box(Modifier.aspectRatio(0.9f)) { NoteCard(notes[i], contentMode, onOpen, onAction, Modifier.fillMaxHeight()) }
+            }
+            if (notes.isEmpty()) item(span = { GridItemSpan(maxLineSpan) }) { empty() }
+        }
+    } else {
+        LazyVerticalStaggeredGrid(
+            columns = StaggeredGridCells.Fixed(if (viewMode == 0) 2 else 1), contentPadding = padding,
+            verticalItemSpacing = 8.dp, horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxSize(),
+        ) {
+            if (header != null) item(span = StaggeredGridItemSpan.FullLine) { header() }
+            items(notes.size, key = { notes[it].id }, span = { i ->
+                // Ve volném režimu zabírají dlouhé poznámky celou šířku, krátké se skládají vedle sebe.
+                if (viewMode == 0 && notes[i].plainText().length > 160) StaggeredGridItemSpan.FullLine else StaggeredGridItemSpan.SingleLane
+            }) { i -> NoteCard(notes[i], contentMode, onOpen, onAction) }
+            if (notes.isEmpty()) item(span = StaggeredGridItemSpan.FullLine) { empty() }
         }
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun NoteCard(n: Note, contentMode: Int, onOpen: (Note) -> Unit, onLongPress: (Note) -> Unit) {
+fun NoteCard(
+    n: Note,
+    contentMode: Int,
+    onOpen: (Note) -> Unit,
+    onAction: ((Note, CardAction) -> Unit)?,
+    modifier: Modifier = Modifier,
+) {
+    val context = LocalContext.current
     val fg = noteFg(n.color, n.fontColor)
+    val dim = fg.copy(alpha = 0.6f)
+    var menu by remember { mutableStateOf(false) }
+    val align = if (n.reverseAlignment) TextAlign.End else TextAlign.Start
     Card(
         colors = CardDefaults.cardColors(containerColor = noteBg(n.color)),
-        shape = RoundedCornerShape(12.dp),
-        modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp))
-            .combinedClickable(onClick = { onOpen(n) }, onLongClick = { onLongPress(n) }),
+        shape = RoundedCornerShape(10.dp),
+        modifier = modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp)).clickable { onOpen(n) },
     ) {
-        Column(Modifier.padding(12.dp)) {
+        Column(Modifier.padding(start = 8.dp, end = 4.dp, top = 4.dp, bottom = 12.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                if (n.title.isNotBlank()) {
-                    Text(
-                        n.title, color = noteFg(n.color, n.fontColorTitle.takeIf { it != 0 } ?: n.fontColor),
-                        fontWeight = FontWeight.Bold, fontSize = (n.effectiveTitleFontSize - 2).sp,
-                        maxLines = 2, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f),
-                    )
-                } else Spacer(Modifier.weight(1f))
-                if (n.reminderEnabled) Icon(Icons.Default.Alarm, null, Modifier.size(16.dp), tint = fg)
-                if (n.pinned) Icon(Icons.Default.PushPin, null, Modifier.size(16.dp), tint = fg)
-            }
-            if (contentMode != 2) {
-                val maxLines = if (contentMode == 1) 8 else Int.MAX_VALUE
-                if (n.isList) {
-                    n.items.take(if (contentMode == 1) 8 else n.items.size).forEach { item ->
-                        Text(
-                            (if (item.done) "☑ " else "☐ ") + item.title, color = fg, fontSize = (n.effectiveFontSize - 1).sp,
-                            maxLines = 1, overflow = TextOverflow.Ellipsis,
-                            textDecoration = if (item.done) TextDecoration.LineThrough else null,
-                        )
+                if (onAction != null) {
+                    IconButton(onClick = { Repo.saveNote(context, n.copy(pinned = !n.pinned), touch = false) }, Modifier.size(36.dp)) {
+                        Icon(if (n.pinned) Icons.Filled.PushPin else Icons.Outlined.PushPin, "Připnout", Modifier.size(20.dp),
+                            tint = if (n.pinned) fg else dim)
                     }
-                    if (contentMode == 1 && n.items.size > 8) Text("…", color = fg)
-                } else if (n.body.isNotBlank()) {
-                    Text(n.body, color = fg, fontSize = (n.effectiveFontSize - 1).sp, maxLines = maxLines, overflow = TextOverflow.Ellipsis)
+                }
+                Text(
+                    n.title, color = noteFg(n.color, n.fontColorTitle.takeIf { it != 0 } ?: n.fontColor),
+                    fontSize = n.effectiveTitleFontSize.sp, maxLines = 2, overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f).padding(start = 4.dp, top = 6.dp, bottom = 6.dp),
+                )
+                if (n.readOnly) Icon(Icons.Default.Lock, "Zamčeno", Modifier.size(18.dp), tint = dim)
+                if (onAction != null) Box {
+                    IconButton(onClick = { menu = true }, Modifier.size(40.dp)) { Icon(Icons.Default.MoreVert, "Menu", tint = fg) }
+                    CardMenu(n, menu, { menu = false }) { onAction(n, it) }
                 }
             }
-            if (n.reminderEnabled && n.reminderNextDate > 0) {
-                Text(formatDateTime(LocalContext.current, n.reminderNextDate), color = fg.copy(alpha = 0.7f), fontSize = 11.sp)
+            Column(Modifier.padding(start = 4.dp, end = 8.dp)) {
+                if (contentMode != 2) {
+                    val short = contentMode == 1
+                    if (n.isList) {
+                        val shown = if (short) n.items.take(8) else n.items
+                        shown.forEach { item ->
+                            Text(
+                                (if (item.done) "☑ " else "☐ ") + item.title, color = if (item.done) dim else fg,
+                                fontSize = n.effectiveFontSize.sp, textAlign = align, modifier = Modifier.fillMaxWidth(),
+                                textDecoration = if (item.done) TextDecoration.LineThrough else null,
+                            )
+                        }
+                        if (short && n.items.size > 8) Text("…", color = fg)
+                    } else if (n.body.isNotBlank()) {
+                        Text(
+                            linkified(n.body), color = fg, fontSize = n.effectiveFontSize.sp, textAlign = align,
+                            maxLines = if (short) 10 else Int.MAX_VALUE, overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
+                }
+                if (n.reminderEnabled && n.reminderNextDate > 0) {
+                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 6.dp)) {
+                        Icon(Icons.Default.CalendarMonth, null, Modifier.size(14.dp), tint = dim)
+                        Text(" " + formatDateTime(context, n.reminderNextDate), color = dim, fontSize = 12.sp)
+                        if (n.reminderNotification) Icon(Icons.Default.Alarm, null, Modifier.padding(start = 4.dp).size(14.dp), tint = dim)
+                    }
+                }
             }
         }
+    }
+}
+
+@Composable
+fun CardMenu(n: Note, expanded: Boolean, onDismiss: () -> Unit, onPick: (CardAction) -> Unit) {
+    DropdownMenu(expanded, onDismiss) {
+        @Composable
+        fun I(label: String, icon: ImageVector, a: CardAction) =
+            DropdownMenuItem(text = { Text(label) }, leadingIcon = { Icon(icon, null) }, onClick = { onDismiss(); onPick(a) })
+        I("Upravit…", Icons.Default.Edit, CardAction.EDIT)
+        I(if (n.readOnly) "Odemknout" else "Zámek", if (n.readOnly) Icons.Default.LockOpen else Icons.Default.Lock, CardAction.LOCK)
+        HorizontalDivider()
+        I("Přesunout na jinou kartu…", Icons.Default.DriveFileMove, CardAction.MOVE)
+        I("Nastavení kalendáře", Icons.Default.CalendarMonth, CardAction.CALENDAR)
+        HorizontalDivider()
+        I("Sdílet poznámku", Icons.Default.Share, CardAction.SHARE)
+        I("Vytvořit zástupce", Icons.Default.AddToHomeScreen, CardAction.SHORTCUT)
+        HorizontalDivider()
+        if (n.isList) I("Odstraňte zaškrtnuté položky", Icons.Default.RemoveDone, CardAction.REMOVE_CHECKED)
+        I("Vymazat obsah", Icons.Default.CleaningServices, CardAction.CLEAR)
+        I("Odebrat poznámku", Icons.Default.Delete, CardAction.DELETE)
     }
 }
 
@@ -357,14 +570,14 @@ fun formatDateTime(context: Context, ms: Long): String {
 // ---------- Kalendář ----------
 
 @Composable
-private fun CalendarPane(version: Int, day: Long, onDay: (Long) -> Unit, onOpen: (Note) -> Unit, onLongPress: (Note) -> Unit) {
+private fun CalendarPane(version: Int, day: Long, onDay: (Long) -> Unit, onOpen: (Note) -> Unit, onAction: (Note, CardAction) -> Unit) {
     val context = LocalContext.current
     var month by remember { mutableLongStateOf(firstOfMonth(day)) }
     val calNotes = remember(version) { Repo.db(context).activeCalendarNotes() }
     val dayNotes = remember(version, day) { Reminders.notesOn(context, day) }
     val settings = remember { Settings(context) }
 
-    NotesList(dayNotes, 1, settings.contentMode, onOpen, onLongPress = onLongPress, header = {
+    NotesList(dayNotes, 2, settings.contentMode, onOpen, onAction = onAction, header = {
         Column {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 IconButton(onClick = { month = addMonths(month, -1) }) { Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, "Předchozí měsíc") }
@@ -441,44 +654,6 @@ private fun MonthGrid(month: Long, selected: Long, notes: List<Note>, onDay: (Lo
     }
 }
 
-// ---------- Dialogy ----------
-
-@Composable
-private fun NoteActionsDialog(n: Note, tabs: List<NoteTab>, onDismiss: () -> Unit) {
-    val context = LocalContext.current
-    var mode by remember { mutableStateOf(0) } // 0 akce, 1 barva, 2 záložka, 3 potvrzení smazání
-    when (mode) {
-        1 -> ColorPickerDialog(n.color, onDismiss) { Repo.saveNote(context, n.copy(color = it), touch = false); onDismiss() }
-        2 -> TabPickerDialog(tabs, n.tabId, onDismiss) { Repo.saveNote(context, n.copy(tabId = it), touch = false); onDismiss() }
-        3 -> ConfirmDialog("Přesunout poznámku do koše?", onDismiss) { Repo.trash(context, n.id); onDismiss() }
-        else -> AlertDialog(
-            onDismissRequest = onDismiss,
-            title = { Text(n.title.ifBlank { "Poznámka" }, maxLines = 1, overflow = TextOverflow.Ellipsis) },
-            text = {
-                LazyColumn {
-                    val actions = listOf<Pair<String, () -> Unit>>(
-                        (if (n.pinned) "Odepnout" else "Připnout nahoru") to {
-                            Repo.saveNote(context, n.copy(pinned = !n.pinned), touch = false); onDismiss()
-                        },
-                        "Barva…" to { mode = 1 },
-                        "Přesunout do záložky…" to { mode = 2 },
-                        "Duplikovat" to {
-                            Repo.saveNote(context, n.copy(id = Note.NEW_ID, createdTimeStamp = System.currentTimeMillis())); onDismiss()
-                        },
-                        "Sdílet" to { shareNote(context, n); onDismiss() },
-                        "Smazat" to {
-                            if (Settings(context).askBeforeDelete) mode = 3 else { Repo.trash(context, n.id); onDismiss() }
-                        },
-                    )
-                    items(actions) { (label, action) ->
-                        Text(label, Modifier.fillMaxWidth().clickable { action() }.padding(vertical = 14.dp))
-                    }
-                }
-            },
-            confirmButton = { TextButton(onClick = onDismiss) { Text("Zavřít") } },
-        )
-    }
-}
 
 fun shareNote(context: Context, n: Note) {
     val text = listOf(n.title, n.plainText()).filter { it.isNotBlank() }.joinToString("\n\n")
@@ -501,7 +676,7 @@ fun ConfirmDialog(text: String, onDismiss: () -> Unit, onConfirm: () -> Unit) {
 fun TabPickerDialog(tabs: List<NoteTab>, current: Long, onDismiss: () -> Unit, onPick: (Long) -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Záložka") },
+        title = { Text("Přesunout na jinou kartu") },
         text = {
             LazyColumn {
                 items(tabs) { t ->
