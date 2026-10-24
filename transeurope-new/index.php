@@ -7,20 +7,34 @@ $prices = te_load_prices();
 require __DIR__ . '/inc/header.php';
 ?>
 
-<!-- ===== HERO ===== -->
-<section class="hero">
-    <div class="bg"></div>
-    <div class="centeris">
-        <h1>Mezinárodní<br>kamionová doprava</h1>
-        <a href="sluzby.php" class="btn large">Naše služby</a>
+<!-- ===== HERO SLIDER ===== -->
+<section class="hero" id="hero">
+    <div class="hero-track">
+        <div class="hero-slide is-active">
+            <div class="hero-bg"></div>
+            <div class="centeris">
+                <h1>Mezinárodní<br>kamionová doprava</h1>
+                <a href="sluzby.php" class="btn large">Naše služby</a>
+            </div>
+        </div>
+        <div class="hero-slide">
+            <div class="hero-bg"></div>
+            <div class="centeris">
+                <h1>Mezinárodní<br>kamionová doprava</h1>
+                <a href="kariera.php" class="btn large">Kariéra</a>
+            </div>
+        </div>
     </div>
+    <button class="hero-arrow prev" type="button" aria-label="Předchozí">&#10094;</button>
+    <button class="hero-arrow next" type="button" aria-label="Další">&#10095;</button>
     <div class="hero-tabs">
         <div class="centeris">
-            <span class="active"><b>01</b> Kariéra</span>
-            <span><b>02</b> Naše služby</span>
+            <button class="tab is-active" type="button" data-slide="0"><b>01</b> Naše služby</button>
+            <button class="tab" type="button" data-slide="1"><b>02</b> Kariéra</button>
         </div>
     </div>
 </section>
+
 
 <!-- ===== NÁBOR ===== -->
 <section class="section recruitment" id="nabor">
