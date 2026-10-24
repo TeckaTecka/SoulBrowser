@@ -61,7 +61,7 @@ require __DIR__ . '/inc/header.php';
                     <?php if ($f['sub'] === '98' || $f['sub'] === '95'): ?>
                         <div class="fuel-sub"><?= e($f['sub']) ?></div>
                     <?php elseif ($f['sub'] === 'diesel'): ?>
-                        <div class="fuel-sub badge">Diesel</div>
+                        <div class="fuel-sub"><img src="img/diesel.png" alt="Ultra Diesel" class="diesel-badge"></div>
                     <?php else: ?>
                         <div class="fuel-sub">&nbsp;</div>
                     <?php endif; ?>

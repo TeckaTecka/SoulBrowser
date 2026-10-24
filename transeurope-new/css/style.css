@@ -104,6 +104,7 @@ h1,h2,h3,h4{font-weight:800;line-height:1.1;margin:0 0 .5em;color:var(--navy);te
 .fuel-brand{font-weight:800;text-transform:uppercase;color:var(--navy);font-size:1.25rem;letter-spacing:.5px;}
 .fuel-sub{display:inline-block;margin-top:6px;font-weight:800;color:var(--red);font-size:1.5rem;}
 .fuel-sub.badge{background:var(--red);color:#fff;font-size:.8rem;letter-spacing:1px;padding:3px 12px;border-radius:20px;vertical-align:middle;}
+.diesel-badge{height:22px;width:auto;display:inline-block;vertical-align:middle;margin-top:4px;}
 .fuel-price{margin-top:20px;font-weight:800;color:var(--navy);font-size:2.3rem;line-height:1;}
 .fuel-price small{display:block;font-size:.8rem;color:var(--muted);font-weight:600;letter-spacing:1px;margin-top:8px;text-transform:uppercase;}
 
